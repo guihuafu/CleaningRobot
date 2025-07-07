@@ -20,8 +20,8 @@ namespace hsc3
 			hsc3::algo::HS_MStatus execJointIntMove(double *jointpos, double *jointvel, double *spacepos);
 			void planSpace();
 			hsc3::algo::HS_MStatus execSpaceIntMove(double *jointpos, double *jointvel, double *spacepos);
-			void planManual(double *nowpos);
-			hsc3::algo::HS_MStatus execManualIntMove(double *jointpos);
+			void planManual(int axisnum, bool dir, double *nowpos);
+			hsc3::algo::HS_MStatus execManualIntMove(double *jointpos, double *jointvel, double *spacepos);
 			void stopPlanManual();
 		public:
 			hsc3::algo::GroupStaticPara mGroupStaticPara[4];

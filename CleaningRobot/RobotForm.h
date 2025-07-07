@@ -1,6 +1,9 @@
 #pragma once
 #include <stdlib.h>
 #include <stdio.h> 
+#include <iostream>
+#include <sstream>
+#include <string>
 #include <Windows.h>
 #include "MotionCombine.h"
 #using <System.Windows.Forms.DataVisualization.dll> 
@@ -21,11 +24,17 @@ namespace CleaningRobot {
 		// 构造函数代码
 		RobotForm(void)
 		{
+			this->mAllAxisShow = false;
 			this->mCurrentTime = 0;
+			this->mJointMoveNum = 0;
 			this->mJointPos = new double[MaxAxisNum];
+			this->mSpacePos = new double[MaxAxisNum];
+			this->mJointVel = new double[MaxAxisNum];
 			this->mJointPos[0] = 0.0; this->mJointPos[1] = -90.0; this->mJointPos[2] = 180.0;
 			this->mJointPos[3] = 0.0; this->mJointPos[4] = 90.0; this->mJointPos[5] = 0.0;
 			this->mJointPos[6] = 0.0; this->mJointPos[7] = 0.0; this->mJointPos[8] = 0.0;
+			memset(this->mSpacePos, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mJointVel, 0.0, sizeof(double)*MaxAxisNum);
 
 			CreateConsole();		// 控制台窗口初始化
 			InitializeComponent();  // 空间窗口初始化
@@ -116,6 +125,8 @@ namespace CleaningRobot {
 			if (components)
 			{
 				delete []mJointPos;
+				delete []mJointVel;
+				delete []mSpacePos;
 				delete components;
 			}
 		}
@@ -131,11 +142,27 @@ namespace CleaningRobot {
 
 	private: System::Windows::Forms::DataVisualization::Charting::Chart^  SpaceChart;
 	private: System::Windows::Forms::DataVisualization::Charting::Chart^  JointVelChart;
-private: System::Windows::Forms::Button^  J1PosButton;
-private: System::Windows::Forms::Timer^  J1MoveTimer;
-		 hsc3::algo::MotionCombine *motioncombine;
-		 int mCurrentTime;
-		 double *mJointPos;
+	private: System::Windows::Forms::Button^  J1PosButton;
+	private: System::Windows::Forms::Timer^  JointMoveTimer;
+	private: System::Windows::Forms::Button^  J1NegButton;
+	private: System::Windows::Forms::Button^  J2PosButton;
+	private: System::Windows::Forms::Button^  J2NegButton;
+	private: System::Windows::Forms::Button^  J3NegButton;
+	private: System::Windows::Forms::Button^  J3PosButton;
+	private: System::Windows::Forms::Button^  J4NegButton;
+	private: System::Windows::Forms::Button^  J4PosButton;
+	private: System::Windows::Forms::Button^  ClearChart;
+	private: System::Windows::Forms::CheckBox^  AllAxisShow;
+	hsc3::algo::MotionCombine *motioncombine;
+	bool mAllAxisShow;
+	int mCurrentTime;
+	int mJointMoveNum;
+	double *mJointPos;
+	double *mSpacePos;
+	double *mJointVel;
+
+
+		 
 
 #pragma region Windows Form Designer generated code
 
@@ -159,7 +186,16 @@ private: System::Windows::Forms::Timer^  J1MoveTimer;
 			this->SpaceChart = (gcnew System::Windows::Forms::DataVisualization::Charting::Chart());
 			this->JointVelChart = (gcnew System::Windows::Forms::DataVisualization::Charting::Chart());
 			this->J1PosButton = (gcnew System::Windows::Forms::Button());
-			this->J1MoveTimer = (gcnew System::Windows::Forms::Timer(this->components));
+			this->JointMoveTimer = (gcnew System::Windows::Forms::Timer(this->components));
+			this->J1NegButton = (gcnew System::Windows::Forms::Button());
+			this->J2PosButton = (gcnew System::Windows::Forms::Button());
+			this->J2NegButton = (gcnew System::Windows::Forms::Button());
+			this->J3NegButton = (gcnew System::Windows::Forms::Button());
+			this->J3PosButton = (gcnew System::Windows::Forms::Button());
+			this->J4NegButton = (gcnew System::Windows::Forms::Button());
+			this->J4PosButton = (gcnew System::Windows::Forms::Button());
+			this->ClearChart = (gcnew System::Windows::Forms::Button());
+			this->AllAxisShow = (gcnew System::Windows::Forms::CheckBox());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->JointChart))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->SpaceChart))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->JointVelChart))->BeginInit();
@@ -167,7 +203,7 @@ private: System::Windows::Forms::Timer^  J1MoveTimer;
 			// 
 			// MoveStartButton
 			// 
-			this->MoveStartButton->Location = System::Drawing::Point(12, 12);
+			this->MoveStartButton->Location = System::Drawing::Point(23, 34);
 			this->MoveStartButton->Name = L"MoveStartButton";
 			this->MoveStartButton->Size = System::Drawing::Size(85, 45);
 			this->MoveStartButton->TabIndex = 0;
@@ -181,7 +217,7 @@ private: System::Windows::Forms::Timer^  J1MoveTimer;
 			this->JointChart->ChartAreas->Add(chartArea1);
 			legend1->Name = L"Legend1";
 			this->JointChart->Legends->Add(legend1);
-			this->JointChart->Location = System::Drawing::Point(12, 76);
+			this->JointChart->Location = System::Drawing::Point(12, 108);
 			this->JointChart->Name = L"JointChart";
 			this->JointChart->Size = System::Drawing::Size(649, 289);
 			this->JointChart->TabIndex = 1;
@@ -193,7 +229,7 @@ private: System::Windows::Forms::Timer^  J1MoveTimer;
 			this->SpaceChart->ChartAreas->Add(chartArea2);
 			legend2->Name = L"Legend1";
 			this->SpaceChart->Legends->Add(legend2);
-			this->SpaceChart->Location = System::Drawing::Point(12, 371);
+			this->SpaceChart->Location = System::Drawing::Point(12, 403);
 			this->SpaceChart->Name = L"SpaceChart";
 			this->SpaceChart->Size = System::Drawing::Size(649, 289);
 			this->SpaceChart->TabIndex = 2;
@@ -205,7 +241,7 @@ private: System::Windows::Forms::Timer^  J1MoveTimer;
 			this->JointVelChart->ChartAreas->Add(chartArea3);
 			legend3->Name = L"Legend1";
 			this->JointVelChart->Legends->Add(legend3);
-			this->JointVelChart->Location = System::Drawing::Point(681, 76);
+			this->JointVelChart->Location = System::Drawing::Point(681, 108);
 			this->JointVelChart->Name = L"JointVelChart";
 			this->JointVelChart->RightToLeft = System::Windows::Forms::RightToLeft::No;
 			this->JointVelChart->Size = System::Drawing::Size(649, 289);
@@ -214,25 +250,132 @@ private: System::Windows::Forms::Timer^  J1MoveTimer;
 			// 
 			// J1PosButton
 			// 
-			this->J1PosButton->Location = System::Drawing::Point(213, 12);
+			this->J1PosButton->Location = System::Drawing::Point(220, 13);
 			this->J1PosButton->Name = L"J1PosButton";
-			this->J1PosButton->Size = System::Drawing::Size(72, 32);
+			this->J1PosButton->Size = System::Drawing::Size(77, 39);
 			this->J1PosButton->TabIndex = 4;
 			this->J1PosButton->Text = L"J1+";
 			this->J1PosButton->UseVisualStyleBackColor = true;
 			this->J1PosButton->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &RobotForm::J1PosButton_MouseDown);
 			this->J1PosButton->MouseUp += gcnew System::Windows::Forms::MouseEventHandler(this, &RobotForm::J1PosButton_MouseUp);
 			// 
-			// J1MoveTimer
+			// JointMoveTimer
 			// 
-			this->J1MoveTimer->Interval = 10;
-			this->J1MoveTimer->Tick += gcnew System::EventHandler(this, &RobotForm::J1MoveTimer_Tick);
+			this->JointMoveTimer->Interval = 10;
+			this->JointMoveTimer->Tick += gcnew System::EventHandler(this, &RobotForm::JointMoveTimer_Tick);
+			// 
+			// J1NegButton
+			// 
+			this->J1NegButton->Location = System::Drawing::Point(314, 13);
+			this->J1NegButton->Name = L"J1NegButton";
+			this->J1NegButton->Size = System::Drawing::Size(77, 39);
+			this->J1NegButton->TabIndex = 5;
+			this->J1NegButton->Text = L"J1-";
+			this->J1NegButton->UseVisualStyleBackColor = true;
+			this->J1NegButton->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &RobotForm::J1NegButton_MouseDown);
+			this->J1NegButton->MouseUp += gcnew System::Windows::Forms::MouseEventHandler(this, &RobotForm::J1NegButton_MouseUp);
+			// 
+			// J2PosButton
+			// 
+			this->J2PosButton->Location = System::Drawing::Point(220, 58);
+			this->J2PosButton->Name = L"J2PosButton";
+			this->J2PosButton->Size = System::Drawing::Size(77, 39);
+			this->J2PosButton->TabIndex = 6;
+			this->J2PosButton->Text = L"J2+";
+			this->J2PosButton->UseVisualStyleBackColor = true;
+			this->J2PosButton->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &RobotForm::J2PosButton_MouseDown);
+			this->J2PosButton->MouseUp += gcnew System::Windows::Forms::MouseEventHandler(this, &RobotForm::J2PosButton_MouseUp);
+			// 
+			// J2NegButton
+			// 
+			this->J2NegButton->Location = System::Drawing::Point(314, 58);
+			this->J2NegButton->Name = L"J2NegButton";
+			this->J2NegButton->Size = System::Drawing::Size(77, 39);
+			this->J2NegButton->TabIndex = 7;
+			this->J2NegButton->Text = L"J2-";
+			this->J2NegButton->UseVisualStyleBackColor = true;
+			this->J2NegButton->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &RobotForm::J2NegButton_MouseDown);
+			this->J2NegButton->MouseUp += gcnew System::Windows::Forms::MouseEventHandler(this, &RobotForm::J2NegButton_MouseUp);
+			// 
+			// J3NegButton
+			// 
+			this->J3NegButton->Location = System::Drawing::Point(520, 13);
+			this->J3NegButton->Name = L"J3NegButton";
+			this->J3NegButton->Size = System::Drawing::Size(77, 39);
+			this->J3NegButton->TabIndex = 9;
+			this->J3NegButton->Text = L"J3-";
+			this->J3NegButton->UseVisualStyleBackColor = true;
+			this->J3NegButton->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &RobotForm::J3NegButton_MouseDown);
+			this->J3NegButton->MouseUp += gcnew System::Windows::Forms::MouseEventHandler(this, &RobotForm::J3NegButton_MouseUp);
+			// 
+			// J3PosButton
+			// 
+			this->J3PosButton->Location = System::Drawing::Point(426, 13);
+			this->J3PosButton->Name = L"J3PosButton";
+			this->J3PosButton->Size = System::Drawing::Size(77, 39);
+			this->J3PosButton->TabIndex = 8;
+			this->J3PosButton->Text = L"J3+";
+			this->J3PosButton->UseVisualStyleBackColor = true;
+			this->J3PosButton->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &RobotForm::J3PosButton_MouseDown);
+			this->J3PosButton->MouseUp += gcnew System::Windows::Forms::MouseEventHandler(this, &RobotForm::J3PosButton_MouseUp);
+			// 
+			// J4NegButton
+			// 
+			this->J4NegButton->Location = System::Drawing::Point(520, 58);
+			this->J4NegButton->Name = L"J4NegButton";
+			this->J4NegButton->Size = System::Drawing::Size(77, 39);
+			this->J4NegButton->TabIndex = 11;
+			this->J4NegButton->Text = L"J4-";
+			this->J4NegButton->UseVisualStyleBackColor = true;
+			this->J4NegButton->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &RobotForm::J4NegButton_MouseDown);
+			this->J4NegButton->MouseUp += gcnew System::Windows::Forms::MouseEventHandler(this, &RobotForm::J4NegButton_MouseUp);
+			// 
+			// J4PosButton
+			// 
+			this->J4PosButton->Location = System::Drawing::Point(426, 58);
+			this->J4PosButton->Name = L"J4PosButton";
+			this->J4PosButton->Size = System::Drawing::Size(77, 39);
+			this->J4PosButton->TabIndex = 10;
+			this->J4PosButton->Text = L"J4+";
+			this->J4PosButton->UseVisualStyleBackColor = true;
+			this->J4PosButton->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &RobotForm::J4PosButton_MouseDown);
+			this->J4PosButton->MouseUp += gcnew System::Windows::Forms::MouseEventHandler(this, &RobotForm::J4PosButton_MouseUp);
+			// 
+			// ClearChart
+			// 
+			this->ClearChart->Location = System::Drawing::Point(630, 34);
+			this->ClearChart->Name = L"ClearChart";
+			this->ClearChart->Size = System::Drawing::Size(85, 45);
+			this->ClearChart->TabIndex = 12;
+			this->ClearChart->Text = L"清除";
+			this->ClearChart->UseVisualStyleBackColor = true;
+			this->ClearChart->Click += gcnew System::EventHandler(this, &RobotForm::ClearChart_Click);
+			// 
+			// AllAxisShow
+			// 
+			this->AllAxisShow->AutoSize = true;
+			this->AllAxisShow->Location = System::Drawing::Point(779, 34);
+			this->AllAxisShow->Name = L"AllAxisShow";
+			this->AllAxisShow->Size = System::Drawing::Size(59, 19);
+			this->AllAxisShow->TabIndex = 13;
+			this->AllAxisShow->Text = L"全显";
+			this->AllAxisShow->UseVisualStyleBackColor = true;
+			this->AllAxisShow->CheckedChanged += gcnew System::EventHandler(this, &RobotForm::AllAxisShow_CheckedChanged);
 			// 
 			// RobotForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 15);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(1361, 673);
+			this->ClientSize = System::Drawing::Size(1361, 754);
+			this->Controls->Add(this->AllAxisShow);
+			this->Controls->Add(this->ClearChart);
+			this->Controls->Add(this->J4NegButton);
+			this->Controls->Add(this->J4PosButton);
+			this->Controls->Add(this->J3NegButton);
+			this->Controls->Add(this->J3PosButton);
+			this->Controls->Add(this->J2NegButton);
+			this->Controls->Add(this->J2PosButton);
+			this->Controls->Add(this->J1NegButton);
 			this->Controls->Add(this->J1PosButton);
 			this->Controls->Add(this->JointVelChart);
 			this->Controls->Add(this->SpaceChart);
@@ -245,27 +388,72 @@ private: System::Windows::Forms::Timer^  J1MoveTimer;
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->SpaceChart))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->JointVelChart))->EndInit();
 			this->ResumeLayout(false);
+			this->PerformLayout();
 
 		}
 
 #pragma endregion
-	private: System::Void setChart(int count, double *jointpos, double *jointvel, double *spacepos)
-			 {
-				this->JointChart->Series["关节1"]->Points->AddXY(count, jointpos[0]); // 添加关节1数据点
-				this->JointChart->Series["关节2"]->Points->AddXY(count, jointpos[1]); // 添加关节2数据点
-				this->JointChart->Series["关节3"]->Points->AddXY(count, jointpos[2]); // 添加关节3数据点
-				this->JointChart->Series["关节4"]->Points->AddXY(count, jointpos[3]); // 添加关节4数据点
+	private: System::Void setChart(int axixnum, int count, double *jointpos, double *jointvel, double *spacepos, bool allshow)
+			{
+				std::stringstream ss;
+				ss << axixnum;
+				std::string strAxisNum = "关节1";
+				if(!allshow)
+				{
+					this->JointChart->Series["关节1"]->Points->AddXY(count, jointpos[axixnum]);			// 添加关节1数据点
+					this->JointVelChart->Series["关节速度1"]->Points->AddXY(count, jointvel[axixnum]);	// 添加关节速度1数据点
+					this->SpaceChart->Series["空间X轴"]->Points->AddXY(count, spacepos[axixnum]);			// 添加空间X轴数据点
+				}
+				else
+				{
+					this->JointChart->Series["关节1"]->Points->AddXY(count, jointpos[0]);			// 添加关节1数据点
+					this->JointChart->Series["关节2"]->Points->AddXY(count, jointpos[1]);			// 添加关节2数据点
+					this->JointChart->Series["关节3"]->Points->AddXY(count, jointpos[2]);			// 添加关节3数据点
+					this->JointChart->Series["关节4"]->Points->AddXY(count, jointpos[3]);			// 添加关节4数据点
 
-				this->JointVelChart->Series["关节速度1"]->Points->AddXY(count, jointvel[0]); // 添加关节速度1数据点
-				this->JointVelChart->Series["关节速度2"]->Points->AddXY(count, jointvel[1]); // 添加关节速度2数据点
-				this->JointVelChart->Series["关节速度3"]->Points->AddXY(count, jointvel[2]); // 添加关节速度3数据点
-				this->JointVelChart->Series["关节速度4"]->Points->AddXY(count, jointvel[3]); // 添加关节速度4数据点
+					this->JointVelChart->Series["关节速度1"]->Points->AddXY(count, jointvel[0]);	// 添加关节速度1数据点
+					this->JointVelChart->Series["关节速度2"]->Points->AddXY(count, jointvel[1]);	// 添加关节速度2数据点
+					this->JointVelChart->Series["关节速度3"]->Points->AddXY(count, jointvel[2]);	// 添加关节速度3数据点
+					this->JointVelChart->Series["关节速度4"]->Points->AddXY(count, jointvel[3]);	// 添加关节速度4数据点
 
-				this->SpaceChart->Series["空间X轴"]->Points->AddXY(count, spacepos[0]); // 添加空间X轴数据点
-				this->SpaceChart->Series["空间Y轴"]->Points->AddXY(count, spacepos[1]); // 添加空间Y轴数据点
-				this->SpaceChart->Series["空间Z轴"]->Points->AddXY(count, spacepos[2]); // 添加空间Z轴数据点
+					this->SpaceChart->Series["空间X轴"]->Points->AddXY(count, spacepos[0]);			// 添加空间X轴数据点
+					this->SpaceChart->Series["空间Y轴"]->Points->AddXY(count, spacepos[1]);			// 添加空间Y轴数据点
+					this->SpaceChart->Series["空间Z轴"]->Points->AddXY(count, spacepos[2]);			// 添加空间Z轴数据点
+				}
 			 }
+
+	private: System::Void planJoint(int axisnum, bool dir, double *nowpos)
+			 {
+				 this->mJointMoveNum = axisnum;
+				 this->motioncombine->planManual(axisnum, dir, nowpos);
+				 this->JointMoveTimer->Start();
+			 }
+
+	private: System::Void stayJoint(int axisnum)
+			 {
+				 this->mCurrentTime = this->mCurrentTime + 1;
+				 this->motioncombine->execManualIntMove(this->mJointPos, this->mJointVel, this->mSpacePos);
+				 this->setChart(axisnum, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mSpacePos, this->mAllAxisShow);
+				 printf("stayJoint: %f %f %f %f %f %f \n",mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5]);
+			 }
+
+	private: System::Void stopJoint(int axisnum)
+			 {
+				 hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
+				 this->mJointMoveNum = axisnum;
+				 this->JointMoveTimer->Stop();
+				 this->motioncombine->stopPlanManual();
+				 while(status != hsc3::algo::M_Done)
+				 {
+					 this->mCurrentTime = this->mCurrentTime + 1;
+					 status = this->motioncombine->execManualIntMove(this->mJointPos, this->mJointVel, this->mSpacePos);
+					 this->setChart(axisnum, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mSpacePos, this->mAllAxisShow);
+					 printf("stopJoint: %f %f %f %f %f %f \n",mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5]);
+				 }
+			 }
+
 	private: System::Void RobotForm_Load(System::Object^  sender, System::EventArgs^  e) {}
+
 	private: System::Void MoveToStart_Click(System::Object^  sender, System::EventArgs^  e) 
 			 {
 				static int iCurrentTime = 0;
@@ -290,50 +478,94 @@ private: System::Windows::Forms::Timer^  J1MoveTimer;
 				while(status != hsc3::algo::M_Done)
 				{
 					status = motioncombine->execJointIntMove(dJointPos, dJointVel, dSpacePos);
-					this->setChart(iCurrentTime, dJointPos, dJointVel, dSpacePos);
+					this->setChart(0, iCurrentTime, dJointPos, dJointVel, dSpacePos, true);
 					//printf("status=%d, outPos: %f %f %f %f %f %f \n", status, dJointPos[0],dJointPos[1],dJointPos[2],dJointPos[3],dJointPos[4],dJointPos[5]);
 					printf("status=%d, outVelPos: %f %f %f %f %f %f \n", status,dJointVel[0],dJointVel[1],dJointVel[2],dJointVel[3],dJointVel[4],dJointVel[5]);
 					iCurrentTime = iCurrentTime + 1;
 				}
-
-				//motioncombine->planManual();
-				//for(int i=0; i<200; i++)
-				//{
-				//	status = motioncombine->execManualIntMove(dJointPos);
-				//	printf("status:%d,outPos: %f %f %f %f %f %f \n",status,dJointPos[0],dJointPos[1],dJointPos[2],dJointPos[3],dJointPos[4],dJointPos[5]);
-				//}
-				//motioncombine->stopPlanManual();
-				//for(int i=0; i<100; i++)
-				//{
-				//	status = motioncombine->execManualIntMove(dJointPos);
-				//	printf("status=%d,outStopPos: %f %f %f %f %f %f \n",status,dJointPos[0],dJointPos[1],dJointPos[2],dJointPos[3],dJointPos[4],dJointPos[5]);
-				//}
 			 }
 
-	private: System::Void J1PosButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) 
-			 {
-				 hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
-				 this->J1MoveTimer->Stop();
-				 this->motioncombine->stopPlanManual();
-				 while(status != hsc3::algo::M_Done)
-				 {
-					 this->mCurrentTime = this->mCurrentTime + 1;
-					 status = this->motioncombine->execManualIntMove(mJointPos);
-					 printf("outStopPos: %f %f %f %f %f %f \n",mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5]);
-				 }
+	private: System::Void JointMoveTimer_Tick(System::Object^  sender, System::EventArgs^  e) {
+				this->stayJoint(this->mJointMoveNum);
 			 }
 
-	private: System::Void J1PosButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) 
-			 {
-				 this->motioncombine->planManual(mJointPos);
-				 this->J1MoveTimer->Start();
+	private: System::Void J1PosButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+				this->planJoint(0, true, mJointPos);
 			 }
-	private: System::Void J1MoveTimer_Tick(System::Object^  sender, System::EventArgs^  e) 
+
+	private: System::Void J1PosButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+				this->stopJoint(0);
+			 }
+
+	private: System::Void J1NegButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+				this->planJoint(0, false, mJointPos);
+			 }
+
+	private: System::Void J1NegButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+				this->stopJoint(0);
+			 }
+
+	private: System::Void J2PosButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+				this->planJoint(1, true, mJointPos);
+			 }
+
+	private: System::Void J2PosButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+				this->stopJoint(1);
+			 }
+
+	private: System::Void J2NegButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+				this->planJoint(1, false, mJointPos);
+			 }
+
+	private: System::Void J2NegButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+				this->stopJoint(1);
+			 }
+
+	private: System::Void J3PosButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+				this->planJoint(2, true, mJointPos);
+			 }
+
+	private: System::Void J3PosButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+				this->stopJoint(2);
+			 }
+
+	private: System::Void J3NegButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+				this->planJoint(2, false, mJointPos);
+			 }
+
+	private: System::Void J3NegButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+				this->stopJoint(2);
+			 }
+
+	private: System::Void J4PosButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+				this->planJoint(3, true, mJointPos);
+			 }
+
+	private: System::Void J4PosButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+				this->stopJoint(3);
+			 }
+
+	private: System::Void J4NegButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+				this->planJoint(3, false, mJointPos);
+			 }
+
+	private: System::Void J4NegButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+				this->stopJoint(3);
+			 }
+
+	private: System::Void ClearChart_Click(System::Object^  sender, System::EventArgs^  e) 
 			 {
-				 this->mCurrentTime = this->mCurrentTime + 1;
-				 this->motioncombine->execManualIntMove(mJointPos);
-				 this->setChart(this->mCurrentTime, mJointPos, mJointPos, mJointPos);
-				 printf("outJointPos: %f %f %f %f %f %f \n",mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5]);
+				for each (Series^ series in this->JointChart->Series)
+					series->Points->Clear();
+				for each (Series^ series in this->JointVelChart->Series)
+					series->Points->Clear();
+				for each (Series^ series in this->SpaceChart->Series)
+					series->Points->Clear();
+			 }
+	private: System::Void AllAxisShow_CheckedChanged(System::Object^  sender, System::EventArgs^  e) 
+			 {
+				this->mAllAxisShow = AllAxisShow->Checked;
+				printf("AllAxisShow_CheckedChanged %d \n", mAllAxisShow);
 			 }
 };
 

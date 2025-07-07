@@ -217,13 +217,13 @@ namespace hsc3
 			return status;
 		}
 
-		void MotionCombine::planManual(double *nowpos)
+		void MotionCombine::planManual(int axisnum, bool dir, double *nowpos)
 		{
 			double dRatio = 0.06;
 			hsc3::algo::ManualPara mManualPara;
-			mManualPara.iAxisNum = 0;
+			mManualPara.iAxisNum = axisnum;
 			mManualPara.iGroupNum = 0;
-			mManualPara.bDir = true;
+			mManualPara.bDir = dir;
 			mManualPara.dHandVelRatio = dRatio;
 			mManualPara.dIncLen = 0.0;
 			mManualPara.iSmooth = 5;
@@ -244,18 +244,25 @@ namespace hsc3
 			int iErrorId = 0;
 			hsc3::algo::HS_GroupJPos groupjpos = {0.0};
 			memcpy(groupjpos.dJPos[0], nowpos, sizeof(double)*MaxAxisNum);
-			//groupjpos.dJPos[0][0] = 0.0; groupjpos.dJPos[0][1] = -90.0; groupjpos.dJPos[0][2] = 180.0;
-			//groupjpos.dJPos[0][3] = 0.0; groupjpos.dJPos[0][4] = 90.0; groupjpos.dJPos[0][5] = 0.0;
 			this->mBaseManualMove->Plan(groupjpos, mManualPara);
 		}
 
-		hsc3::algo::HS_MStatus MotionCombine::execManualIntMove(double *jointpos)
+		hsc3::algo::HS_MStatus MotionCombine::execManualIntMove(double *jointpos, double *jointvel, double *spacepos)
 		{
 			int iErrorId = 0;
+			static double dLastJointPos[MaxAxisNum] = {0.0, -90.0, 180.0, 0.0, 90.0, 0.0};
 			hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
 			hsc3::algo::HS_GroupJPos groupjpos = {0.0};
-			status = this->mBaseManualMove->Move(iErrorId, groupjpos);
+			status = this->mBaseManualMove->Move(iErrorId, groupjpos);					// 获取周期关节插补点
 			memcpy(jointpos, groupjpos.dJPos[0], sizeof(double)*6);
+			this->mCalibrate->calcJPosToCPos(jointpos, -1, -1, spacepos);				// 获取空间位置
+
+			for(int i=0; i<MaxAxisNum; i++)
+			{
+				jointvel[i] = (jointpos[i] - dLastJointPos[i]) / CYCLE;					// 获取关节速度
+			}
+			memcpy(dLastJointPos, jointpos, sizeof(double)*MaxAxisNum);    
+
 			return status;
 		}
 
