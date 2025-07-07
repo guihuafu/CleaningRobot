@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{08B8F9E8-DB88-442F-A6C1-024A43CEB651}</ProjectGuid>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <Keyword>ManagedCProj</Keyword>
+    <RootNamespace>CleaningRobot</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CLRSupport>Pure</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CLRSupport>Pure</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <AdditionalIncludeDirectories>D:\Project\HB\CleaningRobot\CleaningRobot\src\include\automove;D:\Project\HB\CleaningRobot\CleaningRobot\src\include\manualmove;D:\Project\HB\CleaningRobot\CleaningRobot\src\include;D:\Project\HB\CleaningRobot\CleaningRobot\src\planmove\automove;D:\Project\HB\CleaningRobot\CleaningRobot\src\planmove\basemove;D:\Project\HB\CleaningRobot\CleaningRobot\src\planmove\manualmove;D:\Project\HB\CleaningRobot\CleaningRobot\src\planmove\mathoperation;D:\Project\HB\CleaningRobot\CleaningRobot\src\planmove\motionpara;D:\Project\HB\CleaningRobot\CleaningRobot\src\include\calibrate;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <SubSystem>Windows</SubSystem>
+      <EntryPointSymbol>main</EntryPointSymbol>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <SubSystem>Windows</SubSystem>
+      <EntryPointSymbol>main</EntryPointSymbol>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.ico" />
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="CleaningRobot.cpp" />
+    <ClCompile Include="MotionCombine.cpp" />
+    <ClCompile Include="src\calibration\calibrate.cpp" />
+    <ClCompile Include="src\planmove\automove\baseautomove.cpp" />
+    <ClCompile Include="src\planmove\automove\BezierCurve.cpp" />
+    <ClCompile Include="src\planmove\automove\HS_AutoMove.cpp" />
+    <ClCompile Include="src\planmove\automove\HS_Int_Circle.cpp" />
+    <ClCompile Include="src\planmove\automove\HS_Int_Factory.cpp" />
+    <ClCompile Include="src\planmove\automove\HS_Int_Joint.cpp" />
+    <ClCompile Include="src\planmove\automove\HS_Int_Line.cpp" />
+    <ClCompile Include="src\planmove\automove\HS_Int_Move.cpp" />
+    <ClCompile Include="src\planmove\automove\HS_Int_Move_Weave.cpp" />
+    <ClCompile Include="src\planmove\automove\HS_Int_SLine.cpp" />
+    <ClCompile Include="src\planmove\basemove\HS_FilterHandle.cpp" />
+    <ClCompile Include="src\planmove\basemove\HS_SetPosCheck.cpp" />
+    <ClCompile Include="src\planmove\basemove\HS_VelPlan_Para.cpp" />
+    <ClCompile Include="src\planmove\manualmove\basemanualmove.cpp" />
+    <ClCompile Include="src\planmove\manualmove\HS_Int_Manual.cpp" />
+    <ClCompile Include="src\planmove\mathoperation\HS_BasicPara.cpp" />
+    <ClCompile Include="src\planmove\mathoperation\HS_Calibration.cpp" />
+    <ClCompile Include="src\planmove\mathoperation\HS_GroupKin.cpp" />
+    <ClCompile Include="src\planmove\mathoperation\HS_Kinematics.cpp" />
+    <ClCompile Include="src\planmove\mathoperation\HS_Math.cpp" />
+    <ClCompile Include="src\planmove\motionpara\motionpara.cpp" />
+    <ClCompile Include="src\planmove\motionpara\motionparamanager.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MotionCombine.h" />
+    <ClInclude Include="RobotForm.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="src\include\algoglobalparadef.h" />
+    <ClInclude Include="src\include\automove\automove.h" />
+    <ClInclude Include="src\include\automove\automoveparadef.h" />
+    <ClInclude Include="src\include\automove\baseautomove.h" />
+    <ClInclude Include="src\include\calibrate\calibrate.h" />
+    <ClInclude Include="src\include\HS3_MotionAlertDef.h" />
+    <ClInclude Include="src\include\manualmove\basemanualmove.h" />
+    <ClInclude Include="src\include\manualmove\manualmove.h" />
+    <ClInclude Include="src\include\manualmove\manualmoveparadef.h" />
+    <ClInclude Include="src\include\motionpara.h" />
+    <ClInclude Include="src\include\motionparamanager.h" />
+    <ClInclude Include="src\planmove\automove\AutoControl.h" />
+    <ClInclude Include="src\planmove\automove\BezierCurve.h" />
+    <ClInclude Include="src\planmove\automove\HS_AutoMove.h" />
+    <ClInclude Include="src\planmove\automove\HS_Int_Circle.h" />
+    <ClInclude Include="src\planmove\automove\HS_Int_Factory.h" />
+    <ClInclude Include="src\planmove\automove\HS_Int_Joint.h" />
+    <ClInclude Include="src\planmove\automove\HS_Int_Line.h" />
+    <ClInclude Include="src\planmove\automove\HS_Int_Move.h" />
+    <ClInclude Include="src\planmove\automove\HS_Int_SLine.h" />
+    <ClInclude Include="src\planmove\basemove\HS_FilterHandle.h" />
+    <ClInclude Include="src\planmove\basemove\HS_SetPosCheck.h" />
+    <ClInclude Include="src\planmove\basemove\HS_VelPlan_Para.h" />
+    <ClInclude Include="src\planmove\manualmove\HS_Int_Manual.h" />
+    <ClInclude Include="src\planmove\mathoperation\HS_BasicPara.h" />
+    <ClInclude Include="src\planmove\mathoperation\HS_Calibration.h" />
+    <ClInclude Include="src\planmove\mathoperation\HS_GroupKin.h" />
+    <ClInclude Include="src\planmove\mathoperation\HS_Kinematics.h" />
+    <ClInclude Include="src\planmove\mathoperation\HS_Math.h" />
+    <ClInclude Include="src\planmove\mathoperation\MathOperation.h" />
+    <ClInclude Include="stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="app.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="RobotForm.resX">
+      <DependentUpon>RobotForm.h</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

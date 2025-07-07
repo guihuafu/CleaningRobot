@@ -1,0 +1,247 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="头文件\automove">
+      <UniqueIdentifier>{aab91a75-faf6-4a72-9942-3c520eb68e95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\manualmove">
+      <UniqueIdentifier>{89f63085-e71d-4b53-9848-bb3ae40fcf4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\automove">
+      <UniqueIdentifier>{67d8a516-826b-48c6-9f24-6adef963c792}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\basemove">
+      <UniqueIdentifier>{f77f3606-c251-436b-a3c9-46daa671bccb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\manualmove">
+      <UniqueIdentifier>{50514f7c-cada-4ec4-8cce-a16d7931eb92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\mathoperation">
+      <UniqueIdentifier>{932163df-011c-4bf1-82ef-69f644198404}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\motionpara">
+      <UniqueIdentifier>{9898f295-1c6d-46ea-a04b-6bb38ed49a10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\calibration">
+      <UniqueIdentifier>{36e36c5c-40bc-4136-9ec7-06318349ca58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\calibration">
+      <UniqueIdentifier>{eaad2894-1b09-4c61-9d2c-e9ce7ee0dcc2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="app.ico">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CleaningRobot.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="AssemblyInfo.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\automove\baseautomove.cpp">
+      <Filter>源文件\automove</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\automove\BezierCurve.cpp">
+      <Filter>源文件\automove</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\automove\HS_AutoMove.cpp">
+      <Filter>源文件\automove</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\automove\HS_Int_Circle.cpp">
+      <Filter>源文件\automove</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\automove\HS_Int_Factory.cpp">
+      <Filter>源文件\automove</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\automove\HS_Int_Joint.cpp">
+      <Filter>源文件\automove</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\automove\HS_Int_Line.cpp">
+      <Filter>源文件\automove</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\automove\HS_Int_Move.cpp">
+      <Filter>源文件\automove</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\automove\HS_Int_Move_Weave.cpp">
+      <Filter>源文件\automove</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\automove\HS_Int_SLine.cpp">
+      <Filter>源文件\automove</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\basemove\HS_FilterHandle.cpp">
+      <Filter>源文件\basemove</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\basemove\HS_SetPosCheck.cpp">
+      <Filter>源文件\basemove</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\basemove\HS_VelPlan_Para.cpp">
+      <Filter>源文件\basemove</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\manualmove\basemanualmove.cpp">
+      <Filter>源文件\manualmove</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\manualmove\HS_Int_Manual.cpp">
+      <Filter>源文件\manualmove</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\mathoperation\HS_BasicPara.cpp">
+      <Filter>源文件\mathoperation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\mathoperation\HS_Calibration.cpp">
+      <Filter>源文件\mathoperation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\mathoperation\HS_GroupKin.cpp">
+      <Filter>源文件\mathoperation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\mathoperation\HS_Kinematics.cpp">
+      <Filter>源文件\mathoperation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\mathoperation\HS_Math.cpp">
+      <Filter>源文件\mathoperation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\motionpara\motionpara.cpp">
+      <Filter>源文件\motionpara</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\motionpara\motionparamanager.cpp">
+      <Filter>源文件\motionpara</Filter>
+    </ClCompile>
+    <ClCompile Include="MotionCombine.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\calibration\calibrate.cpp">
+      <Filter>源文件\calibration</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RobotForm.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\automove\automove.h">
+      <Filter>头文件\automove</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\automove\automoveparadef.h">
+      <Filter>头文件\automove</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\automove\baseautomove.h">
+      <Filter>头文件\automove</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\manualmove\basemanualmove.h">
+      <Filter>头文件\manualmove</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\manualmove\manualmove.h">
+      <Filter>头文件\manualmove</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\manualmove\manualmoveparadef.h">
+      <Filter>头文件\manualmove</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\algoglobalparadef.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\HS3_MotionAlertDef.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\motionpara.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\motionparamanager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\planmove\automove\AutoControl.h">
+      <Filter>源文件\automove</Filter>
+    </ClInclude>
+    <ClInclude Include="src\planmove\automove\BezierCurve.h">
+      <Filter>源文件\automove</Filter>
+    </ClInclude>
+    <ClInclude Include="src\planmove\automove\HS_AutoMove.h">
+      <Filter>源文件\automove</Filter>
+    </ClInclude>
+    <ClInclude Include="src\planmove\automove\HS_Int_Circle.h">
+      <Filter>源文件\automove</Filter>
+    </ClInclude>
+    <ClInclude Include="src\planmove\automove\HS_Int_Factory.h">
+      <Filter>源文件\automove</Filter>
+    </ClInclude>
+    <ClInclude Include="src\planmove\automove\HS_Int_Joint.h">
+      <Filter>源文件\automove</Filter>
+    </ClInclude>
+    <ClInclude Include="src\planmove\automove\HS_Int_Line.h">
+      <Filter>源文件\automove</Filter>
+    </ClInclude>
+    <ClInclude Include="src\planmove\automove\HS_Int_Move.h">
+      <Filter>源文件\automove</Filter>
+    </ClInclude>
+    <ClInclude Include="src\planmove\automove\HS_Int_SLine.h">
+      <Filter>源文件\automove</Filter>
+    </ClInclude>
+    <ClInclude Include="src\planmove\basemove\HS_FilterHandle.h">
+      <Filter>源文件\basemove</Filter>
+    </ClInclude>
+    <ClInclude Include="src\planmove\basemove\HS_SetPosCheck.h">
+      <Filter>源文件\basemove</Filter>
+    </ClInclude>
+    <ClInclude Include="src\planmove\basemove\HS_VelPlan_Para.h">
+      <Filter>源文件\basemove</Filter>
+    </ClInclude>
+    <ClInclude Include="src\planmove\manualmove\HS_Int_Manual.h">
+      <Filter>源文件\manualmove</Filter>
+    </ClInclude>
+    <ClInclude Include="src\planmove\mathoperation\HS_BasicPara.h">
+      <Filter>源文件\mathoperation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\planmove\mathoperation\HS_Calibration.h">
+      <Filter>源文件\mathoperation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\planmove\mathoperation\HS_GroupKin.h">
+      <Filter>源文件\mathoperation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\planmove\mathoperation\HS_Kinematics.h">
+      <Filter>源文件\mathoperation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\planmove\mathoperation\HS_Math.h">
+      <Filter>源文件\mathoperation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\planmove\mathoperation\MathOperation.h">
+      <Filter>源文件\mathoperation</Filter>
+    </ClInclude>
+    <ClInclude Include="MotionCombine.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\calibrate\calibrate.h">
+      <Filter>头文件\calibration</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="app.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="RobotForm.resX">
+      <Filter>资源文件</Filter>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>
