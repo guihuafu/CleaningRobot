@@ -15,18 +15,20 @@ namespace hsc3
 		public:
 			MotionCombine();
 			~MotionCombine();
+			void setRatio(double ratio);
 			void initPara();
-			void planJoint();
-			hsc3::algo::HS_MStatus execJointIntMove(double *jointpos, double *jointvel, double *spacepos);
+			void planJoint(double *endpos);
+			hsc3::algo::HS_MStatus execJointIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos);
 			void planSpace();
-			hsc3::algo::HS_MStatus execSpaceIntMove(double *jointpos, double *jointvel, double *spacepos);
-			void planManual(int axisnum, bool dir, double *nowpos);
-			hsc3::algo::HS_MStatus execManualIntMove(double *jointpos, double *jointvel, double *spacepos);
+			hsc3::algo::HS_MStatus execSpaceIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos);
+			void planManual(int axisnum, bool dir, bool isjoint, double *nowpos);
+			hsc3::algo::HS_MStatus execManualIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos);
 			void stopPlanManual();
 		public:
 			hsc3::algo::GroupStaticPara mGroupStaticPara[4];
 
 		private:
+			double mRatio;
 			hsc3::algo::MotionPara *mMotionPara;
 			hsc3::algo::AutoMove *mAutoMove;
 			hsc3::algo::BaseManualMove *mBaseManualMove;

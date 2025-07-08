@@ -7,6 +7,7 @@ namespace hsc3
 	{
 		MotionCombine::MotionCombine()
 		{
+			this->mRatio = 0.3;
 			this->initPara();
 			this->mMotionPara = new hsc3::algo::MotionPara();
 			this->mMotionPara->setGroupStaticPara(mGroupStaticPara);
@@ -17,6 +18,12 @@ namespace hsc3
 		}
 
 		MotionCombine::~MotionCombine(){}
+
+		void MotionCombine::setRatio(double ratio)
+		{
+			this->mRatio = ratio / 100.0;
+			printf("MotionCombine::setRatio--%f \n", this->mRatio);
+		}
 
 		void MotionCombine::initPara()
 		{
@@ -57,9 +64,8 @@ namespace hsc3
 			}
 		}
 
-		void MotionCombine::planJoint()
+		void MotionCombine::planJoint(double *endpos)
 		{
-			double dRatio = 0.3;
 			int mMotionDataNum = 0;
 			hsc3::algo::GroupMotionData groupdata = {0};
 			hsc3::algo::GroupTrajData *mGroupTrajout = new hsc3::algo::GroupTrajData[40];
@@ -83,9 +89,9 @@ namespace hsc3
 			groupdata.tBaseMoveData[0].sCurCoordinate.iWorkNum = -1;
 			groupdata.tBaseMoveData[0].sCurCoordinate.bExtTool = -1;
 			groupdata.tBaseMoveData[0].sCurCoordinate.bExtCoorper = -1;
-			groupdata.tBaseMoveData[0].sStartPos.dPos[0] = 0; groupdata.tBaseMoveData[0].sStartPos.dPos[1] = -90; groupdata.tBaseMoveData[0].sStartPos.dPos[2] = 180;
-			groupdata.tBaseMoveData[0].sStartPos.dPos[3] = 0; groupdata.tBaseMoveData[0].sStartPos.dPos[4] = 90; groupdata.tBaseMoveData[0].sStartPos.dPos[5] = 0;
-			groupdata.tBaseMoveData[0].sStartPos.dPos[6] = 0; groupdata.tBaseMoveData[0].sStartPos.dPos[7] = 0; groupdata.tBaseMoveData[0].sStartPos.dPos[8] = 0;
+			groupdata.tBaseMoveData[0].sStartPos.dPos[0] = 0.0; groupdata.tBaseMoveData[0].sStartPos.dPos[1] = -90.0; groupdata.tBaseMoveData[0].sStartPos.dPos[2] = 180.0;
+			groupdata.tBaseMoveData[0].sStartPos.dPos[3] = 0.0; groupdata.tBaseMoveData[0].sStartPos.dPos[4] = 90.0; groupdata.tBaseMoveData[0].sStartPos.dPos[5] = 0.0;
+			groupdata.tBaseMoveData[0].sStartPos.dPos[6] = 0.0; groupdata.tBaseMoveData[0].sStartPos.dPos[7] = 0.0; groupdata.tBaseMoveData[0].sStartPos.dPos[8] = 0.0;
 			groupdata.tBaseMoveData[0].sStartPos.iPose = 0;
 			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iCoordinate = hsc3::algo::COORD_SYSTEM::JOINT_COORD_SYSTEM;
 			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iToolNum = -1;
@@ -93,8 +99,8 @@ namespace hsc3
 			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.bExtTool = false;
 			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.bExtCoorper = false;
 			memset(groupdata.tBaseMoveData[0].sMidPos.dPos, 0, sizeof(double) * 9);
-			groupdata.tBaseMoveData[0].sEndPos.dPos[0] = 70; groupdata.tBaseMoveData[0].sEndPos.dPos[1] = -30; groupdata.tBaseMoveData[0].sEndPos.dPos[2] = 140;
-			groupdata.tBaseMoveData[0].sEndPos.dPos[3] = 30; groupdata.tBaseMoveData[0].sEndPos.dPos[4] = 90; groupdata.tBaseMoveData[0].sEndPos.dPos[5] = 0;
+			groupdata.tBaseMoveData[0].sEndPos.dPos[0] = endpos[0]; groupdata.tBaseMoveData[0].sEndPos.dPos[1] = endpos[1]; groupdata.tBaseMoveData[0].sEndPos.dPos[2] = endpos[2];
+			groupdata.tBaseMoveData[0].sEndPos.dPos[3] = endpos[3]; groupdata.tBaseMoveData[0].sEndPos.dPos[4] = 90.0; groupdata.tBaseMoveData[0].sEndPos.dPos[5] = 0.0;
 			groupdata.tBaseMoveData[0].sEndPos.dPos[6] = 0; groupdata.tBaseMoveData[0].sEndPos.dPos[7] = 0; groupdata.tBaseMoveData[0].sEndPos.dPos[8] = 0;
 			groupdata.tBaseMoveData[0].sEndPos.iPose = 0;
 			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iCoordinate = hsc3::algo::COORD_SYSTEM::JOINT_COORD_SYSTEM;
@@ -116,29 +122,39 @@ namespace hsc3
 			hsc3::algo::HS_GroupJPos groupjpos = {0};
 			memcpy(groupjpos.dJPos[0], groupdata.tBaseMoveData[0].sStartPos.dPos, sizeof(double) * MaxAxisNum);
 
-			this->mAutoMove->execPlanMove(mGroupTrajout, 0, dRatio, groupjpos);
+			this->mAutoMove->execPlanMove(mGroupTrajout, 0, this->mRatio, groupjpos);
 		}
 
-		hsc3::algo::HS_MStatus MotionCombine::execJointIntMove(double *jointpos, double *jointvel, double *spacepos)
+		hsc3::algo::HS_MStatus MotionCombine::execJointIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos)
 		{
 			int errorID = 0;
-			static double dLastJointPos[MaxAxisNum] = {0.0, -90.0, 180.0, 0.0, 90.0, 0.0};
+			static double dLastJointPos[MaxAxisNum] = {0.0};
+			static double dLastJointVelPos[MaxAxisNum] = {0.0};
 			hsc3::algo::IntData intdata = {0.0};
 			hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
 			status = this->mAutoMove->execIntMove(intdata, errorID);					// 获取周期关节插补点
 			memcpy(jointpos, intdata.tGJPos[0].dJPos[0], sizeof(double)*MaxAxisNum);
 			this->mCalibrate->calcJPosToCPos(jointpos, -1, -1, spacepos);				// 获取空间位置
+
 			for(int i=0; i<MaxAxisNum; i++)
 			{
 				jointvel[i] = (jointpos[i] - dLastJointPos[i]) / CYCLE;					// 获取关节速度
+				if((jointvel[i] > 500) || (jointvel[i] < -500))
+					jointvel[i] = 0.0;
+
+				jointacc[i] = (jointvel[i] - dLastJointVelPos[i]) / CYCLE;				// 获取关节加速度
+				//if((jointacc[i] > 400) || (jointacc[i] < -400))
+				//	jointacc[i] = 0.0;
 			}
-			memcpy(dLastJointPos, jointpos, sizeof(double)*MaxAxisNum);    
+
+			memcpy(dLastJointPos, jointpos, sizeof(double)*MaxAxisNum);
+			memcpy(dLastJointVelPos, jointvel, sizeof(double)*MaxAxisNum);
+
 			return status;
 		}
 
 		void MotionCombine::planSpace()
 		{
-			double dRatio = 0.3;
 			int mMotionDataNum = 0;
 			hsc3::algo::GroupMotionData groupdata = {0};
 			hsc3::algo::GroupTrajData *mGroupTrajout = new hsc3::algo::GroupTrajData[40];
@@ -196,13 +212,14 @@ namespace hsc3
 			hsc3::algo::HS_GroupJPos groupjpos = {0.0};
 			memcpy(groupjpos.dJPos[0], groupdata.tBaseMoveData[0].sStartPos.dPos, sizeof(double) * MaxAxisNum);
 
-			this->mAutoMove->execPlanMove(mGroupTrajout, 0, dRatio, groupjpos);
+			this->mAutoMove->execPlanMove(mGroupTrajout, 0, this->mRatio, groupjpos);
 		}
 
-		hsc3::algo::HS_MStatus MotionCombine::execSpaceIntMove(double *jointpos, double *jointvel, double *spacepos)
+		hsc3::algo::HS_MStatus MotionCombine::execSpaceIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos)
 		{
 			int errorID = 0;
-			static double dLastJointPos[MaxAxisNum] = {0.0, -90.0, 180.0, 0.0, 90.0, 0.0};
+			static double dLastJointPos[MaxAxisNum] = {0.0};
+			static double dLastJointVelPos[MaxAxisNum] = {0.0};
 			hsc3::algo::IntData intdata = {0.0};
 			hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
 			status = this->mAutoMove->execIntMove(intdata, errorID);					// 获取周期关节插补点
@@ -212,19 +229,27 @@ namespace hsc3
 			for(int i=0; i<MaxAxisNum; i++)
 			{
 				jointvel[i] = (jointpos[i] - dLastJointPos[i]) / CYCLE;					// 获取关节速度
+				if((jointvel[i] > 500) || (jointvel[i] < -500))
+					jointvel[i] = 0.0;
+
+				jointacc[i] = (jointvel[i] - dLastJointVelPos[i]) / CYCLE;				// 获取关节加速度
+				//if((jointacc[i] > 400) || (jointacc[i] < -400))
+				//	jointacc[i] = 0.0;
 			}
-			memcpy(dLastJointPos, jointpos, sizeof(double)*MaxAxisNum);    
+
+			memcpy(dLastJointPos, jointpos, sizeof(double)*MaxAxisNum);
+			memcpy(dLastJointVelPos, jointvel, sizeof(double)*MaxAxisNum);
+
 			return status;
 		}
 
-		void MotionCombine::planManual(int axisnum, bool dir, double *nowpos)
+		void MotionCombine::planManual(int axisnum, bool dir, bool isjoint, double *nowpos)
 		{
-			double dRatio = 0.06;
 			hsc3::algo::ManualPara mManualPara;
 			mManualPara.iAxisNum = axisnum;
 			mManualPara.iGroupNum = 0;
 			mManualPara.bDir = dir;
-			mManualPara.dHandVelRatio = dRatio;
+			mManualPara.dHandVelRatio = this->mRatio;
 			mManualPara.dIncLen = 0.0;
 			mManualPara.iSmooth = 5;
 			mManualPara.bWristQYOpen = true;
@@ -235,11 +260,14 @@ namespace hsc3
 			mManualPara.tHS_GroupRel.eGroupRelType[1] = hsc3::algo::GroupRelType::GRT_NoUse;
 			mManualPara.tHS_GroupRel.eGroupRelType[2] = hsc3::algo::GroupRelType::GRT_NoUse;
 			mManualPara.tHS_GroupRel.eGroupRelType[3] = hsc3::algo::GroupRelType::GRT_NoUse;
-			mManualPara.hs_coordinate.iCoordinate = hsc3::algo::COORD_SYSTEM::JOINT_COORD_SYSTEM;
 			mManualPara.hs_coordinate.iToolNum = -1;
 			mManualPara.hs_coordinate.iWorkNum = -1;
 			mManualPara.hs_coordinate.bExtTool = false;
 			mManualPara.hs_coordinate.bExtCoorper = false;
+			if(isjoint)
+				mManualPara.hs_coordinate.iCoordinate = hsc3::algo::COORD_SYSTEM::JOINT_COORD_SYSTEM;
+			else
+				mManualPara.hs_coordinate.iCoordinate = hsc3::algo::COORD_SYSTEM::BASE_COORD_SYSTEM;
 
 			int iErrorId = 0;
 			hsc3::algo::HS_GroupJPos groupjpos = {0.0};
@@ -247,10 +275,11 @@ namespace hsc3
 			this->mBaseManualMove->Plan(groupjpos, mManualPara);
 		}
 
-		hsc3::algo::HS_MStatus MotionCombine::execManualIntMove(double *jointpos, double *jointvel, double *spacepos)
+		hsc3::algo::HS_MStatus MotionCombine::execManualIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos)
 		{
 			int iErrorId = 0;
-			static double dLastJointPos[MaxAxisNum] = {0.0, -90.0, 180.0, 0.0, 90.0, 0.0};
+			static double dLastJointPos[MaxAxisNum] = {0.0};
+			static double dLastJointVelPos[MaxAxisNum] = {0.0};
 			hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
 			hsc3::algo::HS_GroupJPos groupjpos = {0.0};
 			status = this->mBaseManualMove->Move(iErrorId, groupjpos);					// 获取周期关节插补点
@@ -260,8 +289,16 @@ namespace hsc3
 			for(int i=0; i<MaxAxisNum; i++)
 			{
 				jointvel[i] = (jointpos[i] - dLastJointPos[i]) / CYCLE;					// 获取关节速度
+				if((jointvel[i] > 300) || (jointvel[i] < -300))
+					jointvel[i] = 0.0;
+
+				jointacc[i] = (jointvel[i] - dLastJointVelPos[i]) / CYCLE;				// 获取关节加速度
+				if((jointacc[i] > 1000) || (jointacc[i] < -1000))
+					jointacc[i] = 0.0;
 			}
-			memcpy(dLastJointPos, jointpos, sizeof(double)*MaxAxisNum);    
+
+			memcpy(dLastJointPos, jointpos, sizeof(double)*MaxAxisNum);
+			memcpy(dLastJointVelPos, jointvel, sizeof(double)*MaxAxisNum);
 
 			return status;
 		}
