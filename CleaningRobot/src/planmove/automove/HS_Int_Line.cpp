@@ -462,12 +462,9 @@ int HS_Int_Line::AutoAdjustPara(BaseMoveData &tMoveData,Para_PreHandle &tPH_Line
 	if (gettimeofday(&l_beginTime_Auto, NULL) == -1)
 		return -1;
 #endif
-	if(tPH_Line.bGroupSyncFlag)
-	{
-		//协同从运动坐标求解需要主运动点位
-	}
-	else
-		iErrorId = AutoAdjustJAcc(tPH_Line);
+
+	iErrorId = AutoAdjustJAcc(tPH_Line);
+
 #ifdef _LINUX_
 	if(gettimeofday(&l_endTime_Auto, NULL) == -1)
 		return -1;
@@ -828,11 +825,6 @@ int HS_Int_Line::GetSysPara(GroupTrajData *tTrajData,int iIndex,double dRatio)
         m_iToolNum = tTrajData[iIndex].tMotionData.tBaseMoveData[m_iGroupNum].sCurCoordinate.iToolNum;
         m_iWorkNum = tTrajData[iIndex].tMotionData.tBaseMoveData[m_iGroupNum].sCurCoordinate.iWorkNum;
     }
-
-	if(m_tHS_GroupRel.eGroupRelType[m_iGroupNum] == GRT_Slave)
-	{
-		m_iWorkNum = -1;
-	}
 
     m_HS_Kinematic->HS_SetCoordinate(m_iToolNum,m_iWorkNum);
 	return 0;

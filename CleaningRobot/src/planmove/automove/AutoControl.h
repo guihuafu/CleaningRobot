@@ -100,8 +100,6 @@ typedef struct _PreHandle
     double dBzConPos[6][6];                     //贝塞尔平滑控制点【与前段】
 
 	/**********组协同运动******************/
-	bool bGroupSyncFlag;						//是否开启协同运动
-	int iSyncMasterNum;
 	double dWTSPos[MaxAxisNum];
 	double dWTEPos[MaxAxisNum];
 }Para_PreHandle;

@@ -27,7 +27,6 @@ HS_Kinematics::HS_Kinematics(int iGroupNum)
 	Matrix_Eye(4,&m_dBWMatrix[0][0]);
 	Matrix_Eye(4,&m_dEBCoord[0][0]);
 	Matrix_Eye(4,&m_dBECoord[0][0]);
-	memset(m_dExtCoorper,0,sizeof(m_dExtCoorper));		
 	m_bTypeBR = false;
 	m_bWristQYHandleFlag = false;
 	memset(&m_tQYHandle,0,sizeof(m_tQYHandle));
@@ -464,13 +463,6 @@ int HS_Kinematics::HS_JPosToCPos(double dJPos[MaxAxisNum],CPType eCPType,double 
 int HS_Kinematics::HS_JPosToMPos(double dJPos[MaxAxisNum],int iToolNum,int iWorkNum,double dMPos[5][4])
 {
 	double dFBMPos[5][4] = {0};
-
-	if(*m_eRobotType == HSROB_COORPER)
-	{
-		HS_JPosToPoMPos(dJPos,dMPos);
-		return 0;
-	}
-
 	int iErrorId = HS_JPosToMPos(dJPos,dFBMPos);
 	HS_FBMPosToTWMPos(dFBMPos,iToolNum,iWorkNum,dMPos);
 
@@ -565,13 +557,6 @@ unsigned char HS_Kinematics::HS_JPosToAState(double dJPos[6])
         else
             nATState |= AT_Left;
     }
-    else if(*m_eRobotType == HSROB_LINK_3)
-    {
-        if(dJTemp[1] >= 0)
-            nATState |= AT_Right;
-        else
-            nATState |= AT_Left;
-    }
 
     return nATState;
 }
@@ -656,26 +641,6 @@ int HS_Kinematics::HS_FBMPosToTWMPos(double dFBMPos[4][4],CPType eCPType,double 
 			Matrix_Multi(4,4,4,&m_dFTMatrix[0][0],&dTBMatrix[0][0],&dTWMPos[0][0]);//这个值真正意义是外部工件相对于外部工具的值
 			break;
 		}
-    case CP_ExtCoorper:
-        {
-            //外部轴默认7号轴，单位为mm，对应外部协同坐标系的X轴
-            double dBECoord[4][4] = {0};
-            memcpy(dBECoord,m_dBECoord,sizeof(dBECoord));
-
-            dBECoord[0][3] = 0;         //设置附加轴为0，用来做空间点动
-
-            //法兰盘到基础坐标系的变换矩阵  B/F*F/T = B/T		
-            double dTEMatrix[4][4];	            
-
-            double dTBMatrix[4][4];	//工具点到基础坐标系的变换矩阵  W/B*B/T = W/T	
-            //工具点到工件坐标系的变换矩阵  W/T			
-            Matrix_Multi(4,4,4,&dFBMPos[0][0],&m_dTFMatrix[0][0],&dTBMatrix[0][0]);
-
-            Matrix_Multi(4,4,4,&dBECoord[0][0],&dTBMatrix[0][0],&dTEMatrix[0][0]);          // E/B * B/T = E/T   
-
-            Matrix_Multi(4,4,4,&m_dBWMatrix[0][0],&dTEMatrix[0][0],&dTWMPos[0][0]);
-        }
-        break;
 	default:
 		break;
 	}
@@ -817,71 +782,6 @@ int HS_Kinematics::HS_FBMPosToTWMPos_ExtCoorper(double dFBMPos[4][4],int iToolNu
 }
 
 /************************************************
-函数功能：变位机坐标系计算
-参    数：dJPos------变位机对应的关节坐标【附加轴】
-		 dPoBMPos---求解得到的变位机相对基坐标矩阵
-返 回 值：错误ID
-*************************************************/
-int HS_Kinematics::HS_JPosToPoMPos(double dJPos[MaxAxisNum],double dPoBMPos[4][4])
-{
-	int iErrorId = 0;
-
-	double dMRotz1[4][4] = {0};
-	double dMRotz2[4][4] = {0};
-	double dMRotz3[4][4] = {0};
-
-	Matrix_Eye(4,&dMRotz1[0][0]);
-	Matrix_Eye(4,&dMRotz2[0][0]);
-	Matrix_Eye(4,&dMRotz3[0][0]);
-
-	int iAxis1 = m_dPositionerCoord->iAxisId[0];
-	int iAxis2 = m_dPositionerCoord->iAxisId[1];
-	int iAxis3 = m_dPositionerCoord->iAxisId[2];
-
-	if(*m_eRobotType == HSROB_COORPER)
-	{
-		if(iAxis1 >= 0&&iAxis1 <= 8)
-			HS_RotZMPos(dJPos[iAxis1],dMRotz1);	
-
-		if(iAxis2 >= 0&&iAxis2 <= 8)
-			HS_RotZMPos(dJPos[iAxis2],dMRotz2);	
-
-		if(iAxis3 >= 0&&iAxis3 <= 8)
-			HS_RotZMPos(dJPos[iAxis3],dMRotz3);
-	}
-	else
-	{
-		if(iAxis1 >= 6&&iAxis1 <= 8)
-			HS_RotZMPos(dJPos[iAxis1-6],dMRotz1);	
-
-		if(iAxis2 >= 6&&iAxis2 <= 8)
-			HS_RotZMPos(dJPos[iAxis2-6],dMRotz2);	
-
-		if(iAxis3 >= 6&&iAxis3 <= 8)
-			HS_RotZMPos(dJPos[iAxis3-6],dMRotz3);
-	}
-
-	double dMBJ1[4][4] = {0};
-	double dMJ1J2[4][4] = {0};
-	double dMJ2J3[4][4] = {0};
-
-	HS_CPosToMPos(m_dPositionerCoord->dExtCoord[0], dMBJ1);
-	HS_CPosToMPos(m_dPositionerCoord->dExtCoord[1], dMJ1J2);
-	HS_CPosToMPos(m_dPositionerCoord->dExtCoord[2], dMJ2J3);
-
-	double dMT1[4][4],dMT2[4][4],dMT3[4][4];
-	Matrix_Multi(4,4,4,&dMBJ1[0][0],&dMRotz1[0][0],&dMT1[0][0]);
-	Matrix_Multi(4,4,4,&dMJ1J2[0][0],&dMRotz2[0][0],&dMT2[0][0]);
-	Matrix_Multi(4,4,4,&dMJ2J3[0][0],&dMRotz3[0][0],&dMT3[0][0]);
-
-	double M1M2[4][4];
-	Matrix_Multi(4,4,4,&dMT1[0][0],&dMT2[0][0],&M1M2[0][0]);
-	Matrix_Multi(4,4,4,&M1M2[0][0],&dMT3[0][0],&dPoBMPos[0][0]);
-
-	return iErrorId;
-}
-
-/************************************************
 函数功能：将工具工件的坐标值	的点位坐标转换为法兰盘基坐标系下
 参    数：dTWMPos---工具工件坐标系【输入】	
 		 eCPType---转换的坐标系类型
@@ -926,25 +826,6 @@ int HS_Kinematics::HS_TWMPosToFBMPos(double dTWMPos[5][4],CPType eCPType,double 
 			Matrix_Multi(4,4,4,&dTBMatrix[0][0],&m_dBWMatrix[0][0],&dFBMPos[0][0]);
 			break;
 		}
-	case CP_ExtCoorper:     //地轨坐标系处理
-		{
-			double dTEMatrix[4][4];	//工具点到基础坐标系的变换矩阵  B/W*W/T = B/T	
-			Matrix_Multi(4,4,4,&m_dWBMatrix[0][0],&dTWMPos[0][0],&dTEMatrix[0][0]);
-
-			//点位为 W/T的点位 其中W为相对E的变换关系
-			double dBECoord[4][4] = {0};
-			memcpy(dBECoord,m_dBECoord,sizeof(dBECoord));
-
-			dBECoord[0][3] = dTWMPos[4][m_iExtNum-6];
-
-			double dEBMatrix[4][4] = {0};
-			Matrix_Inverse(4,&dBECoord[0][0],&dEBMatrix[0][0]);
-			double dTBMatrix[4][4];	//工具点到基础坐标系的变换矩阵  B/W*W/T = B/T
-			Matrix_Multi(4,4,4,&dEBMatrix[0][0],&dTEMatrix[0][0],&dTBMatrix[0][0]);  // B/E*E/T = B/T
-			Matrix_Multi(4,4,4,&dTBMatrix[0][0],&m_dFTMatrix[0][0],&dFBMPos[0][0]);		
-		}
-
-		break;
 	default:
 		break;
 	}
@@ -1088,16 +969,6 @@ int HS_Kinematics::HS_MPosToJPos_JXJ(double dMPos[4][4],int iToolNum,int iWorkNu
 	//////////////////////
 	double dWTMatrix[4][4];	//工件点在工具坐标系的变换矩阵  T/W
 	double dTWMatrix[4][4];	//工具点到工件坐标系的变换矩阵  W/T
-	//double dFBMatrix[4][4];	//法兰盘到基础坐标系的变换矩阵  B/T*T/F = B/F
-	//外部TCP模式
-	// if(eCPType == CP_WorkTool)
-	// {
-	// 	memcpy(dWTMatrix,dMPos,sizeof(dWTMatrix));
-	// 	Matrix_Inverse(4,&dWTMatrix[0][0],&dTWMatrix[0][0]);
-	// 	Matrix_Multi(4,4,4,&dTFMatrix[0][0],&dTWMatrix[0][0],&dTBMatrix[0][0]);
-	// 	Matrix_Multi(4,4,4,&dTBMatrix[0][0],&dBWMatrix[0][0],&dFBMatrix[0][0]);	
-	// }
-	//////////////////////
 
 	int iError = 0;
     double dJPosCalc[6] = {0};
@@ -1252,28 +1123,8 @@ int HS_Kinematics::HS_MPosToJPos_LJ(double dMPos[5][4],int iToolNum,int iWorkNum
 	HS_CPosToMPos(m_dWorkCoord[iWork],dWBMatrix);
 	Matrix_Inverse(4,&dWBMatrix[0][0],&dBWMatrix[0][0]);
 
-    if(eCPType == CP_ExtCoorper)
-    {
-        //点位为 E/T的点位
-        double dBECoord[4][4] = {0};
-        memcpy(dBECoord,m_dBECoord,sizeof(dBECoord));
 
-        dBECoord[0][3] = dMPos[4][m_iExtNum-6];
-
-        double dEBMatrix[4][4] = {0};
-        Matrix_Inverse(4,&dBECoord[0][0],&dEBMatrix[0][0]);
-        double dWBMartix[4][4] = {0};
-        Matrix_Multi(4,4,4,&dEBMatrix[0][0],&dWBMatrix[0][0],&dWBMartix[0][0]);     // B/E*E/W = B/W
-        Matrix_Multi(4,4,4,&dWBMartix[0][0],&dMPos[0][0],&dTBMatrix[0][0]);         // B/W*W/T = B/T
-
-        dCJPos[6] = dMPos[4][0];
-        dCJPos[7] = dMPos[4][1];
-        dCJPos[8] = dMPos[4][2];
-    }
-    else
-    {
-        Matrix_Multi(4,4,4,&dWBMatrix[0][0],&dMPos[0][0],&dTBMatrix[0][0]);
-    }
+    Matrix_Multi(4,4,4,&dWBMatrix[0][0],&dMPos[0][0],&dTBMatrix[0][0]);
 
 	Matrix_Multi(4,4,4,&dTBMatrix[0][0],&dFTMatrix[0][0],&dFBMatrix[0][0]);
 
@@ -1462,12 +1313,6 @@ int HS_Kinematics::HS_CPosToJPos_JXJ(double *dCPos,int iToolNum,int iWorkNum,uns
 	HS_CPosToMPos(dCPos,dMPos);
     m_dA360TWOffset = 0;
 	int iErrorId = HS_MPosToJPos_JXJ(dMPos,iToolNum,iWorkNum,eState,CP_ToolWork,dJPos,bWristQyFlag);
-
-    if(*m_eRobotType == HSROB_SCARA&&m_bScaraA360Flag)
-    {
-        double dJ4Ref = dCPos[3] - dJPos[0] - dJPos[1] - m_dA360TWOffset;
-        HS_NearestPoint(dJPos[3],dJ4Ref,-1);
-    }
 
 	if(iErrorId == 0)
 	{
@@ -3692,11 +3537,6 @@ int HS_Kinematics::HS_MPosToCPos(double dMPos[4][4],double dCPos[6])
 	dCPos[PB] = dCPos[PB]*rad2deg;
 	dCPos[PC] = dCPos[PC]*rad2deg;
 
-    if(*m_eRobotType == HSROB_SCARA&&m_bScaraA360Flag)
-    {
-        HS_NearestPoint(dCPos[PA],m_dA360BaseAngle,-1);
-    }
-
 	return iErrorId;
 }
 /************************************************
@@ -3768,35 +3608,6 @@ int HS_Kinematics::HS_JPosLimitCheck(double *dPos)
 					i+1,dPos[i],m_tLimitPara->dPmin[i],m_tLimitPara->dPmax[i]);
 				return ERROR_UNREACHABLE;
 			}
-			else
-			{
-				//增加一个MD410的联合限位判断（JR6300也做联合限位计算）
-				// if(*m_eRobotType == HSROB_MD410 || *m_eRobotType_sub==JR6300)
-				// {
-				//     //MD410有联合限位，进行区别化处理
-				//     double dM410LimitMax[MaxAxisNum] = {0};	
-				//     double dM410LimitMin[MaxAxisNum] = {0};
-
-				//     HS_GetMD410Limit(pdPos,dM410LimitMax,dM410LimitMin);
-				//     if((pdPos[i] > dM410LimitMax[i] + Eps)||(pdPos[i] < dM410LimitMin[i] - Eps))
-				//     {
-				//         m_HS_Printer->outDebugInfo("Motion_P","Kinematic","PosSpaceCheck",0,AllDeb,"JPos = %.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf",
-				//             pdPos[0],pdPos[1],pdPos[2],pdPos[3],pdPos[4],pdPos[5],pdPos[6],pdPos[7],pdPos[8]);
-				//         m_HS_Printer->outDebugInfo("Motion_P","Kinematic","PosSpaceCheck",0,AllDeb,"PMAX = %.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf",
-				//             dM410LimitMax[0],dM410LimitMax[1],dM410LimitMax[2],dM410LimitMax[3],dM410LimitMax[4],
-				//             dM410LimitMax[5],dM410LimitMax[6],dM410LimitMax[7],dM410LimitMax[8]);
-				//         m_HS_Printer->outDebugInfo("Motion_P","Kinematic","PosSpaceCheck",0,AllDeb,"PMIN = %.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf",
-				//             dM410LimitMin[0],dM410LimitMin[1],dM410LimitMin[2],dM410LimitMin[3],dM410LimitMin[4],
-				//             dM410LimitMin[5],dM410LimitMin[6],dM410LimitMin[7],dM410LimitMin[8]);
-				//         m_HS_Printer->outDebugInfo("Motion_P","Kinematic","PosReachable",0,AllDeb,"Pos%d[1~6] = %.3lf,PMIN = %.3lf,PMAX = %.3lf",
-				//             i+1,pdPos[i],dM410LimitMin[i],dM410LimitMax[i]);
-				//         if(pdPos[i] > dM410LimitMax[i] + Eps)
-				//             return ERROR_LOW(i+1,ERROR_MD410_UNION_PMAX);
-				//         else
-				//             return ERROR_LOW(i+1,ERROR_MD410_UNION_PMIN);
-				//     }
-				// }
-			}
 		}			
 	}			
 	
@@ -3860,13 +3671,6 @@ int HS_Kinematics::HS_JPosNearestHandle(double dSetJPos[6],double dRegJPos[6])
 			HS_NearestPoint(dSetJPos[4],dRegJPos[4],-1);
 		}
 	}
-	else if(*m_eRobotType == HSROB_SCARA)
-	{
-        if(!m_bScaraA360Flag)
-        {
-            HS_NearestPoint(dSetJPos[3],dRegJPos[3],-1);
-        }
-	}
 	return 0;
 }
 
@@ -3878,14 +3682,6 @@ int HS_Kinematics::HS_JPosNearestHandle(double dSetJPos[6],double dRegJPos[6])
 *************************************************/
 int HS_Kinematics::AutoHandleCVel(double dCVel[2],double dCAcc[2])
 {
-    //约束点动空间速度最大值为250
-	//   dCVel[0] = 250;
-	////姿态速度由各轴的关节速度
-	//   dCVel[1] = 120;
-	//for(int i = 0;i < 6;i++)
-	//{
-	//	dCVel[1] = Min(dCVel[1],m_dJVelPara[i]);
-	//}
 	//加速度先获取各轴的最大加速度时间，以此为基准计算加速度
     double dTAccBase = 0;
     for(int i = 0;i < 6;i++)
@@ -3909,15 +3705,7 @@ HS_RobotType HS_Kinematics::GetRobotType()
 {
     return *m_eRobotType;
 }
-/************************************************
-函数功能：获取Scara机型A360是否开启标识位
-参    数：
-返 回 值：标识位	 
-*************************************************/
-bool HS_Kinematics::GetA360Flag()
-{
-    return m_bScaraA360Flag;
-}
+
 /************************************************
 函数功能：空间位置逆解关节坐标【手动运行使用】
 参    数：dCPos-----空间位置【输入】
@@ -4462,35 +4250,6 @@ int HS_Kinematics::HS_CPosToJPos_HandAhead(double dCPos[6],double dInitCPos[6],d
 	return iErrorId;
 }
 
-/************************************************
-函数功能：变位机坐标,点动附加轴保证相对位置不变
-参    数：
-		 dBaseTCMPos----固定工具相对于变位机坐标
-		 iToolNum-------工具号
-	     dRJPos---------关节坐标值
-返 回 值：错误ID	 
-*************************************************/
-int HS_Kinematics::HS_TCMPosToJPos(double dBaseTCMPos[5][4],int iToolNum,double dRJPos[MaxAxisNum])
-{
-	int iErrorId = 0;
-
-	double dJPosIn[MaxAxisNum] = {0};
-	memcpy(dJPosIn,dRJPos,sizeof(double)*MaxAxisNum);
-
-	double dCWMPos[4][4] = {0};
-	HS_JPosToPoMPos(&dJPosIn[6],dCWMPos);
-
-	double dTWPos[5][4] = {0};
-	Matrix_Multi(4,4,4,&dCWMPos[0][0],&dBaseTCMPos[0][0],&dTWPos[0][0]);
-
-	dTWPos[4][0] = dJPosIn[6];
-	dTWPos[4][1] = dJPosIn[7];
-	dTWPos[4][2] = dJPosIn[8];
-
-	HS_MPosToJPos_LJ(dTWPos,iToolNum,-1,CP_ToolWork,dJPosIn,dRJPos);
-
-	return iErrorId;
-}
 /************************************************
 函数功能：轴组相对位置关系转化【相对位置求解从运动位置】
 参    数：dMasterCPos----主运动位置

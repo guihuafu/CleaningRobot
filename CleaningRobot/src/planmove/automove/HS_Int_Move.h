@@ -94,8 +94,6 @@ public:
     bool GetSLPlanFlag();
 	bool GetHalfSmoothFlag();
 	bool GetSmoothAheadFlag();
-	int GetMasterCPos(double dMasterCPos[10][MaxAxisNum]);
-	int SetMasterCPos(double dMasterCPos[10][MaxAxisNum]);
 	double CalcStopTime();
 	int StopPlanByTime(double dTStop);
 	int GetRatioPara(double dRatio,double dTime[TIMECNT]);
@@ -132,7 +130,6 @@ public:
 	int GlobalPlan(GroupTrajData *tTrajData,int iIndex,int iGroupNum,double dRatio,HS_GroupJPos &tHS_GroupJPos);
 	int GlobalPreHandle(GroupMotionData tGroupMotionData, GroupTrajData *tTrajData,int iIndex,int iGroupNum,Para_PreHandle &tPreHandle,BaseMoveData *tMoveData);
 	int GlobalParaCheck(GroupMotionData &tMotionData);
-	int GroupSyncCheck(HS_GroupRel tHS_GroupRel,Para_PreHandle &tPreHandle);
 	void GetToolWorkNum(BaseMoveData tMoveData);
 	int JPosAutoHandle(Para_PreHandle &tPreHandle,double dEJPos[6],int iAxis);
 	bool bCheckRepeatJPos(double dJPosA[MaxAxisNum],double dJPosB[MaxAxisNum]);
@@ -260,7 +257,6 @@ protected:
 
     int m_iInterMultCnt;                                    //插补离散点位个数
 
-	double m_dMasterCPos[10][MaxAxisNum];
 	HS_GroupRel m_tHS_GroupRel;
 
 	/************************************************

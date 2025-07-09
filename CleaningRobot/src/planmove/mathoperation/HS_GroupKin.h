@@ -27,9 +27,6 @@ public:
 	~HS_GroupKin();
 
 	HS_Kinematics* GetKinematicsByNum(int iGroupNum);
-	bool SetGroupNum(int iGroupNum,HS_GroupRel tHS_GroupRel);
-	int HandSyncMove(HS_GroupJPos &tHS_GroupJPos);
-	int HandSyncInit(HS_GroupJPos &tHS_GroupJPos,int iToolNum[MAXGROUPNUM]);
 
 public:
 	HS_Kinematics *m_HS_Kinematics[MAXGROUPNUM];

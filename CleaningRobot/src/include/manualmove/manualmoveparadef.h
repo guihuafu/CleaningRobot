@@ -17,7 +17,6 @@ namespace algo
 		HS_GroupRel tHS_GroupRel;			//轴组关系
         bool bDir;		                    //方向
         double dHandVelRatio;	            //运动速率
-        double dIncLen;	                    //寸动距离。大于 0 代表寸动 ； 等于 0 代表连续
         int iSmooth;                        //点动柔顺等级
         bool bWristQYOpen;                  //是否开启腕部过奇异
 		double dVtran;						//空间速度

@@ -1010,13 +1010,6 @@ HS_MStatus HS_AutoMove::GroupIntMove(IntData &tIntdata,int &iErrorId,bool bPreFl
 			continue;
 
 		iGroupNum++;
-		if(m_tHS_GroupRel.eGroupRelType[iGroup] == GRT_Slave)
-		{
-			if(bPreFlag)
-				m_HS_Int_FactoryPre[iGroup]->SetMasterCPos(dMasterCPos);
-			else
-				m_HS_Int_Factory[iGroup]->SetMasterCPos(dMasterCPos);
-		}
 
 		if(bPreFlag)
 			eMStatus = m_HS_Int_FactoryPre[iGroup]->execIntMove(tIntdata,iErrorId);
@@ -1027,14 +1020,6 @@ HS_MStatus HS_AutoMove::GroupIntMove(IntData &tIntdata,int &iErrorId,bool bPreFl
 			iMDoneCnt++;
 		else
 			eMStatusNODone = eMStatus;
-
-		if(m_tHS_GroupRel.eGroupRelType[iGroup] == GRT_Master)
-		{
-			if(bPreFlag)
-				m_HS_Int_FactoryPre[iGroup]->GetMasterCPos(dMasterCPos);
-			else
-				m_HS_Int_Factory[iGroup]->GetMasterCPos(dMasterCPos);
-		}
 	}
 
 	if(iMDoneCnt == iGroupNum)

@@ -39,8 +39,6 @@ public:
     bool GetSLPlanFlag();
 	bool GetHalfSmoothFlag();
 	bool GetSmoothAheadFlag();
-	int GetMasterCPos(double dMasterCPos[10][MaxAxisNum]);
-	int SetMasterCPos(double dMasterCPos[10][MaxAxisNum]);
 	double CalcStopTime();
 	int StopPlanByTime(double dTStop);
 	int GetRatioPara(double dRatio,double dTime[TIMECNT]);

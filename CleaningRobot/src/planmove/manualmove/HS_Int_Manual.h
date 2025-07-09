@@ -46,7 +46,6 @@ private:
     HS_BasicPara *m_HS_BasicPara;
 	HS_Kinematics *m_HS_Kinematics;
     HS_FilterHandle *m_HS_FilterHandle;
-	bool m_bSyncMoveFlag;
 
 	double *m_dJVelPara;
 	double *m_dJAccPara;
@@ -69,8 +68,6 @@ private:
     double m_dAheadJPosDis;
     bool m_bAheadJErrorFlag;
 	int m_iToolNum;
-
-	bool m_bCoorperFlag;										// 变位机协同
 	double m_dBaseTCMPos[5][4];
 
 	VelPlanPara m_tVelPlanPara;	

@@ -193,22 +193,9 @@ int HS_Int_Joint::GetEndPos(BaseMoveData &tMoveData,Para_PreHandle &tPH_Joint)
             LOG_ALGO("C2J Error! UnReachable!");
 			return E_J_TARGETUNREABLE;
 		}
-
-        if(!(m_eHS_RobotType == HSROB_SCARA&&m_HS_Kinematic->GetA360Flag()))
-        {
-            LOG_ALGO("Nearest JPos = %.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf---%.3lf,%.3lf,%.3lf;",\
-                tPH_Joint.dEPos[0],tPH_Joint.dEPos[1],tPH_Joint.dEPos[2],tPH_Joint.dEPos[3],tPH_Joint.dEPos[4],tPH_Joint.dEPos[5],tPH_Joint.dEPos[6],tPH_Joint.dEPos[7],tPH_Joint.dEPos[8]);
-
-            //类直线运动的末端轴选择
-            NearestAngleMoveHandle(tPH_Joint,tMoveData.sEndPos);
-
-            //Turn和Alarm处理
-            TurnAlarmHandle(tMoveData.tRevolve,tPH_Joint.dSPos,tPH_Joint.dEPos);
-        }
 	}
 
     memcpy(tPH_Joint.dSetJPos[1],tPH_Joint.dEPos,sizeof(double)*MaxAxisNum);
-
 	//协同点位
 	m_HS_Kinematic->HS_JPosToCPos(tPH_Joint.dSetJPos[1],m_iToolNum,-1,tPH_Joint.dWTEPos);
 	return iErrorId;
@@ -948,7 +935,6 @@ HS_MStatus HS_Int_Joint::execIntMove(IntData &intdata,int &iErrorId)
         return M_Done;
     }
 
-	//LOG_ALGO("------------------------------------------------------------------------");
 	for(int i = 0;i < m_iInterMultCnt;i++)
 	{
         if(i == m_iInterMultCnt -1)
@@ -962,17 +948,8 @@ HS_MStatus HS_Int_Joint::execIntMove(IntData &intdata,int &iErrorId)
             Move(iErrorId);
         }
 
-		//LOG_ALGO("InterJPos = %.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf---%.3lf,%.3lf,%.3lf",\
-			m_dRJPos[0],m_dRJPos[1],m_dRJPos[2],m_dRJPos[3],m_dRJPos[4],m_dRJPos[5],\
-			m_dRJPos[6],m_dRJPos[7],m_dRJPos[8]);
 		memcpy(intdata.tGJPos[i].dJPos[m_iGroupNum],m_dRJPos,sizeof(double)*MaxAxisNum);
-
-		if(m_tHS_GroupRel.eGroupRelType[m_iGroupNum] == GRT_Master)
-		{
-			m_HS_Kinematic->HS_JPosToCPos(m_dRJPos,m_iToolNum,-1,m_dMasterCPos[i]);
-		}
 	}
-	//LOG_ALGO("------------------------------------------------------------------------");
 	return eMStatus;
 }
 

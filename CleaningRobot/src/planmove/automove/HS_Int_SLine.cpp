@@ -380,48 +380,7 @@ int HS_Int_SLine::MoveAdjust(Para_PreHandle &tPH_Line)
 {
 	int iErrorId = 0;
 
-	if(m_eHS_RobotType == HSROB_SCARA)
-	{
-		double dEJPos[6] = {0};
-		iErrorId = JPosPrediction(tPH_Line,dEJPos);
-		if(iErrorId != 0) return iErrorId;
-
-		if(m_HS_Kinematic->GetA360Flag())
-		{
-			//当前姿态角度旋转对应关节4轴旋转的方向
-			bool bAngleDir = true;
-			if(dEJPos[3] - tPH_Line.dSetJPos[0][3] < 0)
-			{
-				bAngleDir = false;
-			}
-			//A360模式下，根据目标点位置以及预测的关节角度值，通过修改姿态运动位移量的方式使得运动达到目标点的4轴坐标值
-			while(fabs(dEJPos[3] - tPH_Line.dSetJPos[1][3]) > 181)
-			{
-				if(dEJPos[3] > tPH_Line.dSetJPos[1][3])
-				{
-					dEJPos[3] -= 360;
-					if(bAngleDir)
-						tPH_Line.dSetDis[1] -= 360;
-					else
-						tPH_Line.dSetDis[1] += 360;
-				}
-				else
-				{
-					dEJPos[3] += 360;
-					if(bAngleDir)
-						tPH_Line.dSetDis[1] += 360;
-					else
-						tPH_Line.dSetDis[1] -= 360;
-				}
-			}
-		}
-		else
-		{
-			m_HS_Kinematic->HS_NearestPoint(tPH_Line.dSetJPos[1][3],dEJPos[3],-1);
-			JPosAutoHandle(tPH_Line,dEJPos,3);
-		}
-	}
-	else if(m_eHS_RobotType == HSROB_PUMA)
+	if(m_eHS_RobotType == HSROB_PUMA)
 	{
 		double dEJPos[6] = {0};
 		iErrorId = JPosPrediction(tPH_Line,dEJPos);

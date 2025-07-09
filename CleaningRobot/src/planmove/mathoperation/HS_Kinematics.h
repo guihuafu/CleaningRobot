@@ -70,7 +70,6 @@ public:
     int HS_CPosToJPos_Hand(double dCPos[6],double dInitCPos[6],double dLJPos[6],double dCJPos[6],double &dKCVel,int iHandMoveAxis);
     int HS_CPosToJPos_HandAhead(double dCPos[6],double dInitCPos[6],double dLJPos[6],double dCJPos[6]);
 	int HS_SyncRelativeToSlave(double dMasterCPos[6],double dRelativeMPos[5][4],double dSlaveMPos[5][4]);
-	int HS_TCMPosToJPos(double dBaseTCMPos[5][4],int iToolNum,double dRJPos[MaxAxisNum]);
     /************点位计算相关**************************/
     int EulerZYX_CalcQ(double dCPosA[6],double dCPosB[6],double dQ[4]);
     int EulerZYX_CalcDis(double *dEuler1,double *dEuler2,double *dDis,bool bEulerQY);
@@ -91,7 +90,6 @@ public:
     /************参数获取相关**************************/
     int AutoHandleCVel(double dCVel[2],double dCAcc[2]);
     HS_RobotType GetRobotType();
-    bool GetA360Flag();
 private:
     void Test();
     int HS_JPosToMPos_Puma(double dJPos[6],double dMPos[4][4]);
@@ -130,11 +128,9 @@ private:
     int HS_CPos2JPos_QYHandle(double dCPos[6],double dLJPos[6],double dCJPos[6],double &dKCVel,int iMoveAxis);
 	int HS_CPos2JPos_QYHandle_BR(double dCPos[6],double dLJPos[6],double dCJPos[6],double &dKCVel,int iMoveAxis);
     int HS_QYStaticCheck(double dJPos[6],double dQYPara_Inter,double dQYPara_Border,double dQYPara_Wrist);
-	int HS_JPosToPoMPos(double dJPos[MaxAxisNum],double dPoBMPos[4][4]);
 
     HS_BasicPara *m_HS_BasicPara;
     double (*m_dDHPara)[4];
-	HS_Coord *m_dPositionerCoord;					//变位机
     bool m_bTypeBR;
     HS_RobotType *m_eRobotType;
 	HS_RobotType_sub *m_eRobotType_sub;
@@ -157,8 +153,7 @@ private:
 	double m_dFTMatrix[4][4];
 	double m_dWBMatrix[4][4];
 	double m_dBWMatrix[4][4];
-	double m_dTFMatrix_T[4][4];						//工具雅可比使用	
-    double m_dExtCoorper[6];                        //地轨协同坐标系:地轨坐标系相对基础坐标系
+	double m_dTFMatrix_T[4][4];						//工具雅可比使用
     double m_dEBCoord[4][4];                        //齐次矩阵，地轨相对基坐标
     double m_dBECoord[4][4];                        //齐次矩阵，基坐标相对地轨
     int m_iExtNum;                                  //地轨轴轴号

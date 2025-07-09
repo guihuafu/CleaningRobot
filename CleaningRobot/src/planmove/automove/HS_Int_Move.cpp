@@ -73,7 +73,6 @@ HS_Int_Move::HS_Int_Move()
     memset(m_dStopSPos,0,sizeof(m_dStopSPos));
     memset(&m_tSync,0,sizeof(m_tSync));
     memset(m_dStopPos,0,sizeof(double)*MaxAxisNum);
-	memset(m_dMasterCPos,0,sizeof(m_dMasterCPos));
 	memset(&m_tHS_GroupRel,0,sizeof(m_tHS_GroupRel));
 	memset(&m_bSmoothMoveFlag,0,sizeof(m_bSmoothMoveFlag));
 	memset(m_dWeaveStopMainJPos,0,sizeof(m_dWeaveStopMainJPos));
@@ -221,7 +220,6 @@ int HS_Int_Move::GlobalPreHandle(GroupMotionData tGroupMotionData, GroupTrajData
 	m_eHS_RobotType = m_HS_Kinematic->GetRobotType();
 
 	GetToolWorkNum(*tMoveData);
-	GroupSyncCheck(tGroupMotionData.tHS_GroupRel,tPreHandle);
 
 	return 0;
 }
@@ -2535,42 +2533,6 @@ int HS_Int_Move::SetSyncParaPlan(SyncPara tSyncPara)
 	return 0;
 }
 
-int HS_Int_Move::GetMasterCPos(double dMasterCPos[10][MaxAxisNum])
-{
-	memcpy(dMasterCPos,m_dMasterCPos,sizeof(m_dMasterCPos));
-	return 0;
-}
-
-int HS_Int_Move::SetMasterCPos(double dMasterCPos[10][MaxAxisNum])
-{
-	memcpy(m_dMasterCPos,dMasterCPos,sizeof(m_dMasterCPos));
-	return 0;
-}
-
-/************************************************
-函数功能：协同功能检测
-参   数：
-		tHS_GroupRel----协同关系
-		tPreHandle--------预处理信息
-返 回 值：无
-*************************************************/
-int HS_Int_Move::GroupSyncCheck(HS_GroupRel tHS_GroupRel,Para_PreHandle &tPreHandle)
-{
-	if(tHS_GroupRel.eGroupRelType[m_iGroupNum] == GRT_Slave)
-	{
-		tPreHandle.bGroupSyncFlag = true;
-		for(int i = 0;i < MAXGROUPNUM;i++)
-		{
-			if(tHS_GroupRel.eGroupRelType[i] == GRT_Master)
-			{
-				tPreHandle.iSyncMasterNum = i;
-				break;
-			}
-		}
-	}
-	return 0;
-}
-
 /************************************************
 函数功能：多转轴角度的修正
 参    数：
@@ -2703,48 +2665,7 @@ int HS_Int_Move::MoveAdjust(Para_PreHandle &tPreHandle)
 {
     int iErrorId = 0;
 
-    if(m_eHS_RobotType == HSROB_SCARA)
-    {
-        double dEJPos[6] = {0};
-        iErrorId = JPosPrediction(tPreHandle,dEJPos);
-        if(iErrorId != 0) return iErrorId;
-        
-        if(m_HS_Kinematic->GetA360Flag())
-        {
-            //当前姿态角度旋转对应关节4轴旋转的方向
-            bool bAngleDir = true;
-            if(dEJPos[3] - tPreHandle.dSetJPos[0][3] < 0)
-            {
-                bAngleDir = false;
-            }
-            //A360模式下，根据目标点位置以及预测的关节角度值，通过修改姿态运动位移量的方式使得运动达到目标点的4轴坐标值
-            while(fabs(dEJPos[3] - tPreHandle.dSetJPos[1][3]) > 181)
-            {
-                if(dEJPos[3] > tPreHandle.dSetJPos[1][3])
-                {
-                    dEJPos[3] -= 360;
-                    if(bAngleDir)
-                        tPreHandle.dSetDis[1] -= 360;
-                    else
-                        tPreHandle.dSetDis[1] += 360;
-                }
-                else
-                {
-                    dEJPos[3] += 360;
-                    if(bAngleDir)
-                        tPreHandle.dSetDis[1] += 360;
-                    else
-                        tPreHandle.dSetDis[1] -= 360;
-                }
-            }
-        }
-        else
-        {
-            m_HS_Kinematic->HS_NearestPoint(tPreHandle.dSetJPos[1][3],dEJPos[3],-1);
-			JPosAutoHandle(tPreHandle,dEJPos,3);
-        }
-    }
-	else if(m_eHS_RobotType == HSROB_PUMA)
+	if(m_eHS_RobotType == HSROB_PUMA)
 	{
 		double dEJPos[6] = {0};
 		iErrorId = JPosPrediction(tPreHandle,dEJPos);
@@ -2880,17 +2801,7 @@ int HS_Int_Move::UpdateJPos(int iInterId)
 		}
 	}
 
-	if(m_tHS_GroupRel.eGroupRelType[m_iGroupNum] == GRT_Slave)
-	{
-		double dSlaveMPos[5][4] = {0};
-
-		m_HS_Kinematic->HS_SyncRelativeToSlave(m_dMasterCPos[iInterId],m_dRMPos,dSlaveMPos);
-
-		double dLJPos[MaxAxisNum];
-		memcpy(dLJPos,m_dRJPos,sizeof(double)*MaxAxisNum);
-		m_HS_Kinematic->HS_MPosToJPos(dSlaveMPos,CP_ToolWork,dLJPos,m_dRJPos);
-	}
-	else if(m_bWeaveFlag||m_bStopSineNextFlag)
+	if(m_bWeaveFlag||m_bStopSineNextFlag)
 	{
 		double dWeaveMPos[5][4] = {0};
 
@@ -2923,11 +2834,6 @@ int HS_Int_Move::UpdateJPos(int iInterId)
 		double dLJPos[MaxAxisNum];
 		memcpy(dLJPos,m_dRJPos,sizeof(double)*MaxAxisNum);
 		iErrorId = m_HS_Kinematic->HS_MPosToJPos_LJ(m_dRMPos,m_iToolNum,m_iWorkNum,CP_ToolWork,dLJPos,m_dRJPos,m_tSync.tPreHandle.bWristQyFlag);
-
-		if(m_tHS_GroupRel.eGroupRelType[m_iGroupNum] == GRT_Master)
-		{
-			m_HS_Kinematic->HS_JPosToCPos(m_dRJPos,m_iToolNum,-1,m_dMasterCPos[iInterId]);
-		}
 	}
 
 	//附加轴  

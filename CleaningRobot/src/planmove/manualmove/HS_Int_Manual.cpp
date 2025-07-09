@@ -26,7 +26,6 @@ HS_Int_Manual::HS_Int_Manual()
     m_bHandCoord = false;
     m_bPlanFlag = false;
     m_bWristQYFlag = false;
-	m_bSyncMoveFlag = false;
     m_dJogVfac = 1.0;					//由0.3倍修改为1.0，外部控制倍率
 }
 
@@ -58,7 +57,6 @@ int HS_Int_Manual::Plan(HS_GroupJPos &tHS_GroupJPos, ManualPara tManualPara)
     m_iAxisNum = tManualPara.iAxisNum;
     m_bWristQYFlag = tManualPara.bWristQYOpen;
 
-	m_bSyncMoveFlag = m_HS_GroupKin->SetGroupNum(tManualPara.iGroupNum,tManualPara.tHS_GroupRel);
 	m_HS_Kinematics = m_HS_GroupKin->GetKinematicsByNum(tManualPara.iGroupNum);
     m_HS_Kinematics->InitPara();
 
@@ -79,7 +77,6 @@ int HS_Int_Manual::Plan(HS_GroupJPos &tHS_GroupJPos, ManualPara tManualPara)
 	}
 
     memcpy(m_dRJPos,dCurJPos,sizeof(double)*MaxAxisNum);
-	m_bCoorperFlag = false;
 
     if(tManualPara.hs_coordinate.iCoordinate == JOINT_COORD_SYSTEM)
     {
@@ -99,12 +96,6 @@ int HS_Int_Manual::Plan(HS_GroupJPos &tHS_GroupJPos, ManualPara tManualPara)
     }
     else
     {
-		if(m_HS_Kinematics->GetRobotType() == HSROB_COORPER)
-		{
-			LOG_ALGO("Robot Coorper Type No Hand Move!");
-			return E_H_COORPERHAND;
-		}
-
         //空间
         m_bHandCoord = true;  
         //坐标系设置
@@ -166,12 +157,6 @@ int HS_Int_Manual::Plan(HS_GroupJPos &tHS_GroupJPos, ManualPara tManualPara)
         }
     }
 
-	if(m_bSyncMoveFlag)
-	{
-		m_HS_GroupKin->HandSyncInit(tHS_GroupJPos,tManualPara.iToolNum);
-		LOG_ALGO("Group Sync Move!");
-	}
-    
     //范围检测【柔顺等级约束】
     double dJPos[6] = {0};
     double dTFreProtect = m_HS_BasicPara->HS_GetTFre(dJPos,tManualPara.iSmooth,tManualPara.iGroupNum);
@@ -187,42 +172,16 @@ int HS_Int_Manual::Plan(HS_GroupJPos &tHS_GroupJPos, ManualPara tManualPara)
     dDec = dAcc;
     m_dStopDec = dDec;
     m_dStopJerk = fabs(dAcc/m_tVelPlanPara.dTAcc)*1.0;
-    //点动寸动处理
-    if(tManualPara.dIncLen > Eps)
-    {
-        //寸动
-        m_tVelPlanPara.dDis = tManualPara.dIncLen;
-        
-        //最大速度调整
-        double dSAcc = m_tVelPlanPara.dEVel*m_tVelPlanPara.dTAcc/2;					
-        double dSDec = m_tVelPlanPara.dEVel*m_tVelPlanPara.dTDec/2;				
 
-        if(fabs(dSAcc + dSDec) > fabs(m_tVelPlanPara.dDis))
-        {
-            m_tVelPlanPara.dEVel = 2*m_tVelPlanPara.dDis/(m_tVelPlanPara.dTAcc + m_tVelPlanPara.dTDec);						
-        }
-        if(fabs(m_tVelPlanPara.dEVel) > Eps)
-            m_tVelPlanPara.dTCon = fabs(m_tVelPlanPara.dDis/m_tVelPlanPara.dEVel) - m_tVelPlanPara.dTAcc/2 - m_tVelPlanPara.dTDec/2;
-        m_tVelPlanPara.dTAll = m_tVelPlanPara.dTAcc + m_tVelPlanPara.dTDec + m_tVelPlanPara.dTCon;
-
-        //反向运动
-        if(!tManualPara.bDir)
-        {
-            m_tVelPlanPara.dEVel = -m_tVelPlanPara.dEVel;
-            m_tVelPlanPara.dDis = -m_tVelPlanPara.dDis;
-        }
-    }
-    else
+    //点动
+    m_tVelPlanPara.dTCon = 100000;          //给足匀速段时间，则无停止
+    m_tVelPlanPara.dTAll = m_tVelPlanPara.dTAcc + m_tVelPlanPara.dTDec + m_tVelPlanPara.dTCon;
+    //反向运动
+    if(!tManualPara.bDir)
     {
-        //点动
-        m_tVelPlanPara.dTCon = 100000;          //给足匀速段时间，则无停止
-        m_tVelPlanPara.dTAll = m_tVelPlanPara.dTAcc + m_tVelPlanPara.dTDec + m_tVelPlanPara.dTCon;
-        //反向运动
-        if(!tManualPara.bDir)
-        {
-            m_tVelPlanPara.dEVel = -m_tVelPlanPara.dEVel;
-        }
+        m_tVelPlanPara.dEVel = -m_tVelPlanPara.dEVel;
     }
+    
     LOG_ALGO("RealJPos = %.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf---%.3lf,%.3lf,%.3lf",\
         m_dRJPos[0],m_dRJPos[1],m_dRJPos[2],m_dRJPos[3],m_dRJPos[4],m_dRJPos[5],m_dRJPos[6],m_dRJPos[7],m_dRJPos[8]);
     LOG_ALGO("Start Inch:%.3lf Axis %d;WristQYFlag = %d",m_tVelPlanPara.dDis,m_iAxisNum,(int)tManualPara.bWristQYOpen);
@@ -291,7 +250,7 @@ HS_MStatus HS_Int_Manual::Move(int &iErrorId,HS_GroupJPos &tHS_GroupJPos)
         m_dHandPos[m_iAxisNum] = m_dHandPos[m_iAxisNum] + (dMovePos - m_dMovePos);
 
         iErrorId = m_HS_Kinematics->HS_CPosToJPos_Hand(m_dHandPos,m_dInitHandCPos,m_dRJPos,m_dRJPos,m_dKCVel,m_iAxisNum);
-
+		//printf("/----------------------------------------------m_dKCVel %d \n", m_dKCVel);
         //奇异速度自适应保护检测
         if(m_dKCVel > AutoQYVelKLimit&&!m_bMoveErrorFlag)
         {
@@ -306,12 +265,8 @@ HS_MStatus HS_Int_Manual::Move(int &iErrorId,HS_GroupJPos &tHS_GroupJPos)
     }
     else
     {
+		//printf("/----------------------------------------------m_dKCVel %d \n", m_dKCVel);
         m_dRJPos[m_iAxisNum] = m_dInitHandJPos[m_iAxisNum] + dMovePos;
-		if(m_bCoorperFlag)
-		{
-			//变位机点位转换
-			m_HS_Kinematics->HS_TCMPosToJPos(m_dBaseTCMPos,m_iToolNum,m_dRJPos);
-		}
     }
 
     m_dMovePos = dMovePos;
@@ -343,15 +298,6 @@ HS_MStatus HS_Int_Manual::Move(int &iErrorId,HS_GroupJPos &tHS_GroupJPos)
     //输出位置
     memcpy(dCurJPos,m_dRJPos,sizeof(double)*MaxAxisNum);
 
-	if(m_bSyncMoveFlag)
-	{
-		m_HS_GroupKin->HandSyncMove(tHS_GroupJPos);
-	}
-
-    //LOG_ALGO("InterJPos = %.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf---%.3lf,%.3lf,%.3lf",\
-			m_dRJPos[0],m_dRJPos[1],m_dRJPos[2],m_dRJPos[3],m_dRJPos[4],m_dRJPos[5],\
-			m_dRJPos[6],m_dRJPos[7],m_dRJPos[8]);
-
     //前瞻检测处理
     double dAheadJPos[MaxAxisNum] = {0};
     if(!m_bMoveErrorFlag)
@@ -379,12 +325,6 @@ HS_MStatus HS_Int_Manual::Move(int &iErrorId,HS_GroupJPos &tHS_GroupJPos)
             iErrorId = iError;
         }
     }
-
-    //if(m_tFilterControl->bFilterOpenFlag)
-    //{
-    //    ManualFilterHandle(dhandJPos,Status);
-    //}
-
 
     if(Status == M_Done)
     {

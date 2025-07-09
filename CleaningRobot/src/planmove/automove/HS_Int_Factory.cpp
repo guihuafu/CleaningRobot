@@ -167,16 +167,6 @@ int HS_Int_Factory::SetSyncParaPlan(SyncPara tSyncPara)
 	return (m_HS_Int_Move->SetSyncParaPlan(tSyncPara));
 }
 
-int HS_Int_Factory::GetMasterCPos(double dMasterCPos[10][MaxAxisNum])
-{
-	return (m_HS_Int_Move->GetMasterCPos(dMasterCPos));
-}
-
-int HS_Int_Factory::SetMasterCPos(double dMasterCPos[10][MaxAxisNum])
-{
-	return (m_HS_Int_Move->SetMasterCPos(dMasterCPos));
-}
-
 double HS_Int_Factory::CalcStopTime()
 {
 	return m_HS_Int_Move->CalcStopTime();

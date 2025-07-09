@@ -319,7 +319,6 @@ namespace hsc3
 			mManualPara.iGroupNum = 0;
 			mManualPara.bDir = dir;
 			mManualPara.dHandVelRatio = this->mRatio;
-			mManualPara.dIncLen = 0.0;
 			mManualPara.iSmooth = 5;
 			mManualPara.bWristQYOpen = true;
 			mManualPara.dVtran = 250.0;
