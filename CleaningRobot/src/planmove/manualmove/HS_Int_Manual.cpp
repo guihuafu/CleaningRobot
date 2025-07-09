@@ -96,14 +96,6 @@ int HS_Int_Manual::Plan(HS_GroupJPos &tHS_GroupJPos, ManualPara tManualPara)
         m_bHandCoord = false;
 
         memcpy(m_dInitHandJPos,dCurJPos,sizeof(double)*MaxAxisNum);
-
-		if(m_iAxisNum >= 6&&m_iAxisNum <= 9&&tManualPara.bCoorperMove)
-		{
-			m_bCoorperFlag = true;
-			LOG_ALGO("Open Coorper Move!");
-			m_HS_Kinematics->HS_JPosToTCMPos(m_dRJPos,tManualPara.hs_coordinate.iToolNum,m_dBaseTCMPos);
-			m_iToolNum = tManualPara.hs_coordinate.iToolNum;
-		}
     }
     else
     {

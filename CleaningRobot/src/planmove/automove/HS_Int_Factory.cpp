@@ -55,9 +55,9 @@ int HS_Int_Factory::ResetData()
 
 int HS_Int_Factory::PreHandle(GroupMotionData tGroupMotionData, GroupTrajData *tTrajData,int iIndex,int iGroupNum)
 {
-	LOG_ALGO("NewPoint = %d,LineNum = %d,MoveType = %d,CntType = %d,CoorperMove = %d,GroupNum = %d",\
+	LOG_ALGO("NewPoint = %d,LineNum = %d,MoveType = %d,CntType = %d,GroupNum = %d",\
 		iIndex,tGroupMotionData.iLineNum,tGroupMotionData.tBaseMoveData[iGroupNum].eTrajType,
-		tGroupMotionData.tBaseMoveData[iGroupNum].iCntType,(int)tGroupMotionData.tBaseMoveData[iGroupNum].bCoorperMove,iGroupNum);
+		tGroupMotionData.tBaseMoveData[iGroupNum].iCntType,iGroupNum);
 	if(m_HS_Int_Move == NULL)
 	{
 		LOG_ALGO("Error Move Type!");

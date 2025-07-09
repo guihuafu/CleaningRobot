@@ -214,11 +214,7 @@ int HS_Int_Move::GlobalPreHandle(GroupMotionData tGroupMotionData, GroupTrajData
 		{
 			tTrajData[iIndex].tMotionData.dCnt = tGroupMotionData.dCR;
 			tPreHandle.bSmoothCRMode = true;
-		}	
-
-		if(tGroupMotionData.tBaseMoveData[iGroupNum].bCoorperMove)
-			tPreHandle.bCoorperMoveFlag = true;
-
+		}
 	}
 
 	m_HS_Kinematic = m_HS_GroupKin->GetKinematicsByNum(iGroupNum);
@@ -2648,33 +2644,6 @@ void HS_Int_Move::GetToolWorkNum(BaseMoveData tMoveData)
 }
 
 /************************************************
-函数功能：组协同点位转换处理
-参   数：tGroupMotionData---运行段信息
-		tPreHandle-----------预处理信息
-返 回 值：无
-*************************************************/
-int HS_Int_Move::GroupSyncPosChange(Para_PreHandle &tPreHandle)
-{
-	if(tPreHandle.bGroupSyncFlag)
-	{
-		Para_PreHandle tPreHandleMaster = Para_PreHandle();
-
-		memcpy(&tPreHandleMaster,m_tGTrajData[m_iIndex].iData[tPreHandle.iSyncMasterNum],sizeof(Para_PreHandle));
-
-		m_HS_Kinematic->HS_SyncRelativePosChange(tPreHandleMaster.dWTSPos,tPreHandle.dWTSPos,tPreHandle.dSPos);
-		m_HS_Kinematic->HS_SyncRelativePosChange(tPreHandleMaster.dWTEPos,tPreHandle.dWTEPos,tPreHandle.dEPos);
-	}
-
-	if(tPreHandle.bCoorperMoveFlag)
-	{
-		m_HS_Kinematic->HS_TWPosToTCPos(tPreHandle.dWTSPos,tPreHandle.dSPos);
-		m_HS_Kinematic->HS_TWPosToTCPos(tPreHandle.dWTEPos,tPreHandle.dEPos);
-	}
-
-	return 0;
-}
-
-/************************************************
 函数功能：对运动的结束点进行粗预测
 参    数：
 		 tPreHandle---处理缓存结构体
@@ -2911,16 +2880,7 @@ int HS_Int_Move::UpdateJPos(int iInterId)
 		}
 	}
 
-	if(m_tSync.tPreHandle.bCoorperMoveFlag)
-	{
-		double dTWMPos[5][4] = {0};
-		m_HS_Kinematic->HS_TCMPosToTWMPos(m_dRMPos,dTWMPos);
-
-		double dLJPos[MaxAxisNum];
-		memcpy(dLJPos,m_dRJPos,sizeof(double)*MaxAxisNum);
-		m_HS_Kinematic->HS_MPosToJPos(dTWMPos,CP_ToolWork,dLJPos,m_dRJPos);
-	}
-	else if(m_tHS_GroupRel.eGroupRelType[m_iGroupNum] == GRT_Slave)
+	if(m_tHS_GroupRel.eGroupRelType[m_iGroupNum] == GRT_Slave)
 	{
 		double dSlaveMPos[5][4] = {0};
 

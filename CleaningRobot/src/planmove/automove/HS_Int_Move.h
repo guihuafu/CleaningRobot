@@ -134,7 +134,6 @@ public:
 	int GlobalParaCheck(GroupMotionData &tMotionData);
 	int GroupSyncCheck(HS_GroupRel tHS_GroupRel,Para_PreHandle &tPreHandle);
 	void GetToolWorkNum(BaseMoveData tMoveData);
-	int GroupSyncPosChange(Para_PreHandle &tPreHandle);
 	int JPosAutoHandle(Para_PreHandle &tPreHandle,double dEJPos[6],int iAxis);
 	bool bCheckRepeatJPos(double dJPosA[MaxAxisNum],double dJPosB[MaxAxisNum]);
 	int JPosPrediction(Para_PreHandle &tPreHandle,double dEJPos[6]);

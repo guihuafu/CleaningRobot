@@ -64,9 +64,6 @@ int HS_Int_Line::PreHandle(GroupMotionData tGroupMotionData, GroupTrajData *tTra
 		iErrorId = GetEndPos(*tMoveData,tPH_Line);
 		if(iErrorId != 0) break;
 
-		iErrorId = GroupSyncPosChange(tPH_Line);
-		if(iErrorId != 0) break;
-
 		iErrorId = GetMoveDis(tPH_Line);
 		if(iErrorId != 0)
 		{            
@@ -1063,7 +1060,6 @@ int HS_Int_Line::VelPlan(void)
 	}
 
     //初始化
-	//memcpy(m_dMovePos,m_tSync.tPreHandle.dSPos,sizeof(m_dMovePos));
     memset(m_dMovePos,0,sizeof(m_dMovePos));
 	memset(m_dMoveVel,0,sizeof(m_dMoveVel));
 	memset(m_dMoveAcc,0,sizeof(m_dMoveAcc));
@@ -1072,18 +1068,8 @@ int HS_Int_Line::VelPlan(void)
 	m_dTCur = m_dCycle + m_dTSmoothOff[m_iGroupNum];
 	m_dTSmoothOff[m_iGroupNum] = 0;
 
-    // //如果是与前一段同步段平滑，则不清空时间数据
-    // if(!(m_eTrackModePre == TRM_Sync&&m_bSmoothPreFlag))
-    //     m_dTAddTrack = m_dTCur;
-	// //打印设定参数
-	// HS_geninfo *m_pMCur = m_pMCurBase +  m_iBuffP;
-
-    // //传送带跟踪状态打印
 
 	BaseMoveData tBaseMoveData = m_tGTrajData[m_iIndex].tMotionData.tBaseMoveData[m_iGroupNum];
-
-	LOG_ALGO("CoorperMove = %d;GroupSync = %d;WristQyFlag = %d",\
-		(int)m_tSync.tPreHandle.bCoorperMoveFlag,(int)m_tSync.tPreHandle.bGroupSyncFlag,(int)m_tSync.tPreHandle.bWristQyFlag);
 
 	LOG_ALGO("SetVel = %.0lf,%.0lf---%.0lf,%.0lf,%.0lf;SetAcc = %.0lf,%.0lf;Smooth = %d;TSmooth = %.3lf;",\
          tBaseMoveData.dVel,tBaseMoveData.dVort,m_dJVelPara[6],m_dJVelPara[7],m_dJVelPara[8],\

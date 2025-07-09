@@ -92,8 +92,6 @@ typedef struct HS_Coordinate
 	COORD_SYSTEM iCoordinate;			//坐标系
 	int iToolNum;						//工具号
 	int iWorkNum;						//工件号
-	bool bExtTool;						//是否外部工具
-	bool bExtCoorper;					//外部协同，地轨协同运动
 }Hs_Coordinate;
 
 //变位机或者地轨坐标系
@@ -153,9 +151,7 @@ struct GroupStaticPara
 	GroupVelocityPara tGroupVelocityPara;
 	double dToolCoord[MAXCOORDNUM][6];			//工具坐标系：0~16
 	double dWorkCoord[MAXCOORDNUM][6];			//工件坐标系：0~16
-	double dWorldCoord[6];						//世界坐标系
-	HS_Coord dFlTrackCoord;						//外部地轨坐标系
-	HS_Coord dPoCoord;							//变位机坐标系			
+	double dWorldCoord[6];						//世界坐标系	
 };
 
 //整形滤波控制变量

@@ -864,7 +864,7 @@ namespace CleaningRobot {
 							//printf("planSpace--status=%d, outJPos: %f %f %f %f %f %f \n", status,mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5]);
 							//printf("planSpace--status=%d, outSPos: %f %f %f %f %f %f \n", status,dSpacePos[0],dSpacePos[1],dSpacePos[2],dSpacePos[3],dSpacePos[4],dSpacePos[5]);
 							//printf("planSpace--status=%d, outVelPos: %f %f %f %f %f %f \n", status,mJointVel[0],mJointVel[1],mJointVel[2],mJointVel[3],mJointVel[4],mJointVel[5]);
-							printf("planSpace--status=%d, outAccPos: %f %f %f %f %f %f \n", status,mJointAcc[0],mJointAcc[1],mJointAcc[2],mJointAcc[3],mJointAcc[4],mJointAcc[5]);
+							//printf("planSpace--status=%d, outAccPos: %f %f %f %f %f %f \n", status,mJointAcc[0],mJointAcc[1],mJointAcc[2],mJointAcc[3],mJointAcc[4],mJointAcc[5]);
 							this->mCurrentTime = this->mCurrentTime + 1;
 						}
 					}

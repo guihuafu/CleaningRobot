@@ -104,9 +104,6 @@ typedef struct _PreHandle
 	int iSyncMasterNum;
 	double dWTSPos[MaxAxisNum];
 	double dWTEPos[MaxAxisNum];
-
-	bool bCoorperMoveFlag;						//是否开启变位机运动
-
 }Para_PreHandle;
 
 //定义直线速度规划结构体

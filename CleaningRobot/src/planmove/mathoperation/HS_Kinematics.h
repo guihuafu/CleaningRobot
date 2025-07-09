@@ -55,10 +55,8 @@ public:
 	int HS_JPosToCPos(double dJPos[MaxAxisNum],CPType eCPType,double dCPos[MaxAxisNum]);
 	int HS_JPosToCPos(double dJPos[MaxAxisNum],int iToolNum,int iWorkNum,double dCPos[MaxAxisNum]);
 	int HS_JPosToMPos(double dJPos[MaxAxisNum],int iToolNum,int iWorkNum,double dMPos[5][4]);
-	int HS_JPosToCPos(double dJPos[MaxAxisNum],int iToolNum,int iWorkNum,double dFBCPos[6],double dTWCPos[6],bool bExtCoorper);
     int HS_MPosToCPos(double dMPos[4][4],double dCPos[6]);
     unsigned char HS_JPosToAState(double dJPos[6]);	
-	int HS_JPosToTCMPos(double dJPos[MaxAxisNum],int iToolNum,double dTCMPos[5][4]);
     /************点位转换相关【逆解】*******************/
     int HS_MPosToJPos_JXJ(double dMPos[4][4],int iToolNum,int iWorkNum,unsigned char eState,CPType eCPType,double dJPos[6],bool bWristQyFlag = false);
     int HS_MPosToJPos_LJ(double dMPos[5][4],int iToolNum,int iWorkNum,CPType eCPType,double dLJPos[6],double dCJPos[9],bool bWristQyFlag = false);
@@ -71,10 +69,7 @@ public:
     int HS_CPosToMPos(double dCPos[6],double dMPos[4][4]);
     int HS_CPosToJPos_Hand(double dCPos[6],double dInitCPos[6],double dLJPos[6],double dCJPos[6],double &dKCVel,int iHandMoveAxis);
     int HS_CPosToJPos_HandAhead(double dCPos[6],double dInitCPos[6],double dLJPos[6],double dCJPos[6]);
-	int HS_SyncRelativePosChange(double dMasterCPos[6],double dSlaveCPos[6],double dRelativeCPos[6]);
 	int HS_SyncRelativeToSlave(double dMasterCPos[6],double dRelativeMPos[5][4],double dSlaveMPos[5][4]);
-	int HS_TWPosToTCPos(double dTWCPos[MaxAxisNum],double dTCCPos[MaxAxisNum]);
-	int HS_TCMPosToTWMPos(double dTCMPos[5][4],double dTWMPos[5][4]);
 	int HS_TCMPosToJPos(double dBaseTCMPos[5][4],int iToolNum,double dRJPos[MaxAxisNum]);
     /************点位计算相关**************************/
     int EulerZYX_CalcQ(double dCPosA[6],double dCPosB[6],double dQ[4]);
@@ -135,13 +130,10 @@ private:
     int HS_CPos2JPos_QYHandle(double dCPos[6],double dLJPos[6],double dCJPos[6],double &dKCVel,int iMoveAxis);
 	int HS_CPos2JPos_QYHandle_BR(double dCPos[6],double dLJPos[6],double dCJPos[6],double &dKCVel,int iMoveAxis);
     int HS_QYStaticCheck(double dJPos[6],double dQYPara_Inter,double dQYPara_Border,double dQYPara_Wrist);
-
-	int HS_JPosToFlMPos(double dJPos[3],double dFlBMPos[4][4]);
 	int HS_JPosToPoMPos(double dJPos[MaxAxisNum],double dPoBMPos[4][4]);
 
     HS_BasicPara *m_HS_BasicPara;
     double (*m_dDHPara)[4];
-	HS_Coord *m_dFlTrackCoord;						//地轨
 	HS_Coord *m_dPositionerCoord;					//变位机
     bool m_bTypeBR;
     HS_RobotType *m_eRobotType;

@@ -66,9 +66,6 @@ int HS_Int_Circle::PreHandle(GroupMotionData tGroupMotionData, GroupTrajData *tT
 		iErrorId = GetEndPos(*tMoveData,tPH_Circle);
 		if(iErrorId != 0) break;
 
-		iErrorId = GroupSyncPosChange(tPH_Circle);
-		if(iErrorId != 0) break;
-
 		iErrorId = GetMoveDis(*tMoveData,tPH_Circle);
 		if(iErrorId != 0) 
 		{

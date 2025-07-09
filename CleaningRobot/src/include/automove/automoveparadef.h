@@ -104,7 +104,6 @@ namespace algo
 		double dDec;						// 减速度
 		int iCntType;						// 平滑类型
 		HS_Revolve tRevolve;				// 多转控制参数
-		bool bCoorperMove;					// 变位机运动
 		HS_WeavePara tWeavePara;			// 摆焊运动
 	};
 
@@ -117,7 +116,6 @@ namespace algo
 		double dCnt;						// 平滑系数百分比
 		double dCR;							// 平滑系数绝对量
 		int iSmooth;						// 柔顺等级参数
-		bool bExtTool;						// 外部工具
 		bool bStartMove;					// 当前段是否为启动段【第一段或者运动到点】，启动段起点为关节，不依赖之前运动
 		bool bWristQYFlag;					// 腕部过奇异功能
 		FilterControl tFilterControl;		// 前置滤波控制

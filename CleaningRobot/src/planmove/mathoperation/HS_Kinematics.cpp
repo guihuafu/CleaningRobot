@@ -13,8 +13,6 @@ HS_Kinematics::HS_Kinematics(int iGroupNum)
 	m_dJVelPara = m_HS_BasicPara->mMotionPara->m_tGroupStaticPara[iGroupNum].tAxisVelocityPara.dVcruise;
 	m_dJAccPara = m_HS_BasicPara->mMotionPara->m_tGroupStaticPara[iGroupNum].tAxisVelocityPara.dAccelerate; 
 	m_dWorldCoord = m_HS_BasicPara->mMotionPara->m_tGroupStaticPara[iGroupNum].dWorldCoord;
-	m_dFlTrackCoord = &m_HS_BasicPara->mMotionPara->m_tGroupStaticPara[iGroupNum].dFlTrackCoord;
-	m_dPositionerCoord = &m_HS_BasicPara->mMotionPara->m_tGroupStaticPara[iGroupNum].dPoCoord;
 	m_dCycle = m_HS_BasicPara->m_dCycle;
 	m_iGroupNum = iGroupNum;
 
@@ -155,20 +153,6 @@ int HS_Kinematics::PrintKeyInfo()
 		m_HS_BasicPara->mMotionPara->m_tGroupStaticPara[m_iGroupNum].tGroupVelocityPara.dTFreMin,m_HS_BasicPara->mMotionPara->m_tGroupStaticPara[m_iGroupNum].tGroupVelocityPara.dTFreMax,\
 		m_HS_BasicPara->m_dCycle,m_HS_BasicPara->m_iInterMultCnt);
 	//地轨以及变位机
-
-	LOG_ALGO("FlTrackCoord_0:%.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf;Axis = %d",\
-		m_dFlTrackCoord->dExtCoord[0][0],m_dFlTrackCoord->dExtCoord[0][1],m_dFlTrackCoord->dExtCoord[0][2],m_dFlTrackCoord->dExtCoord[0][3],m_dFlTrackCoord->dExtCoord[0][4],m_dFlTrackCoord->dExtCoord[0][5],m_dFlTrackCoord->iAxisId[0]);
-	LOG_ALGO("FlTrackCoord_1:%.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf;Axis = %d",\
-		m_dFlTrackCoord->dExtCoord[1][0],m_dFlTrackCoord->dExtCoord[1][1],m_dFlTrackCoord->dExtCoord[1][2],m_dFlTrackCoord->dExtCoord[1][3],m_dFlTrackCoord->dExtCoord[1][4],m_dFlTrackCoord->dExtCoord[1][5],m_dFlTrackCoord->iAxisId[1]);
-	LOG_ALGO("FlTrackCoord_2:%.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf;Axis = %d",\
-		m_dFlTrackCoord->dExtCoord[2][0],m_dFlTrackCoord->dExtCoord[2][1],m_dFlTrackCoord->dExtCoord[2][2],m_dFlTrackCoord->dExtCoord[2][3],m_dFlTrackCoord->dExtCoord[2][4],m_dFlTrackCoord->dExtCoord[2][5],m_dFlTrackCoord->iAxisId[2]);
-
-	LOG_ALGO("CoorperCoord_0:%.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf;Axis = %d",\
-		m_dPositionerCoord->dExtCoord[0][0],m_dPositionerCoord->dExtCoord[0][1],m_dPositionerCoord->dExtCoord[0][2],m_dPositionerCoord->dExtCoord[0][3],m_dPositionerCoord->dExtCoord[0][4],m_dPositionerCoord->dExtCoord[0][5],m_dPositionerCoord->iAxisId[0]);
-	LOG_ALGO("CoorperCoord_1:%.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf;Axis = %d",\
-		m_dPositionerCoord->dExtCoord[1][0],m_dPositionerCoord->dExtCoord[1][1],m_dPositionerCoord->dExtCoord[1][2],m_dPositionerCoord->dExtCoord[1][3],m_dPositionerCoord->dExtCoord[1][4],m_dPositionerCoord->dExtCoord[1][5],m_dPositionerCoord->iAxisId[1]);
-	LOG_ALGO("CoorperCoord_2:%.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf;Axis = %d",\
-		m_dPositionerCoord->dExtCoord[2][0],m_dPositionerCoord->dExtCoord[2][1],m_dPositionerCoord->dExtCoord[2][2],m_dPositionerCoord->dExtCoord[2][3],m_dPositionerCoord->dExtCoord[2][4],m_dPositionerCoord->dExtCoord[2][5],m_dPositionerCoord->iAxisId[2]);
 
     FilterControl tFilterControl = m_HS_BasicPara->m_tSysFilterPara.tHandControl;
 	tFilterControl.bFilterOpenFlag = false;
@@ -510,28 +494,6 @@ int HS_Kinematics::HS_JPosToCPos(double dJPos[MaxAxisNum],int iToolNum,int iWork
 	dCPos[8] = dJPos[8];
 	return iErrorId;
 }
-/************************************************
-函数功能：关节坐标转换空间坐标（提供给上层显示使用）	
-参    数：pdJPos---关节角度
-		 pdLJPos--上个周期的关节角度
-		 iToolNum--工具号
-		 iWorkNum--工件号
-		 dFCPos---空间坐标，法兰盘在基坐标位置	
-		 dTWCPos---空间坐标，工具点在工件中位置
-		 bExtCoorper---外部地轨坐标系标识
-返 回 值：错误ID
-*************************************************/
-int HS_Kinematics::HS_JPosToCPos(double dJPos[MaxAxisNum],int iToolNum,int iWorkNum,double dFBCPos[6],double dTWCPos[6],bool bExtCoorper)
-{
-	int iErrorId = 0;
-    
-    iErrorId = HS_JPosToCPos(dJPos,-1,-1,dFBCPos);
-    if(iErrorId != 0)   return iErrorId;
-
-    iErrorId = HS_JPosToCPos(dJPos,iToolNum,iWorkNum,dTWCPos);
-
-	return iErrorId;
-}
 
 /************************************************
 函数功能：根据当前关节角度求解位姿类型
@@ -852,48 +814,6 @@ int HS_Kinematics::HS_FBMPosToTWMPos_ExtCoorper(double dFBMPos[4][4],int iToolNu
 	Matrix_Multi(4,4,4,&dFBMPos[0][0],&dTFMatrix[0][0],&dTBMatrix[0][0]);
 	Matrix_Multi(4,4,4,&dBWMatrix[0][0],&dTBMatrix[0][0],&dTWMPos[0][0]);
 	return 0;
-}
-/************************************************
-函数功能：关节坐标计算变位机坐标矩阵
-参    数：dJPos------关节坐标
-		iToolNum----工具坐标
-		 dTCMPos----工具在变位机坐标系的坐标值
-返 回 值：错误ID
-*************************************************/
-int HS_Kinematics::HS_JPosToTCMPos(double dJPos[MaxAxisNum],int iToolNum,double dTCMPos[5][4])
-{
-	int iErrorId = 0;
-
-	double dTWMPos[5][4] = {0};
-	HS_JPosToMPos(dJPos,m_iToolNum,-1,dTWMPos);
-
-	double dCWMPos[4][4] = {0};
-	HS_JPosToPoMPos(&dJPos[6],dCWMPos);
-
-	double dWCMPos[4][4] = {0};
-	Matrix_Inverse(4,&dCWMPos[0][0],&dWCMPos[0][0]);						//C/W
-
-	Matrix_Multi(4,4,&dWCMPos[0][0],&dTWMPos[0][0],&dTCMPos[0][0]);			//C/W*W/T = C/T
-
-	dTCMPos[4][0] = dJPos[6];
-	dTCMPos[4][1] = dJPos[7];
-	dTCMPos[4][2] = dJPos[8];
-
-	return 0;
-}
-/************************************************
-函数功能：地轨坐标系计算
-参    数：dJPos------地轨对应的关节坐标【附加轴】
-		 dFlBMPos---求解得到的地轨相对基坐标矩阵
-返 回 值：错误ID
-*************************************************/
-int HS_Kinematics::HS_JPosToFlMPos(double dJPos[3],double dFlBMPos[4][4])
-{
-	int iErrorId = 0;
-
-	m_dFlTrackCoord->iAxisId[0] = 0;
-
-	return iErrorId;
 }
 
 /************************************************
@@ -4541,81 +4461,6 @@ int HS_Kinematics::HS_CPosToJPos_HandAhead(double dCPos[6],double dInitCPos[6],d
     HS_JPosNearestHandle(dCJPos,dLJPos);
 	return iErrorId;
 }
-/************************************************
-函数功能：轴组相对位置关系转化
-参    数：dMasterCPos----主运动位置
-	     dSlaveCPos-----从运动位置
-		 dRelativeCPos--相对运动位置
-返 回 值：错误ID	 
-*************************************************/
-int HS_Kinematics::HS_SyncRelativePosChange(double dMasterCPos[6],double dSlaveCPos[6],double dRelativeCPos[6])
-{
-	int iErrorId = 0;
-
-	double dMaWTMPos[4][4] = {0};
-	HS_CPosToMPos(dMasterCPos,dMaWTMPos);
-
-	double dSlWTMPos[4][4] = {0};
-	HS_CPosToMPos(dSlaveCPos,dSlWTMPos);
-
-	double dMaTWMPos[4][4] = {0};
-	HS_Math::Matrix_Inverse(4,&dMaWTMPos[0][0],&dMaTWMPos[0][0]);
-
-	double dRelativeMPos[4][4] = {0};
-	HS_Math::Matrix_Multi(4,4,4,&dMaTWMPos[0][0],&dSlWTMPos[0][0],&dRelativeMPos[0][0]);
-
-	HS_MPosToCPos(dRelativeMPos,dRelativeCPos);
-
-	return iErrorId;
-}
-/************************************************
-函数功能：变位机坐标转化，由世界坐标位置转化为变位机坐标位置
-参    数：dTWCPos----工具在世界坐标系下的位置
-	     dTCCPos----工具在变位机坐标系下的位置
-返 回 值：错误ID	 
-*************************************************/
-int HS_Kinematics::HS_TWPosToTCPos(double dTWCPos[MaxAxisNum],double dTCCPos[MaxAxisNum])
-{
-	int iErrorId = 0;
-
-	double dTWMPos[4][4] = {0};
-	HS_CPosToMPos(dTWCPos,dTWMPos);		                                    //W/T
-
-	double dCWMPos[4][4] = {0};
-	HS_JPosToPoMPos(&dTWCPos[6],dCWMPos);									//W/C
-
-	double dWCMPos[4][4] = {0};
-	Matrix_Inverse(4,&dCWMPos[0][0],&dWCMPos[0][0]);						//C/W
-
-	double dTCMPos[4][4] = {0};
-	Matrix_Multi(4,4,&dWCMPos[0][0],&dTWMPos[0][0],&dTCMPos[0][0]);			//C/W*W/T = C/T
-
-	HS_MPosToCPos(dTCMPos,dTCCPos);
-
-	return iErrorId;
-}
-/************************************************
-函数功能：变位机坐标转化，由变位机坐标位置转化为世界坐标位置
-参    数：dTCMPos----工具在变位机坐标系下的位置
-	     dTWMPos----工具在世界坐标系下的位置
-返 回 值：错误ID	 
-*************************************************/
-int HS_Kinematics::HS_TCMPosToTWMPos(double dTCMPos[5][4],double dTWMPos[5][4])
-{
-	int iErrorId = 0;
-
-	memcpy(dTWMPos,dTCMPos,sizeof(double)*20);
-
-	//计算出当前的变位机矩阵
-	double dCWMPos[4][4] = {0};
-	HS_JPosToPoMPos(&dTCMPos[4][0],dCWMPos);	                             //W/C
-
-	//转换至基坐标系
-	double dTBMPos[4][4] = {0};
-	Matrix_Multi(4,4,4,&dCWMPos[0][0],&dTCMPos[0][0],&dTWMPos[0][0]);        //W/C*C/T = W/T
-
-	return iErrorId;
-}
 
 /************************************************
 函数功能：变位机坐标,点动附加轴保证相对位置不变
@@ -4678,8 +4523,6 @@ int HS_Kinematics::HS_QYLimitCheck(double dJPos[6])
         m_tLimitPara->dQYPara_Inter = 100.0;
     if(m_tLimitPara->dQYPara_Border < Eps||m_tLimitPara->dQYPara_Border > 100)
         m_tLimitPara->dQYPara_Border = 10.0;
-    //if(m_tLimitPara->dQYPara_Wrist < Eps||m_tLimitPara->dQYPara_Wrist > 50)
-    //    m_tLimitPara->dQYPara_Wrist = 2.0;
 
 	if(m_tLimitPara->dQYPara_Wrist > 50)
 		m_tLimitPara->dQYPara_Wrist = 2.0;

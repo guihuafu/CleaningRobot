@@ -22,8 +22,6 @@ namespace algo
         bool bWristQYOpen;                  //是否开启腕部过奇异
 		double dVtran;						//空间速度
 		double dVrot;						//姿态速度
-		bool bCoorperMove;					//变位机运动【附加轴变位机使用】
-
     }ManualPara;    
 }
 }
