@@ -139,12 +139,7 @@ int HS_Int_Manual::Plan(HS_GroupJPos &tHS_GroupJPos, ManualPara tManualPara)
 
         memcpy(m_dInitHandJPos,dCurJPos,sizeof(double)*MaxAxisNum);
 
-        m_HS_Kinematics->HS_JPosToCPos(dCurJPos,CP_ToolWork,m_dHandPos);	      
-
-        if(tManualPara.hs_coordinate.bExtCoorper)
-        {
-            //地轨协同
-        }
+        m_HS_Kinematics->HS_JPosToCPos(dCurJPos,CP_ToolWork,m_dHandPos);
 
         memcpy(m_dInitHandCPos,m_dHandPos,sizeof(m_dInitHandCPos));	   
 

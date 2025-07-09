@@ -149,7 +149,7 @@ namespace CleaningRobot {
 			this->SpaceChart->ChartAreas[0]->AxisY->Title = "毫米 (mm)";
 			this->SpaceChart->ChartAreas[0]->AxisX->IntervalAutoMode = IntervalAutoMode::VariableCount;
 
-			this->Coordinate->SelectedIndex = 0;	// 显示列表中的第一个
+			this->Coordinate->SelectedIndex = 1;	// 显示列表中的第一个
 			motioncombine = new hsc3::algo::MotionCombine();
 		}
 
@@ -857,13 +857,14 @@ namespace CleaningRobot {
 					else
 					{
 						motioncombine->planSpace();
-						while(status != hsc3::algo::M_Done)
+						while((status != hsc3::algo::M_Done) && (status != hsc3::algo::M_Error))
 						{
 							status = this->motioncombine->execSpaceIntMove(this->mJointPos, this->mJointVel, this->mJointAcc,this->mSpacePos);
 							this->setChart(0, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos, true);
-							//printf("status=%d, outJPos: %f %f %f %f %f %f \n", status,dJointPos[0],dJointPos[1],dJointPos[2],dJointPos[3],dJointPos[4],dJointPos[5]);
-							//printf("status=%d, outSPos: %f %f %f %f %f %f \n", status,dSpacePos[0],dSpacePos[1],dSpacePos[2],dSpacePos[3],dSpacePos[4],dSpacePos[5]);
-							printf("planSpace--status=%d, outVelPos: %f %f %f %f %f %f \n", status,mJointAcc[0],mJointAcc[1],mJointAcc[2],mJointAcc[3],mJointAcc[4],mJointAcc[5]);
+							//printf("planSpace--status=%d, outJPos: %f %f %f %f %f %f \n", status,mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5]);
+							//printf("planSpace--status=%d, outSPos: %f %f %f %f %f %f \n", status,dSpacePos[0],dSpacePos[1],dSpacePos[2],dSpacePos[3],dSpacePos[4],dSpacePos[5]);
+							//printf("planSpace--status=%d, outVelPos: %f %f %f %f %f %f \n", status,mJointVel[0],mJointVel[1],mJointVel[2],mJointVel[3],mJointVel[4],mJointVel[5]);
+							printf("planSpace--status=%d, outAccPos: %f %f %f %f %f %f \n", status,mJointAcc[0],mJointAcc[1],mJointAcc[2],mJointAcc[3],mJointAcc[4],mJointAcc[5]);
 							this->mCurrentTime = this->mCurrentTime + 1;
 						}
 					}

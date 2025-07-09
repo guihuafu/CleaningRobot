@@ -24,15 +24,20 @@ namespace hsc3
 			void planManual(int axisnum, bool dir, bool isjoint, double *nowpos);
 			hsc3::algo::HS_MStatus execManualIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos);
 			void stopPlanManual();
+			void calcOutData();
+			hsc3::algo::GroupMotionData dealElemt(bool firstmove, int linenum, double *startpos, double *endpos);
 		public:
 			hsc3::algo::GroupStaticPara mGroupStaticPara[4];
 
 		private:
+			int mDataNum;
 			double mRatio;
+			double *mJointPos;
 			hsc3::algo::MotionPara *mMotionPara;
 			hsc3::algo::AutoMove *mAutoMove;
 			hsc3::algo::BaseManualMove *mBaseManualMove;
 			hsc3::algo::Calibrate *mCalibrate;
+			hsc3::algo::GroupTrajData *mGroupTrajout;
 		};
 	}
 }

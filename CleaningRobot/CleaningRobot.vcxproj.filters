@@ -81,9 +81,6 @@
     <ClCompile Include="src\planmove\automove\HS_Int_Move.cpp">
       <Filter>源文件\automove</Filter>
     </ClCompile>
-    <ClCompile Include="src\planmove\automove\HS_Int_Move_Weave.cpp">
-      <Filter>源文件\automove</Filter>
-    </ClCompile>
     <ClCompile Include="src\planmove\automove\HS_Int_SLine.cpp">
       <Filter>源文件\automove</Filter>
     </ClCompile>
@@ -128,6 +125,9 @@
     </ClCompile>
     <ClCompile Include="src\calibration\calibrate.cpp">
       <Filter>源文件\calibration</Filter>
+    </ClCompile>
+    <ClCompile Include="src\planmove\automove\HS_Int_Move_Weave.cpp">
+      <Filter>源文件\automove</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
