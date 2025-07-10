@@ -693,7 +693,7 @@ namespace CleaningRobot {
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 15);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(1475, 754);
+			this->ClientSize = System::Drawing::Size(1754, 754);
 			this->Controls->Add(this->RatioLabel);
 			this->Controls->Add(this->RatioBox);
 			this->Controls->Add(this->TestPosButton);
@@ -849,8 +849,8 @@ namespace CleaningRobot {
 						{
 							status = this->motioncombine->execJointIntMove(this->mJointPos, this->mJointVel, this->mJointAcc,this->mSpacePos);
 							this->setChart(0, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos, true);
-							//printf("status=%d, outPos: %f %f %f %f %f %f \n", status, dJointPos[0],dJointPos[1],dJointPos[2],dJointPos[3],dJointPos[4],dJointPos[5]);
-							printf("planJoint--status=%d, outVelPos: %f %f %f %f %f %f \n", status,mJointAcc[0],mJointAcc[1],mJointAcc[2],mJointAcc[3],mJointAcc[4],mJointAcc[5]);
+							printf("status=%d, outPos: %f %f %f %f %f %f %f \n", status, mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5],mJointPos[6]);
+							//printf("planJoint--status=%d, outVelPos: %f %f %f %f %f %f %f\n", status,mJointAcc[0],mJointAcc[1],mJointAcc[2],mJointAcc[3],mJointAcc[4],mJointAcc[5],mJointPos[6]);
 							this->mCurrentTime = this->mCurrentTime + 1;
 						}
 					}
@@ -861,10 +861,10 @@ namespace CleaningRobot {
 						{
 							status = this->motioncombine->execSpaceIntMove(this->mJointPos, this->mJointVel, this->mJointAcc,this->mSpacePos);
 							this->setChart(0, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos, true);
-							//printf("planSpace--status=%d, outJPos: %f %f %f %f %f %f \n", status,mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5]);
-							//printf("planSpace--status=%d, outSPos: %f %f %f %f %f %f \n", status,dSpacePos[0],dSpacePos[1],dSpacePos[2],dSpacePos[3],dSpacePos[4],dSpacePos[5]);
-							//printf("planSpace--status=%d, outVelPos: %f %f %f %f %f %f \n", status,mJointVel[0],mJointVel[1],mJointVel[2],mJointVel[3],mJointVel[4],mJointVel[5]);
-							//printf("planSpace--status=%d, outAccPos: %f %f %f %f %f %f \n", status,mJointAcc[0],mJointAcc[1],mJointAcc[2],mJointAcc[3],mJointAcc[4],mJointAcc[5]);
+							printf("planSpace--status=%d, outJPos: %f %f %f %f %f %f %f\n", status,mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5],mJointPos[6]);
+							//printf("planSpace--status=%d, outSPos: %f %f %f %f %f %f %f\n", status,dSpacePos[0],dSpacePos[1],dSpacePos[2],dSpacePos[3],dSpacePos[4],dSpacePos[5],mJointPos[6]);
+							//printf("planSpace--status=%d, outVelPos: %f %f %f %f %f %f %f\n", status,mJointVel[0],mJointVel[1],mJointVel[2],mJointVel[3],mJointVel[4],mJointVel[5],mJointPos[6]);
+							//printf("planSpace--status=%d, outAccPos: %f %f %f %f %f %f %f\n", status,mJointAcc[0],mJointAcc[1],mJointAcc[2],mJointAcc[3],mJointAcc[4],mJointAcc[5],mJointPos[6]);
 							this->mCurrentTime = this->mCurrentTime + 1;
 						}
 					}

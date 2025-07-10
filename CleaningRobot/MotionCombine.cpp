@@ -46,6 +46,14 @@ namespace hsc3
 			mGroupStaticPara[0].tGroupVelocityPara.dJerkrat = 9.0;
 			mGroupStaticPara[0].tGroupVelocityPara.dTFreMin = 0.05;
 			mGroupStaticPara[0].tGroupVelocityPara.dTFreMax = 0.4;
+
+			//mGroupStaticPara[0].tGroupModelPara.DHPara[0][0] = 0.0;    mGroupStaticPara[0].tGroupModelPara.DHPara[0][1] = 0.0;  mGroupStaticPara[0].tGroupModelPara.DHPara[0][2] = -90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[0][3] = 0.0;
+			//mGroupStaticPara[0].tGroupModelPara.DHPara[1][0] = 1700.0; mGroupStaticPara[0].tGroupModelPara.DHPara[1][1] = 0.0;  mGroupStaticPara[0].tGroupModelPara.DHPara[1][2] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[1][3] = 0.0;
+			//mGroupStaticPara[0].tGroupModelPara.DHPara[2][0] = 0.0;    mGroupStaticPara[0].tGroupModelPara.DHPara[2][1] = 0.0;  mGroupStaticPara[0].tGroupModelPara.DHPara[2][2] = 90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[2][3] = 0.0;
+			//mGroupStaticPara[0].tGroupModelPara.DHPara[3][0] = 0.0;    mGroupStaticPara[0].tGroupModelPara.DHPara[3][1] = 1700.0; mGroupStaticPara[0].tGroupModelPara.DHPara[3][2] = -90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[3][3] = 0.0;
+			//mGroupStaticPara[0].tGroupModelPara.DHPara[4][0] = 0.0;    mGroupStaticPara[0].tGroupModelPara.DHPara[4][1] = 0.0;   mGroupStaticPara[0].tGroupModelPara.DHPara[4][2] = 90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[4][3] = 0.0;
+			//mGroupStaticPara[0].tGroupModelPara.DHPara[5][0] = 0.0;    mGroupStaticPara[0].tGroupModelPara.DHPara[5][1] = 140.0; mGroupStaticPara[0].tGroupModelPara.DHPara[5][2] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[5][3] = 0.0;
+
 			mGroupStaticPara[0].tGroupModelPara.DHPara[0][0] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[0][1] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[0][2] = -90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[0][3] = 0.0;
 			mGroupStaticPara[0].tGroupModelPara.DHPara[1][0] = 360.0; mGroupStaticPara[0].tGroupModelPara.DHPara[1][1] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[1][2] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[1][3] = 0.0;
 			mGroupStaticPara[0].tGroupModelPara.DHPara[2][0] = -90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[2][1] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[2][2] = 90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[2][3] = 0.0;
@@ -102,7 +110,7 @@ namespace hsc3
 			memset(groupdata.tBaseMoveData[0].sMidPos.dPos, 0, sizeof(double) * 9);
 			groupdata.tBaseMoveData[0].sEndPos.dPos[0] = endpos[0]; groupdata.tBaseMoveData[0].sEndPos.dPos[1] = endpos[1]; groupdata.tBaseMoveData[0].sEndPos.dPos[2] = endpos[2];
 			groupdata.tBaseMoveData[0].sEndPos.dPos[3] = endpos[3]; groupdata.tBaseMoveData[0].sEndPos.dPos[4] = 90.0; groupdata.tBaseMoveData[0].sEndPos.dPos[5] = 0.0;
-			groupdata.tBaseMoveData[0].sEndPos.dPos[6] = 0; groupdata.tBaseMoveData[0].sEndPos.dPos[7] = 0; groupdata.tBaseMoveData[0].sEndPos.dPos[8] = 0;
+			groupdata.tBaseMoveData[0].sEndPos.dPos[6] = endpos[6]; groupdata.tBaseMoveData[0].sEndPos.dPos[7] = 0; groupdata.tBaseMoveData[0].sEndPos.dPos[8] = 0;
 			groupdata.tBaseMoveData[0].sEndPos.iPose = 0;
 			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iCoordinate = hsc3::algo::COORD_SYSTEM::JOINT_COORD_SYSTEM;
 			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iToolNum = -1;
@@ -190,7 +198,7 @@ namespace hsc3
 			memset(groupdata.tBaseMoveData[0].sMidPos.dPos, 0, sizeof(double) * 9);
 			groupdata.tBaseMoveData[0].sEndPos.dPos[0] = endpos[0]; groupdata.tBaseMoveData[0].sEndPos.dPos[1] = endpos[1]; groupdata.tBaseMoveData[0].sEndPos.dPos[2] = endpos[2];
 			groupdata.tBaseMoveData[0].sEndPos.dPos[3] = endpos[3]; groupdata.tBaseMoveData[0].sEndPos.dPos[4] = endpos[4]; groupdata.tBaseMoveData[0].sEndPos.dPos[5] = endpos[5];
-			groupdata.tBaseMoveData[0].sEndPos.dPos[6] = 0; groupdata.tBaseMoveData[0].sEndPos.dPos[7] = 0; groupdata.tBaseMoveData[0].sEndPos.dPos[8] = 0;
+			groupdata.tBaseMoveData[0].sEndPos.dPos[6] = endpos[6]; groupdata.tBaseMoveData[0].sEndPos.dPos[7] = 0; groupdata.tBaseMoveData[0].sEndPos.dPos[8] = 0;
 			groupdata.tBaseMoveData[0].sEndPos.iPose = 0;
 			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iCoordinate = hsc3::algo::COORD_SYSTEM::BASE_COORD_SYSTEM;
 			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iToolNum = -1;
@@ -213,10 +221,10 @@ namespace hsc3
 			mJointPos[3] = 0.0; mJointPos[4] = 90.0; mJointPos[5] = 0.0;
 			mJointPos[6] = 0.0; mJointPos[7] = 0.0; mJointPos[8] = 0.0;
 			double dStartPos1[MaxAxisNum] = {0.0, -90.0, 180.0, 0.0, 90.0, 0.0, 0.0, 0.0, 0.0};
-			double dEndPos1[MaxAxisNum] = {376.5, 0.0, 100.0, 180.0, 0.0, 180.0, 0.0, 0.0, 0.0};
-			double dEndPos2[MaxAxisNum] = {376.5, 250.0, 100.0, 180.0, 0.0, 180.0, 0.0, 0.0, 0.0};
-			double dEndPos3[MaxAxisNum] = {500.0, 250.0, 100.0, 180.0, 0.0, 180.0, 0.0, 0.0, 0.0};
-			double dEndPos4[MaxAxisNum] = {500.0, -250.0, 100.0, 180.0, 0.0, 180.0, 0.0, 0.0, 0.0};
+			double dEndPos1[MaxAxisNum] = {376.5, 0.0, 100.0, 180.0, 0.0, 180.0, 60.0, 0.0, 0.0};
+			double dEndPos2[MaxAxisNum] = {376.5, 250.0, 100.0, 180.0, 0.0, 180.0, -30.0, 0.0, 0.0};
+			double dEndPos3[MaxAxisNum] = {500.0, 250.0, 100.0, 180.0, 0.0, 180.0, 60.0, 0.0, 0.0};
+			double dEndPos4[MaxAxisNum] = {500.0, -250.0, 100.0, 180.0, 0.0, 180.0, 30.0, 0.0, 0.0};
 
 			this->mDataNum = 0;
 			groupdata = this->dealElemt(true, this->mDataNum, dStartPos1, dEndPos1);
