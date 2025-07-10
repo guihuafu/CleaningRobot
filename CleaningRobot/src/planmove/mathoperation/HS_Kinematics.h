@@ -91,7 +91,6 @@ public:
     int AutoHandleCVel(double dCVel[2],double dCAcc[2]);
     HS_RobotType GetRobotType();
 private:
-    void Test();
     int HS_JPosToMPos_Puma(double dJPos[6],double dMPos[4][4]);
     int HS_JPosToMPos_Scara(double dJPos[6],double dMPos[4][4]);
 
@@ -131,10 +130,7 @@ private:
 
     HS_BasicPara *m_HS_BasicPara;
     double (*m_dDHPara)[4];
-    bool m_bTypeBR;
     HS_RobotType *m_eRobotType;
-	HS_RobotType_sub *m_eRobotType_sub;
-	bool m_bCobot6Flag;								//6轴协作机器人标识
     double m_QYKbPara;
     LimitPara *m_tLimitPara;
     double *m_dJVelPara;
@@ -143,10 +139,7 @@ private:
 	double (*m_dWorkCoord)[6];                      //工件坐标系：0~16,0为基坐标系
     double *m_dWorldCoord;                          //世界坐标系
     double m_dCycle;
-	int m_iGroupNum;
-    bool   m_bScaraA360Flag;               
-    double m_dA360BaseAngle;
-    double m_dA360TWOffset;
+	int m_iGroupNum;           
 
     //当前实时使用的工具工件相关坐标变换矩阵
 	double m_dTFMatrix[4][4];						
@@ -156,7 +149,6 @@ private:
 	double m_dTFMatrix_T[4][4];						//工具雅可比使用
     double m_dEBCoord[4][4];                        //齐次矩阵，地轨相对基坐标
     double m_dBECoord[4][4];                        //齐次矩阵，基坐标相对地轨
-    int m_iExtNum;                                  //地轨轴轴号
     int m_iToolNum;                                 //使用的工具号
     int m_iWorkNum;                                 //使用的工件号
 

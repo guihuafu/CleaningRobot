@@ -39,7 +39,6 @@ namespace hsc3
 		void MotionCombine::initPara()
 		{
 			mGroupStaticPara[0].tGroupModelPara.eRobtype = hsc3::algo::HS_RobotType::HSROB_PUMA;
-			mGroupStaticPara[0].tGroupModelPara.eRobtype_sub = hsc3::algo::HS_RobotType_sub::HSROB_SUB_NONE;
 			mGroupStaticPara[0].tGroupVelocityPara.dVtran = 1700.0;
 			mGroupStaticPara[0].tGroupVelocityPara.dVrot = 50.0;
 			mGroupStaticPara[0].tGroupVelocityPara.dVtranacc = 100.0;

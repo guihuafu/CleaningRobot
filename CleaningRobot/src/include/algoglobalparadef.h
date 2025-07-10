@@ -105,7 +105,6 @@ struct HS_Coord
 struct GroupModelPara
 {
 	HS_RobotType eRobtype;              //机器人类型
-    HS_RobotType_sub eRobtype_sub;      //机器人模型，子类
     double DHPara[6][4];                //DH连杆参数矩阵
 };
 

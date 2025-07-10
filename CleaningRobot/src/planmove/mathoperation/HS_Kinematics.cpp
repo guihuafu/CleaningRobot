@@ -6,7 +6,6 @@ HS_Kinematics::HS_Kinematics(int iGroupNum)
 	m_HS_BasicPara = HS_BasicPara::GetInstance();
 	m_dDHPara = m_HS_BasicPara->mMotionPara->m_tGroupStaticPara[iGroupNum].tGroupModelPara.DHPara;
 	m_eRobotType = &m_HS_BasicPara->mMotionPara->m_tGroupStaticPara[iGroupNum].tGroupModelPara.eRobtype;
-	m_eRobotType_sub = &m_HS_BasicPara->mMotionPara->m_tGroupStaticPara[iGroupNum].tGroupModelPara.eRobtype_sub;
 	m_tLimitPara = &m_HS_BasicPara->mMotionPara->m_tGroupStaticPara[iGroupNum].tLimitPara;
 	m_dToolCoord = m_HS_BasicPara->mMotionPara->m_tGroupStaticPara[iGroupNum].dToolCoord;
 	m_dWorkCoord = m_HS_BasicPara->mMotionPara->m_tGroupStaticPara[iGroupNum].dWorkCoord;
@@ -17,7 +16,6 @@ HS_Kinematics::HS_Kinematics(int iGroupNum)
 	m_iGroupNum = iGroupNum;
 
 	//初始化参数
-	m_iExtNum = 6;
 	m_iToolNum = -1;
 	m_iWorkNum = -1;
 	m_QYKbPara = 0;
@@ -27,78 +25,8 @@ HS_Kinematics::HS_Kinematics(int iGroupNum)
 	Matrix_Eye(4,&m_dBWMatrix[0][0]);
 	Matrix_Eye(4,&m_dEBCoord[0][0]);
 	Matrix_Eye(4,&m_dBECoord[0][0]);
-	m_bTypeBR = false;
 	m_bWristQYHandleFlag = false;
 	memset(&m_tQYHandle,0,sizeof(m_tQYHandle));
-	m_bScaraA360Flag = true;
-	m_dA360BaseAngle = 0;
-	m_bCobot6Flag = false;
-
-	//Test();
-}
-
-//测试
-void HS_Kinematics::Test()
-{
-    double dCabiT[3][3] = {{0.8489979,-0.0986523,-36.750675},{-0.52794546,-0.033144306,-42.30251},{-0.06672759,-0.99373335,26.707212}};
-    double dP[3] = {12.84,-44.98,1};
-
-    double dPTool[6] = {560.4215105,-341.2271481,1277.4708592,30.8207672,-51.5619735,-3.2380238};
-
-    double dPOut[3];
-    HS_Math::Matrix_Multi(3,3,1,&dCabiT[0][0],dP,dPOut);
-
-    double dMPos[4][4];
-    HS_CPosToMPos(dPTool,dMPos);
-
-    double dAtt[3][3];
-    for(int i = 0;i < 3;i++)
-        for(int j = 0;j < 3;j++)
-            dAtt[i][j] = dMPos[i][j];
-
-    double dPNew[3];
-    HS_Math::Matrix_Multi(3,3,1,&dAtt[0][0],dPOut,dPNew);
-
-    dPNew[0] += dMPos[0][3];
-    dPNew[1] += dMPos[1][3];
-    dPNew[2] += dMPos[2][3];
-
-    double dCabiT2[4][4] = {{0,0.8489979,-0.0986523,-36.750675},{0,-0.52794546,-0.033144306,-42.30251},{0,-0.06672759,-0.99373335,26.707212},{0,0,0,1}};
-    double dP2[4] = {0,12.84,-44.98,1};
-
-    double dA = sqrt(1 - dCabiT2[0][1]*dCabiT2[0][1]  - dCabiT2[0][2]*dCabiT2[0][2]);
-    double dB = sqrt(1 - dCabiT2[1][1]*dCabiT2[1][1]  - dCabiT2[1][2]*dCabiT2[1][2]);
-    double dC = sqrt(1 - dCabiT2[2][1]*dCabiT2[2][1]  - dCabiT2[2][2]*dCabiT2[2][2]);
-
-    double dD = dA*dA + dB*dB + dC*dC;
-
-    dCabiT2[0][0] = dA;
-    dCabiT2[1][0] = dB;
-    dCabiT2[2][0] = dC;
-
-    double dPOut2[4];
-    double dPNew2[4];
-    HS_Math::Matrix_Multi(4,4,1,&dCabiT2[0][0],dP2,dPOut2);
-    HS_Math::Matrix_Multi(4,4,1,&dMPos[0][0],dPOut2,dPNew2);
-
-    double dP3[6] = {0,12.84,-44.98,0,0,0};
-    double dPMPos[4][4];
-    double dPOut3[4][4];
-    double dPNew3[4][4];
-    HS_CPosToMPos(dP3,dPMPos);
-    HS_Math::Matrix_Multi(4,4,4,&dCabiT2[0][0],&dPMPos[0][0],&dPOut3[0][0]);
-    HS_Math::Matrix_Multi(4,4,4,&dMPos[0][0],&dPOut3[0][0],&dPNew3[0][0]);
-
-    double dPOutNew[6];
-    HS_MPosToCPos(dPNew3,dPOutNew);
-
-    double dTool[6] = {45.311,11.786,383.59,26.715,-42.279,-23.469};
-    double dToolMPos[4][4] = {0};
-    HS_CPosToMPos(dTool,dToolMPos);
-
-    HS_Math::Matrix_Multi(4,4,4,&dToolMPos[0][0],&dCabiT2[0][0],&dPNew3[0][0]);
-
-    HS_MPosToCPos(dPNew3,dPOutNew);
 }
 
 HS_Kinematics::~HS_Kinematics()
@@ -124,7 +52,7 @@ int HS_Kinematics::PrintKeyInfo()
 
     InitPara();
 
-    LOG_ALGO("eRobotType = %d,RobotTYpeSub = %d,Cobot = %d,Vision = %s",*m_eRobotType,*m_eRobotType_sub,(int)m_bCobot6Flag,m_HS_BasicPara->mMotionPara->m_strVision.c_str());
+    LOG_ALGO("eRobotType = %d,Vision = %s",*m_eRobotType,m_HS_BasicPara->mMotionPara->m_strVision.c_str());
     LOG_ALGO("PMAX:%.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf---%.3lf,%.3lf,%.3lf",\
         m_tLimitPara->dPmax[0],m_tLimitPara->dPmax[1],m_tLimitPara->dPmax[2],m_tLimitPara->dPmax[3],m_tLimitPara->dPmax[4],m_tLimitPara->dPmax[5],\
         m_tLimitPara->dPmax[6],m_tLimitPara->dPmax[7],m_tLimitPara->dPmax[8]);
@@ -207,31 +135,11 @@ void HS_Kinematics::InitPara()
         }
     }
     //--------------参数设置-------------------------------------------
-    m_bTypeBR = false;
-    if(*m_eRobotType == HSROB_PUMA)
-    {
-		const double MaxBR	= 1.0;		//区别BR系列和JR系列机型
-		if(fabs(m_dDHPara[4][1]) > MaxBR||fabs(m_dDHPara[4][0]) > MaxBR)
-		{
-			m_bTypeBR = true;     
-		}
-    }
     m_QYKbPara = 0;
     if(*m_eRobotType == HSROB_PUMA)
     {
-        if(m_bTypeBR)
-            m_QYKbPara = 0;
-        else
-        {
-            //求解边界奇异参数，只与3号轴的位置有关，值越接近0，就越靠近奇异位置
-            m_QYKbPara = atan2(fabs(m_dDHPara[2][0]),fabs(m_dDHPara[3][1]))*180/PI;
-        }
-
-		if(*m_eRobotType_sub == Cobot6)
-		{
-			m_bCobot6Flag = true;
-			m_QYKbPara = 0;
-		}
+        //求解边界奇异参数，只与3号轴的位置有关，值越接近0，就越靠近奇异位置
+        m_QYKbPara = atan2(fabs(m_dDHPara[2][0]),fabs(m_dDHPara[3][1]))*180/PI;
     }
 
     if(m_tLimitPara->dQYPara_Inter < Eps||m_tLimitPara->dQYPara_Inter > 1000)
@@ -252,15 +160,6 @@ void HS_Kinematics::InitPara()
 void HS_Kinematics::HS_SetManualWristQY(bool bOpenFlag,double dRealPos[MaxAxisNum])
 {
 	m_bWristQYHandleFlag = bOpenFlag;
-
-	//增加处理，如果CO协作系列，起点位置远离腕部奇异则不开启，避免影响正常运动的姿态精度
-	if(m_bCobot6Flag || m_bTypeBR)
-	{
-		const double dWristLimit = 5.0;
-		if(fabs(dRealPos[4]) > dWristLimit)
-			m_bWristQYHandleFlag = false;
-	}    
-    LOG_ALGO("WristQYHandle = %d",(int)m_bWristQYHandleFlag);
 }
 /************************************************
 函数功能：复位奇异处理参数
@@ -504,17 +403,6 @@ unsigned char HS_Kinematics::HS_JPosToAState(double dJPos[6])
     {
 		double dNewDH[6][4];				//DH参数表 
 		memcpy(dNewDH,m_dDHPara,sizeof(dNewDH));
-
-		if(m_bCobot6Flag)
-		{
-			dJTemp[2] += 90;
-			dNewDH[0][0] = 0;               dNewDH[0][1] = m_dDHPara[0][1];	    dNewDH[0][2] = -90;
-			dNewDH[1][0] = m_dDHPara[1][0]; dNewDH[1][1] = m_dDHPara[2][1];		dNewDH[1][2] = 0;
-			dNewDH[2][0] = 0;               dNewDH[2][1] = 0;		            dNewDH[2][2] = 90;
-			dNewDH[3][0] = 0;	            dNewDH[3][1] = (m_dDHPara[2][0]-m_dDHPara[4][1]);	    dNewDH[3][2] = -90;
-			dNewDH[4][0] = 0;	            dNewDH[4][1] = 0;	                dNewDH[4][2] = 90;
-			dNewDH[5][0] = 0;	            dNewDH[5][1] = m_dDHPara[5][1];	    dNewDH[5][2] = 0;
-		}
         //1、内部奇异位置判断臂的形态
         //以臂面（此时2、3轴顺时针旋转角度减小）的方向看过去，腕部中心点在1轴轴线的左边为反手
         //在右边为正手
@@ -548,15 +436,6 @@ unsigned char HS_Kinematics::HS_JPosToAState(double dJPos[6])
         else
             nATState |= AT_NonFlip;
     }  
-    //四轴机型形态的判别
-    else if(*m_eRobotType == HSROB_SCARA || *m_eRobotType == HSROB_SCARA_3)
-    {
-        //2号轴的位置判断肘的形态
-        if(dJTemp[1] >= 0)
-            nATState |= AT_Right;
-        else
-            nATState |= AT_Left;
-    }
 
     return nATState;
 }
@@ -593,20 +472,6 @@ int HS_Kinematics::HS_FBMPosToTWMPos(double dFBMPos[4][4],CPType eCPType,double 
 			//工具点到工件坐标系的变换矩阵  W/T			
 			Matrix_Multi(4,4,4,&dFBMPos[0][0],&m_dTFMatrix[0][0],&dTBMatrix[0][0]);
 			Matrix_Multi(4,4,4,&m_dBWMatrix[0][0],&dTBMatrix[0][0],&dTWMPos[0][0]);
-
-            if(*m_eRobotType == HSROB_SCARA)
-            {
-                double dToolAOffset = m_dToolCoord[m_iToolNum][3];
-                double dWorkAOffset = m_dWorldCoord[3] + m_dWorkCoord[m_iWorkNum][3];
-
-                //ScaraA360 A角角度的求解，工具的方向一致，工件的方向相反
-                m_dA360BaseAngle = m_dA360BaseAngle + dToolAOffset - dWorkAOffset;
-            }
-
-			/*m_HS_Printer->outDebugInfo("Motion_P","Line","HS_JPosToMPos",0,AllDeb,"TFMatrix[X-Z]:%.6lf,%.6lf,%.6lf",
-				m_dTFMatrix[0][3],m_dTFMatrix[1][3],m_dTFMatrix[2][3]);
-			m_HS_Printer->outDebugInfo("Motion_P","Line","HS_JPosToMPos",0,AllDeb,"BWMatrix[X-Z]:%.6lf,%.6lf,%.6lf",
-				m_dBWMatrix[0][3],m_dBWMatrix[1][3],m_dBWMatrix[2][3]);*/
 			break;
 		}
 	case CP_WorkTool:	//工件点在工具坐标系中的位置
@@ -689,14 +554,6 @@ int HS_Kinematics::HS_TWMPosToFBMPos(double dTWMPos[4][4],int iToolNum,int iWork
 	Matrix_Multi(4,4,4,&dWBMatrix[0][0],&dTWMPos[0][0],&dTBMPos[0][0]);
 	Matrix_Multi(4,4,4,&dTBMPos[0][0],&dFTMatrix[0][0],&dFBMPos[0][0]);
 
-	if(*m_eRobotType == HSROB_SCARA)
-	{
-		double dToolAOffset = m_dToolCoord[iTool][3];
-		double dWorkAOffset = m_dWorldCoord[3] + m_dWorkCoord[iWork][3];
-
-		//ScaraA360 A角角度的求解，工具的方向一致，工件的方向相反
-		m_dA360TWOffset = dToolAOffset - dWorkAOffset;
-	}
 	return 0;
 }
 /************************************************
@@ -733,15 +590,6 @@ int HS_Kinematics::HS_FBMPosToTWMPos(double dFBMPos[4][4],int iToolNum,int iWork
     //工具点到工件坐标系的变换矩阵  W/T			
     Matrix_Multi(4,4,4,&dFBMPos[0][0],&dTFMatrix[0][0],&dTBMatrix[0][0]);
     Matrix_Multi(4,4,4,&dBWMatrix[0][0],&dTBMatrix[0][0],&dTWMPos[0][0]);
-
-    if(*m_eRobotType == HSROB_SCARA)
-    {
-        double dToolAOffset = m_dToolCoord[iTool][3];
-        double dWorkAOffset = m_dWorldCoord[3] + m_dWorkCoord[iWork][3];
-
-        //ScaraA360 A角角度的求解，工具的方向一致，工件的方向相反
-        m_dA360BaseAngle = m_dA360BaseAngle + dToolAOffset - dWorkAOffset;
-    }
 	return 0;
 }
 /************************************************
@@ -910,7 +758,6 @@ int HS_Kinematics::HS_JPosToMPos_Scara(double dJPos[6],double dMPos[4][4])
 	Matrix_Multi(4,4,4,J2,A3,J3);
 	Matrix_Multi(4,4,4,J3,A4,&dMPos[0][0]);	
 
-    m_dA360BaseAngle = dJPos[0] + dJPos[1] + dJPos[3];
     return iErrorId;
 }
 
@@ -1028,52 +875,16 @@ int HS_Kinematics::HS_FBMPosToJPos_Puma(double dFBMPos[4][4],unsigned char eStat
 	const double MaxBR	= 1.0;		//区别BR系列和JR系列机型
 	memcpy(dJPosCalc,dJPos,sizeof(double)*6);
 
-	if(m_bCobot6Flag)
+	if(bWristQyFlag)
 	{
-		if(bWristQyFlag)
-		{
-			iErrorId = HS_MPosToJPos_PieperCobot(dFBMPos,eState,dJPosCalc,true);
-		}
-		else
-		{
-			iErrorId = HS_MPosToJPos_PieperCobot(dFBMPos,eState,dJPosCalc);
-			if(iErrorId != 0)
-			{
-				LOG_ALGO("Cobot Pieper Error!");
-				return iErrorId;
-			}
-			iErrorId = HS_MPosToJPos_Iter_Cobot(dFBMPos,eState,dJPosCalc,dJPosCalc);
-		}
-	}
-	else if(m_bTypeBR)
-	{			
-		if(bWristQyFlag)
-		{
-			iErrorId = HS_MPosToJPos_Pieper(dFBMPos,eState,dJPosCalc,true);
-		}
-		else
-		{
-			iErrorId = HS_MPosToJPos_Pieper(dFBMPos,eState,dJPosCalc);
-			if(iErrorId != 0)
-			{
-				LOG_ALGO("BR Pieper Error!");
-				return iErrorId;
-			}
-			iErrorId = HS_MPosToJPos_Iter(dFBMPos,eState,dJPosCalc,dJPosCalc);	
-		}
+		iErrorId = HS_MPosToJPos_Pieper(dFBMPos,eState,dJPosCalc,true);	
 	}
 	else
 	{
-		if(bWristQyFlag)
-		{
-			iErrorId = HS_MPosToJPos_Pieper(dFBMPos,eState,dJPosCalc,true);	
-		}
-		else
-		{
-			iErrorId = HS_MPosToJPos_Pieper(dFBMPos,eState,dJPosCalc);		
-			HS_MPosToJPos(dFBMPos,dJPosCalc,dJPosCalc);
-		}
+		iErrorId = HS_MPosToJPos_Pieper(dFBMPos,eState,dJPosCalc);		
+		HS_MPosToJPos(dFBMPos,dJPosCalc,dJPosCalc);
 	}
+
 	memcpy(dJPos,dJPosCalc,sizeof(double)*6);
 	return iErrorId;
 }
@@ -1311,7 +1122,6 @@ int HS_Kinematics::HS_CPosToJPos_JXJ(double *dCPos,int iToolNum,int iWorkNum,uns
 {
 	double dMPos[4][4] = {0};
 	HS_CPosToMPos(dCPos,dMPos);
-    m_dA360TWOffset = 0;
 	int iErrorId = HS_MPosToJPos_JXJ(dMPos,iToolNum,iWorkNum,eState,CP_ToolWork,dJPos,bWristQyFlag);
 
 	if(iErrorId == 0)
@@ -1543,11 +1353,7 @@ int HS_Kinematics::EulerZYX_CalcDis(double *dEuler1,double *dEuler2,double *dDis
 		///////////////////////////////////////
 		//欧拉角360修改—（不做姿态差值变换）
 		bool ScaraA360=false;
-		// if(GetScaraA360())
-		// {
-		// 	if(m_eRobotType==HSROB_SCARA)
-		// 		ScaraA360 = true;
-		// }
+
 		//////////////////////////////////////
 		if(!ScaraA360)
 		{
@@ -1647,11 +1453,6 @@ double HS_Kinematics::Dis_ZYX(double *dZYX1,double *dZYX2)
 		///////////////////////////////////////
 		//欧拉角360修改—（不做姿态差值变换）
 		bool ScaraA360=false;
-		// if(GetScaraA360())
-		// {
-		// 	if(m_eRobotType==HSROB_SCARA)
-		// 		ScaraA360 = true;
-		// }
 		//////////////////////////////////////
 		if(!ScaraA360)
 		{
@@ -3038,106 +2839,84 @@ int HS_Kinematics::HS_CVToJV_BR(double dJPos[6],double dCVel[6],double dJVel[6])
 int HS_Kinematics::HS_CVToJV(double dJPos[6],double dCVel[6],double dJVel[6],bool bTool,int iToolNum,bool bWristQyFlag)
 {
 	int iErrorId = 0;
-    if(*m_eRobotType == HSROB_SCARA || *m_eRobotType == HSROB_SCARA_3)
-    {
-        double dJacobian[6][4];
-        iErrorId = HS_JacobianScara(dJPos,dJacobian,bTool,iToolNum);
-        double dJacobianT[4][6]; //转置矩阵
-        Matrix_Transpose(6,4,&dJacobian[0][0],&dJacobianT[0][0]);
-        double dMulti[4][4];
-        Matrix_Multi(4,6,4,&dJacobianT[0][0],&dJacobian[0][0],&dMulti[0][0]);
-        double dInv_ATA[4][4];
-        if(!Matrix_Inverse(4,&dMulti[0][0],&dInv_ATA[0][0]))
-            return ERROR_JOCAB_INV;
-        double dInv_LeftA[4][6];
-        Matrix_Multi(4,4,6,&dInv_ATA[0][0],&dJacobianT[0][0],&dInv_LeftA[0][0]);
-        //强制将ABC的速度为0
-        //pdCVel[3] = 0;pdCVel[4] = 0;pdCVel[5] = 0;
-        Matrix_Multi(4,6,1,&dInv_LeftA[0][0],dCVel,dJVel);
-        dJVel[0] *= rad2deg;
-        dJVel[1] *= rad2deg;
-        dJVel[3] *= rad2deg;
-    }
-    else
-    {
-	    double Jacobian[6][6];        
-        iErrorId = HS_Jacobian(dJPos,Jacobian,bTool,iToolNum);
-	    if(iErrorId != 0)
-		    return iErrorId;
+	double Jacobian[6][6];        
+    iErrorId = HS_Jacobian(dJPos,Jacobian,bTool,iToolNum);
+	if(iErrorId != 0)
+		return iErrorId;
 
-	    if(*m_eRobotType == HSROB_PUMA_5||*m_eRobotType == HSROB_MD410||
-			(bWristQyFlag&&*m_eRobotType == HSROB_PUMA))	
-	    {
-		    double dJacobian[6][5] = {0};
+	if(*m_eRobotType == HSROB_PUMA_5||*m_eRobotType == HSROB_MD410||
+		(bWristQyFlag&&*m_eRobotType == HSROB_PUMA))	
+	{
+		double dJacobian[6][5] = {0};
 
-			if(*m_eRobotType == HSROB_PUMA)
-			{ 
-				for(int i = 0;i < 6;i++)
-				{
-					for(int j = 0;j < 5;j++)
-					{
-						if(j < 3)
-							dJacobian[i][j] = Jacobian[i][j];
-						else
-							dJacobian[i][j] = Jacobian[i][j+1];
-					}
-				}
-			}
-			else
+		if(*m_eRobotType == HSROB_PUMA)
+		{ 
+			for(int i = 0;i < 6;i++)
 			{
-				for(int i=0;i<6;i++)
+				for(int j = 0;j < 5;j++)
 				{
-					for(int j=0;j<5;j++)
-					{
+					if(j < 3)
 						dJacobian[i][j] = Jacobian[i][j];
-					}
+					else
+						dJacobian[i][j] = Jacobian[i][j+1];
 				}
 			}
-		    
-		    double dJacobianT[5][6]; //转置矩阵
-		    Matrix_Transpose(6,5,&dJacobian[0][0],&dJacobianT[0][0]);
-		    double dMulti[5][5];
-		    Matrix_Multi(5,6,5,&dJacobianT[0][0],&dJacobian[0][0],&dMulti[0][0]);
-		    double dInv_ATA[5][5];
-		    if(!Matrix_Inverse(5,&dMulti[0][0],&dInv_ATA[0][0]))
-			    return ERROR_JOCAB_INV;
-		    double dInv_LeftA[5][6];
-		    Matrix_Multi(5,5,6,&dInv_ATA[0][0],&dJacobianT[0][0],&dInv_LeftA[0][0]);
-		    //强制将ABC的速度为0
-		    //pdCVel[3] = 0;pdCVel[4] = 0;pdCVel[5] = 0;
-		    Matrix_Multi(5,6,1,&dInv_LeftA[0][0],dCVel,dJVel);
-		    dJVel[0] *= rad2deg;
-		    dJVel[1] *= rad2deg;
-		    dJVel[2] *= rad2deg;
-		    dJVel[3] *= rad2deg;
-		    dJVel[4] *= rad2deg;
-
-			if(*m_eRobotType == HSROB_PUMA)
+		}
+		else
+		{
+			for(int i=0;i<6;i++)
 			{
-				dJVel[5] = dJVel[4];
-				dJVel[4] = dJVel[3];
-				dJVel[3] = 0;
+				for(int j=0;j<5;j++)
+				{
+					dJacobian[i][j] = Jacobian[i][j];
+				}
 			}
-	    }
-	    else
-	    {
-		    double Inv_J[6][6];
-		    if(!Matrix_Inverse(6,&Jacobian[0][0],&Inv_J[0][0]))
-			    return ERROR_JOCAB_INV;
+		}
+		    
+		double dJacobianT[5][6]; //转置矩阵
+		Matrix_Transpose(6,5,&dJacobian[0][0],&dJacobianT[0][0]);
+		double dMulti[5][5];
+		Matrix_Multi(5,6,5,&dJacobianT[0][0],&dJacobian[0][0],&dMulti[0][0]);
+		double dInv_ATA[5][5];
+		if(!Matrix_Inverse(5,&dMulti[0][0],&dInv_ATA[0][0]))
+			return ERROR_JOCAB_INV;
+		double dInv_LeftA[5][6];
+		Matrix_Multi(5,5,6,&dInv_ATA[0][0],&dJacobianT[0][0],&dInv_LeftA[0][0]);
+		//强制将ABC的速度为0
+		//pdCVel[3] = 0;pdCVel[4] = 0;pdCVel[5] = 0;
+		Matrix_Multi(5,6,1,&dInv_LeftA[0][0],dCVel,dJVel);
+		dJVel[0] *= rad2deg;
+		dJVel[1] *= rad2deg;
+		dJVel[2] *= rad2deg;
+		dJVel[3] *= rad2deg;
+		dJVel[4] *= rad2deg;
 
-            double Inv_All[6][6];
-            Matrix_Multi(6,6,6,&Jacobian[0][0],&Inv_J[0][0],&Inv_All[0][0]);
+		if(*m_eRobotType == HSROB_PUMA)
+		{
+			dJVel[5] = dJVel[4];
+			dJVel[4] = dJVel[3];
+			dJVel[3] = 0;
+		}
+	}
+	else
+	{
+		double Inv_J[6][6];
+		if(!Matrix_Inverse(6,&Jacobian[0][0],&Inv_J[0][0]))
+			return ERROR_JOCAB_INV;
 
-		    Matrix_Multi(6,6,1,&Inv_J[0][0],dCVel,dJVel);
-		    dJVel[0] *= rad2deg;
-		    dJVel[1] *= rad2deg;
-		    dJVel[2] *= rad2deg;
-		    dJVel[3] *= rad2deg;
-		    dJVel[4] *= rad2deg;
-		    dJVel[5] *= rad2deg; 
+        double Inv_All[6][6];
+        Matrix_Multi(6,6,6,&Jacobian[0][0],&Inv_J[0][0],&Inv_All[0][0]);
 
-	    }
-    }
+		Matrix_Multi(6,6,1,&Inv_J[0][0],dCVel,dJVel);
+		dJVel[0] *= rad2deg;
+		dJVel[1] *= rad2deg;
+		dJVel[2] *= rad2deg;
+		dJVel[3] *= rad2deg;
+		dJVel[4] *= rad2deg;
+		dJVel[5] *= rad2deg; 
+
+	}
+
 	return iErrorId;
 }
 /************************************************
@@ -3281,14 +3060,6 @@ int HS_Kinematics::HS_Jacobian(double dJPos[6],double *dJacobian,bool bTool)
         iErrorId = HS_Jacobian(dJPos,dJ,bTool);
 
         memcpy(dJacobian,dJ,sizeof(double)*36);
-    }
-    else if(*m_eRobotType == HSROB_SCARA)
-    {
-        double dJ[6][4] = {0};
-        
-        iErrorId = HS_JacobianScara(dJPos,dJ);
-
-        memcpy(dJacobian,dJ,sizeof(double)*24);
     }
 
     return iErrorId;
@@ -3474,25 +3245,10 @@ int HS_Kinematics::HS_MPosToJPos(double dMPos[4][4],double dLJPos[6],double dCJP
 
 	HS_MPosToCVel(dMPos,dLMPos,dCVel);
 
-	if(*m_eRobotType == HSROB_MD410)
-	{
-		dSLJPos[4] = dSLJPos[3];
-		dSLJPos[3] = -(dSLJPos[1] + dSLJPos[2]);
-	}
-
 	iErrorID = HS_CVToJV(dSLJPos,dCVel,dJVel,bTool,iToolNum,bWristQyFlag);
     
 	for(int i = 0;i < 6;i++)				
 		dCJPos[i] = dSLJPos[i] + dJVel[i];
-
-    if(*m_eRobotType == HSROB_MD410)
-    {
-		dCJPos[3] = dCJPos[4];
-		dCJPos[4] = 0;
-	}
-
-	if(*m_eRobotType == HSROB_SCARA_3)
-		dCJPos[3] = 0;
 
 	return iErrorId;
 }
@@ -3666,10 +3422,6 @@ int HS_Kinematics::HS_JPosNearestHandle(double dSetJPos[6],double dRegJPos[6])
         HS_NearestPoint(dSetJPos[0],dRegJPos[0],-1);
 		HS_NearestPoint(dSetJPos[3],dRegJPos[3],-1);
 		HS_NearestPoint(dSetJPos[5],dRegJPos[5],-1);
-		if(m_bCobot6Flag)
-		{
-			HS_NearestPoint(dSetJPos[4],dRegJPos[4],-1);
-		}
 	}
 	return 0;
 }
@@ -3749,10 +3501,7 @@ int HS_Kinematics::HS_CPosToJPos_Hand(double dCPos[6],double dInitCPos[6],double
             iErrorId = HS_CPosToJPos(dCPos,CP_ToolWork,dLastJPos,dCJPos);
         else if(m_bWristQYHandleFlag)
         {
-			if(m_bTypeBR||m_bCobot6Flag)
-				HS_CPos2JPos_QYHandle_BR(dCPos,dLastJPos,dCJPos,dKCVel,iMoveAxis);   
-			else
-				HS_CPos2JPos_QYHandle(dCPos,dLastJPos,dCJPos,dKCVel,iMoveAxis);            
+			HS_CPos2JPos_QYHandle(dCPos,dLastJPos,dCJPos,dKCVel,iMoveAxis);            
         }
         else
         {
@@ -4305,69 +4054,18 @@ int HS_Kinematics::HS_QYDynCheck(double dCurJPos[6],double dNexJPos[6])
 	memcpy(dCurJTemp,dCurJPos,sizeof(double)*6);
 	memcpy(dNexJTemp,dNexJPos,sizeof(double)*6);
 
-	if(m_bCobot6Flag)
-	{
-		dCurJTemp[2] += 90;
-		dNexJTemp[2] += 90;
-	}
-
-    if(*m_eRobotType == HSROB_SCARA)
-    {
-        if(fabs(dNexJTemp[1]) < m_tLimitPara->dQYPara_Border)
-        {
-            if((dNexJTemp[1] < -Eps&&dNexJTemp[1] > dCurJTemp[1]+Eps)||
-                (dNexJTemp[1] > Eps&&dNexJTemp[1] < dCurJTemp[1]-Eps))
-            {
-                LOG_ALGO("Dyn QY Border: JPos2Nex = %.6lf,JPos2Cur = %.6lf",dNexJTemp[1],dCurJTemp[1]);
-                return ERROR_QY_BORDER;
-            }
-        }
-    }
-    else if(*m_eRobotType == HSROB_PUMA)
+	if(*m_eRobotType == HSROB_PUMA)
     {
         //边界奇异位置
-        if(m_bTypeBR||m_bCobot6Flag)
-        {
-            if(fabs(dNexJTemp[2] - 90) < m_tLimitPara->dQYPara_Border)
-            {
-                if((dNexJTemp[2] < 90 + m_QYKbPara-Eps&&dNexJTemp[2] > dCurJTemp[2]+Eps)||
-                    (dNexJTemp[2] > 90 + m_QYKbPara+Eps&&dNexJTemp[2] < dCurJTemp[2]-Eps))
-                {
-                    LOG_ALGO("Dyn QY Border: JPos3Nex = %.6lf,JPos3Cur = %.6lf",dNexJTemp[2],dCurJTemp[2]);
-                    return ERROR_QY_BORDER;
-                }  
-            }
-            if(fabs(dNexJTemp[2] - 270) < m_tLimitPara->dQYPara_Border)
-            {
-                if((dNexJTemp[2] < 270 + m_QYKbPara-Eps&&dNexJTemp[2] > dCurJTemp[2]+Eps)||
-                    (dNexJTemp[2] > 270 + m_QYKbPara+Eps&&dNexJTemp[2] < dCurJTemp[2]-Eps))
-                {
-                    LOG_ALGO("Dyn QY Border: JPos3Nex = %.6lf,JPos3Cur = %.6lf",dNexJTemp[2],dCurJTemp[2]);
-                    return ERROR_QY_BORDER;
-                }       
-            }
-			if(fabs(dNexJTemp[2] - 450) < m_tLimitPara->dQYPara_Border)
+		if(fabs(dNexJTemp[2] - (90 + m_QYKbPara)) < m_tLimitPara->dQYPara_Border)
+		{
+			if((dNexJTemp[2] < 90 + m_QYKbPara-Eps&&dNexJTemp[2] > dCurJTemp[2]+Eps)||
+				(dNexJTemp[2] > 90 + m_QYKbPara+Eps&&dNexJTemp[2] < dCurJTemp[2]-Eps))
 			{
-				if((dNexJTemp[2] < 450 + m_QYKbPara-Eps&&dNexJTemp[2] > dCurJTemp[2]+Eps)||
-					(dNexJTemp[2] > 450 + m_QYKbPara+Eps&&dNexJTemp[2] < dCurJTemp[2]-Eps))
-				{
-					LOG_ALGO("Dyn QY Border: JPos3Nex = %.6lf,JPos3Cur = %.6lf",dNexJTemp[2],dCurJTemp[2]);
-					return ERROR_QY_BORDER;
-				}       
+				LOG_ALGO("Dyn QY Border: JPos3Nex = %.6lf,JPos3Cur = %.6lf",dNexJTemp[2],dCurJTemp[2]);
+				return ERROR_QY_BORDER;
 			}
-        }
-        else
-        {
-            if(fabs(dNexJTemp[2] - (90 + m_QYKbPara)) < m_tLimitPara->dQYPara_Border)
-            {
-                if((dNexJTemp[2] < 90 + m_QYKbPara-Eps&&dNexJTemp[2] > dCurJTemp[2]+Eps)||
-                    (dNexJTemp[2] > 90 + m_QYKbPara+Eps&&dNexJTemp[2] < dCurJTemp[2]-Eps))
-                {
-                    LOG_ALGO("Dyn QY Border: JPos3Nex = %.6lf,JPos3Cur = %.6lf",dNexJTemp[2],dCurJTemp[2]);
-                    return ERROR_QY_BORDER;
-                }
-            }
-        }
+		}
 
         if(fabs(dNexJTemp[4]) < m_tLimitPara->dQYPara_Wrist)
         {
@@ -4419,11 +4117,6 @@ int HS_Kinematics::HS_QYStaticCheck(double dJPos[6],double dQYPara_Inter,double 
 
     if(*m_eRobotType == HSROB_PUMA)
     {
-		if(m_bCobot6Flag)
-		{
-			dCheckJPos[2] += 90;
-		}
-
         //内部奇异位置
         double dCenterDis = BorderCenterDis(dCheckJPos);
         if(dCenterDis < dQYPara_Inter)
@@ -4435,40 +4128,13 @@ int HS_Kinematics::HS_QYStaticCheck(double dJPos[6],double dQYPara_Inter,double 
         }
 
         //边界奇异位置
-        if(m_bTypeBR||m_bCobot6Flag)
-        {
-            if(fabs(dCheckJPos[2] - 90) < dQYPara_Border)
-            {
-                LOG_ALGO("Error QYBorder!");
-                LOG_ALGO("JPos = %.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf;QYPara_Border = %.3lf",
-                    dCheckJPos[0],dCheckJPos[1],dCheckJPos[2],dCheckJPos[3],dCheckJPos[4],dCheckJPos[5],dQYPara_Border);
-                iErrorId = ERROR_QY_BORDER;
-            }
-            if(fabs(dCheckJPos[2] - 270) < dQYPara_Border)
-            {
-                LOG_ALGO("Error QYBorder!");
-                LOG_ALGO("JPos = %.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf;QYPara_Border = %.3lf",
-                    dCheckJPos[0],dCheckJPos[1],dCheckJPos[2],dCheckJPos[3],dCheckJPos[4],dCheckJPos[5],dQYPara_Border);
-                iErrorId = ERROR_QY_BORDER;         
-            }
-			if(fabs(dCheckJPos[2] - 450) < dQYPara_Border)
-			{
-				LOG_ALGO("Error QYBorder!");
-				LOG_ALGO("JPos = %.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf;QYPara_Border = %.3lf",
-					dCheckJPos[0],dCheckJPos[1],dCheckJPos[2],dCheckJPos[3],dCheckJPos[4],dCheckJPos[5],dQYPara_Border);
-				iErrorId = ERROR_QY_BORDER;         
-			}
-        }
-        else
-        {
-            if(fabs(dCheckJPos[2] - (90 + m_QYKbPara)) < dQYPara_Border)
-            {
-                iErrorId = ERROR_QY_BORDER;
-                LOG_ALGO("Error QYBorder!");
-                LOG_ALGO("JPos = %.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf;QYPara_Border = %.3lf",
-                    dCheckJPos[0],dCheckJPos[1],dCheckJPos[2],dCheckJPos[3],dCheckJPos[4],dCheckJPos[5],dQYPara_Border);
-            }
-        }
+		if(fabs(dCheckJPos[2] - (90 + m_QYKbPara)) < dQYPara_Border)
+		{
+			iErrorId = ERROR_QY_BORDER;
+			LOG_ALGO("Error QYBorder!");
+			LOG_ALGO("JPos = %.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf;QYPara_Border = %.3lf",
+				dCheckJPos[0],dCheckJPos[1],dCheckJPos[2],dCheckJPos[3],dCheckJPos[4],dCheckJPos[5],dQYPara_Border);
+		}
 
         //腕部奇异位置
         if(fabs(dCheckJPos[4]) < dQYPara_Wrist)
@@ -4479,16 +4145,6 @@ int HS_Kinematics::HS_QYStaticCheck(double dJPos[6],double dQYPara_Inter,double 
                 dCheckJPos[0],dCheckJPos[1],dCheckJPos[2],dCheckJPos[3],dCheckJPos[4],dCheckJPos[5],dQYPara_Wrist);
         }
 
-    }
-    else if(*m_eRobotType == HSROB_SCARA)
-    {
-        if(fabs(dCheckJPos[1]) < dQYPara_Border)
-		{
-            iErrorId = ERROR_QY_BORDER;
-			LOG_ALGO("Error QYBorder!");
-			LOG_ALGO("JPos = %.3lf,%.3lf,%.3lf,%.3lf,%.3lf,%.3lf;QYPara_Border = %.3lf",
-				dCheckJPos[0],dCheckJPos[1],dCheckJPos[2],dCheckJPos[3],dCheckJPos[4],dCheckJPos[5],dQYPara_Border);
-		}
     }
     return iErrorId;
 }
@@ -4501,16 +4157,6 @@ double HS_Kinematics::BorderCenterDis(double dJPos[6])
 {
 	double dNewDH[6][4];				//DH参数表 
 	memcpy(dNewDH,m_dDHPara,sizeof(dNewDH));
-
-	if(m_bCobot6Flag)
-	{
-		dNewDH[0][0] = 0;               dNewDH[0][1] = m_dDHPara[0][1];	    dNewDH[0][2] = -90;
-		dNewDH[1][0] = m_dDHPara[1][0]; dNewDH[1][1] = m_dDHPara[2][1];		dNewDH[1][2] = 0;
-		dNewDH[2][0] = 0;               dNewDH[2][1] = 0;		            dNewDH[2][2] = 90;
-		dNewDH[3][0] = 0;	            dNewDH[3][1] = (m_dDHPara[2][0]-m_dDHPara[4][1]);	    dNewDH[3][2] = -90;
-		dNewDH[4][0] = 0;	            dNewDH[4][1] = 0;	                dNewDH[4][2] = 90;
-		dNewDH[5][0] = 0;	            dNewDH[5][1] = m_dDHPara[5][1];	    dNewDH[5][2] = 0;
-	}
 
     //相应的DH参数的提取
     double dA0 = dNewDH[0][0];

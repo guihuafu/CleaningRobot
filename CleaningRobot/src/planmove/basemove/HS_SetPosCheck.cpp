@@ -25,7 +25,6 @@ HS_SetPosCheck::HS_SetPosCheck(int iGroupNum)
     m_dJVelPara = m_HS_BasicPara->mMotionPara->m_tGroupStaticPara[iGroupNum].tAxisVelocityPara.dVcruise;
     m_dJAccPara = m_HS_BasicPara->mMotionPara->m_tGroupStaticPara[iGroupNum].tAxisVelocityPara.dAccelerate; 
     m_dCycle = m_HS_BasicPara->m_dCycle;
-    //m_eRobotType = &m_HS_BasicPara->mMotionPara->m_tGroupModelPara.eRobtype;
 
     m_HS_VelPlan_Para = new HS_VelPlan_Para *[MaxAxisNum];
     for(int i = 0;i < MaxAxisNum;i++)	
