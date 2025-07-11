@@ -11,10 +11,14 @@ namespace hsc3
 			this->mDataNum = 0;
 			this->mRatio = 0.3;
 			this->mJointPos = new double[MaxAxisNum];
+			this->mLastJointPos = new double[MaxAxisNum];
+			this->mLastVel = new double[MaxAxisNum];
 			mJointPos[0] = 0.0; mJointPos[1] = -90.0; mJointPos[2] = 180.0;
 			mJointPos[3] = 0.0; mJointPos[4] = 90.0; mJointPos[5] = 0.0;
 			mJointPos[6] = 0.0; mJointPos[7] = 0.0; mJointPos[8] = 0.0;
 			this->mGroupTrajout = new hsc3::algo::GroupTrajData[40];
+			memset(this->mLastJointPos, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mLastVel, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mGroupTrajout, 0, sizeof(hsc3::algo::GroupTrajData) * 40);
 			this->initPara();
 			this->mMotionPara = new hsc3::algo::MotionPara();
@@ -28,6 +32,8 @@ namespace hsc3
 		MotionCombine::~MotionCombine()
 		{
 			delete []mJointPos;
+			delete []mLastJointPos;
+			delete []mLastVel;
 		}
 
 		void MotionCombine::setRatio(double ratio)
@@ -47,19 +53,19 @@ namespace hsc3
 			mGroupStaticPara[0].tGroupVelocityPara.dTFreMin = 0.05;
 			mGroupStaticPara[0].tGroupVelocityPara.dTFreMax = 0.4;
 
-			//mGroupStaticPara[0].tGroupModelPara.DHPara[0][0] = 0.0;    mGroupStaticPara[0].tGroupModelPara.DHPara[0][1] = 0.0;  mGroupStaticPara[0].tGroupModelPara.DHPara[0][2] = -90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[0][3] = 0.0;
-			//mGroupStaticPara[0].tGroupModelPara.DHPara[1][0] = 1700.0; mGroupStaticPara[0].tGroupModelPara.DHPara[1][1] = 0.0;  mGroupStaticPara[0].tGroupModelPara.DHPara[1][2] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[1][3] = 0.0;
-			//mGroupStaticPara[0].tGroupModelPara.DHPara[2][0] = 0.0;    mGroupStaticPara[0].tGroupModelPara.DHPara[2][1] = 0.0;  mGroupStaticPara[0].tGroupModelPara.DHPara[2][2] = 90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[2][3] = 0.0;
-			//mGroupStaticPara[0].tGroupModelPara.DHPara[3][0] = 0.0;    mGroupStaticPara[0].tGroupModelPara.DHPara[3][1] = 1700.0; mGroupStaticPara[0].tGroupModelPara.DHPara[3][2] = -90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[3][3] = 0.0;
-			//mGroupStaticPara[0].tGroupModelPara.DHPara[4][0] = 0.0;    mGroupStaticPara[0].tGroupModelPara.DHPara[4][1] = 0.0;   mGroupStaticPara[0].tGroupModelPara.DHPara[4][2] = 90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[4][3] = 0.0;
-			//mGroupStaticPara[0].tGroupModelPara.DHPara[5][0] = 0.0;    mGroupStaticPara[0].tGroupModelPara.DHPara[5][1] = 140.0; mGroupStaticPara[0].tGroupModelPara.DHPara[5][2] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[5][3] = 0.0;
+			mGroupStaticPara[0].tGroupModelPara.DHPara[0][0] = 0.0;    mGroupStaticPara[0].tGroupModelPara.DHPara[0][1] = 0.0;  mGroupStaticPara[0].tGroupModelPara.DHPara[0][2] = -90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[0][3] = 0.0;
+			mGroupStaticPara[0].tGroupModelPara.DHPara[1][0] = 1700.0; mGroupStaticPara[0].tGroupModelPara.DHPara[1][1] = 0.0;  mGroupStaticPara[0].tGroupModelPara.DHPara[1][2] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[1][3] = 0.0;
+			mGroupStaticPara[0].tGroupModelPara.DHPara[2][0] = 0.0;    mGroupStaticPara[0].tGroupModelPara.DHPara[2][1] = 0.0;  mGroupStaticPara[0].tGroupModelPara.DHPara[2][2] = 90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[2][3] = 0.0;
+			mGroupStaticPara[0].tGroupModelPara.DHPara[3][0] = 0.0;    mGroupStaticPara[0].tGroupModelPara.DHPara[3][1] = 1700.0; mGroupStaticPara[0].tGroupModelPara.DHPara[3][2] = -90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[3][3] = 0.0;
+			mGroupStaticPara[0].tGroupModelPara.DHPara[4][0] = 0.0;    mGroupStaticPara[0].tGroupModelPara.DHPara[4][1] = 0.0;   mGroupStaticPara[0].tGroupModelPara.DHPara[4][2] = 90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[4][3] = 0.0;
+			mGroupStaticPara[0].tGroupModelPara.DHPara[5][0] = 0.0;    mGroupStaticPara[0].tGroupModelPara.DHPara[5][1] = 140.0; mGroupStaticPara[0].tGroupModelPara.DHPara[5][2] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[5][3] = 0.0;
 
-			mGroupStaticPara[0].tGroupModelPara.DHPara[0][0] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[0][1] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[0][2] = -90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[0][3] = 0.0;
-			mGroupStaticPara[0].tGroupModelPara.DHPara[1][0] = 360.0; mGroupStaticPara[0].tGroupModelPara.DHPara[1][1] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[1][2] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[1][3] = 0.0;
-			mGroupStaticPara[0].tGroupModelPara.DHPara[2][0] = -90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[2][1] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[2][2] = 90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[2][3] = 0.0;
-			mGroupStaticPara[0].tGroupModelPara.DHPara[3][0] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[3][1] = 376.5; mGroupStaticPara[0].tGroupModelPara.DHPara[3][2] = -90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[3][3] = 0.0;
-			mGroupStaticPara[0].tGroupModelPara.DHPara[4][0] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[4][1] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[4][2] = 90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[4][3] = 0.0;
-			mGroupStaticPara[0].tGroupModelPara.DHPara[5][0] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[5][1] = 119.0; mGroupStaticPara[0].tGroupModelPara.DHPara[5][2] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[5][3] = 0.0;
+			//mGroupStaticPara[0].tGroupModelPara.DHPara[0][0] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[0][1] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[0][2] = -90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[0][3] = 0.0;
+			//mGroupStaticPara[0].tGroupModelPara.DHPara[1][0] = 360.0; mGroupStaticPara[0].tGroupModelPara.DHPara[1][1] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[1][2] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[1][3] = 0.0;
+			//mGroupStaticPara[0].tGroupModelPara.DHPara[2][0] = -90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[2][1] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[2][2] = 90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[2][3] = 0.0;
+			//mGroupStaticPara[0].tGroupModelPara.DHPara[3][0] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[3][1] = 376.5; mGroupStaticPara[0].tGroupModelPara.DHPara[3][2] = -90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[3][3] = 0.0;
+			//mGroupStaticPara[0].tGroupModelPara.DHPara[4][0] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[4][1] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[4][2] = 90.0; mGroupStaticPara[0].tGroupModelPara.DHPara[4][3] = 0.0;
+			//mGroupStaticPara[0].tGroupModelPara.DHPara[5][0] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[5][1] = 119.0; mGroupStaticPara[0].tGroupModelPara.DHPara[5][2] = 0.0; mGroupStaticPara[0].tGroupModelPara.DHPara[5][3] = 0.0;
 			memset(mGroupStaticPara[0].dWorldCoord, 0, sizeof(double) * 6);
 
 			for(int i=0; i<MAXCOORDNUM; i++)
@@ -84,6 +90,8 @@ namespace hsc3
 		{
 			int mMotionDataNum = 0;
 			hsc3::algo::GroupMotionData groupdata = {0};
+			memset(this->mLastJointPos, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mLastVel, 0.0, sizeof(double)*MaxAxisNum);
 
 			groupdata.iLineNum = 0;
 			groupdata.tHS_GroupRel.eGroupRelType[0] = hsc3::algo::GroupRelType::GRT_Independent;
@@ -109,7 +117,7 @@ namespace hsc3
 			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iWorkNum = -1;
 			memset(groupdata.tBaseMoveData[0].sMidPos.dPos, 0, sizeof(double) * 9);
 			groupdata.tBaseMoveData[0].sEndPos.dPos[0] = endpos[0]; groupdata.tBaseMoveData[0].sEndPos.dPos[1] = endpos[1]; groupdata.tBaseMoveData[0].sEndPos.dPos[2] = endpos[2];
-			groupdata.tBaseMoveData[0].sEndPos.dPos[3] = endpos[3]; groupdata.tBaseMoveData[0].sEndPos.dPos[4] = 90.0; groupdata.tBaseMoveData[0].sEndPos.dPos[5] = 0.0;
+			groupdata.tBaseMoveData[0].sEndPos.dPos[3] = endpos[3]; groupdata.tBaseMoveData[0].sEndPos.dPos[4] = endpos[4]; groupdata.tBaseMoveData[0].sEndPos.dPos[5] = endpos[5];
 			groupdata.tBaseMoveData[0].sEndPos.dPos[6] = endpos[6]; groupdata.tBaseMoveData[0].sEndPos.dPos[7] = 0; groupdata.tBaseMoveData[0].sEndPos.dPos[8] = 0;
 			groupdata.tBaseMoveData[0].sEndPos.iPose = 0;
 			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iCoordinate = hsc3::algo::COORD_SYSTEM::JOINT_COORD_SYSTEM;
@@ -133,8 +141,6 @@ namespace hsc3
 		hsc3::algo::HS_MStatus MotionCombine::execJointIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos)
 		{
 			int errorID = 0;
-			static double dLastJointPos[MaxAxisNum] = {0.0};
-			static double dLastJointVelPos[MaxAxisNum] = {0.0};
 			hsc3::algo::IntData intdata = {0.0};
 			hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
 			status = this->mAutoMove->execIntMove(intdata, errorID);					// 获取周期关节插补点
@@ -143,17 +149,17 @@ namespace hsc3
 
 			for(int i=0; i<MaxAxisNum; i++)
 			{
-				jointvel[i] = (jointpos[i] - dLastJointPos[i]) / CYCLE;					// 获取关节速度
+				jointvel[i] = (jointpos[i] - this->mLastJointPos[i]) / CYCLE;					// 获取关节速度
 				if((jointvel[i] > 500) || (jointvel[i] < -500))
 					jointvel[i] = 0.0;
 
-				jointacc[i] = (jointvel[i] - dLastJointVelPos[i]) / CYCLE;				// 获取关节加速度
+				jointacc[i] = (jointvel[i] - this->mLastVel[i]) / CYCLE;				// 获取关节加速度
 				//if((jointacc[i] > 400) || (jointacc[i] < -400))
 				//	jointacc[i] = 0.0;
 			}
 
-			memcpy(dLastJointPos, jointpos, sizeof(double)*MaxAxisNum);
-			memcpy(dLastJointVelPos, jointvel, sizeof(double)*MaxAxisNum);
+			memcpy(this->mLastJointPos, jointpos, sizeof(double)*MaxAxisNum);
+			memcpy(this->mLastVel, jointvel, sizeof(double)*MaxAxisNum);
 
 			return status;
 		}
@@ -206,8 +212,8 @@ namespace hsc3
 			groupdata.tBaseMoveData[0].b2mid = false;
 			groupdata.tBaseMoveData[0].dVel = 100.0;
 			groupdata.tBaseMoveData[0].dVort = 100.0;
-			groupdata.tBaseMoveData[0].dAcc = 100.0;
-			groupdata.tBaseMoveData[0].dDec = 100.0;
+			groupdata.tBaseMoveData[0].dAcc = 10.0;
+			groupdata.tBaseMoveData[0].dDec = 10.0;
 			groupdata.tBaseMoveData[0].iCntType = 0;
 			groupdata.tBaseMoveData[0].tRevolve.iTurn = 0;
 
@@ -216,15 +222,16 @@ namespace hsc3
 
 		void MotionCombine::planSpace()
 		{
+			memset(this->mLastJointPos, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mLastVel, 0.0, sizeof(double)*MaxAxisNum);
 			hsc3::algo::GroupMotionData groupdata = {0};
-			mJointPos[0] = 0.0; mJointPos[1] = -90.0; mJointPos[2] = 180.0;
-			mJointPos[3] = 0.0; mJointPos[4] = 90.0; mJointPos[5] = 0.0;
-			mJointPos[6] = 0.0; mJointPos[7] = 0.0; mJointPos[8] = 0.0;
 			double dStartPos1[MaxAxisNum] = {0.0, -90.0, 180.0, 0.0, 90.0, 0.0, 0.0, 0.0, 0.0};
-			double dEndPos1[MaxAxisNum] = {376.5, 0.0, 100.0, 180.0, 0.0, 180.0, 60.0, 0.0, 0.0};
-			double dEndPos2[MaxAxisNum] = {376.5, 250.0, 100.0, 180.0, 0.0, 180.0, -30.0, 0.0, 0.0};
-			double dEndPos3[MaxAxisNum] = {500.0, 250.0, 100.0, 180.0, 0.0, 180.0, 60.0, 0.0, 0.0};
-			double dEndPos4[MaxAxisNum] = {500.0, -250.0, 100.0, 180.0, 0.0, 180.0, 30.0, 0.0, 0.0};
+			double dEndPos1[MaxAxisNum] = {1700.0, 0.0, 1400.0, 180.0, 0.0, 180.0, 60.0, 0.0, 0.0};
+			double dEndPos2[MaxAxisNum] = {1700.0, 100.0, 1400.0, 180.0, 0.0, 180.0, -30.0, 0.0, 0.0};
+			double dEndPos3[MaxAxisNum] = {1500, 100.0, 1400.0, 180.0, 0.0, 180.0, 60.0, 0.0, 0.0};
+			double dEndPos4[MaxAxisNum] = {1500, 0.0, 1400.0, 180.0, 0.0, 180.0, 30.0, 0.0, 0.0};
+
+			memcpy(this->mJointPos, dStartPos1, sizeof(double)*MaxAxisNum);
 
 			this->mDataNum = 0;
 			groupdata = this->dealElemt(true, this->mDataNum, dStartPos1, dEndPos1);
@@ -245,14 +252,11 @@ namespace hsc3
 
 		hsc3::algo::HS_MStatus MotionCombine::execSpaceIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos)
 		{
-			bool bCalcOut = false;
-			static int iID = 0;
-			hsc3::algo::HS_GroupJPos groupjpos = {0.0};
-
 			int errorID = 0;
-			static double dLastJointPos[MaxAxisNum] = {0.0};
-			static double dLastJointVelPos[MaxAxisNum] = {0.0};
+			static int iID = 0;
+			bool bCalcOut = false;
 			hsc3::algo::IntData intdata = {0.0};
+			hsc3::algo::HS_GroupJPos groupjpos = {0.0};
 			hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
 			status = this->mAutoMove->execIntMove(intdata, errorID);					// 获取周期关节插补点
 
@@ -261,18 +265,19 @@ namespace hsc3
 				case hsc3::algo::M_UnInit:
 					if(iID <= this->mDataNum)
 					{
-						printf("MotionCombine::execSpaceIntMove--M_UnInit--Plan Next Position\n");
+						bCalcOut = true;
 						memcpy(groupjpos.dJPos[0], this->mJointPos, sizeof(double) * MaxAxisNum);
 						errorID = this->mAutoMove->execPlanMove(this->mGroupTrajout, iID, this->mRatio, groupjpos);
 						if((errorID != 0) && (errorID < Waring))
 							status = hsc3::algo::M_Error;
+						printf("MotionCombine::execSpaceIntMove--M_UnInit--Plan Next Position\n");
 					}
 					break;
 				case hsc3::algo::M_Busy:
 					bCalcOut = true;
+					memcpy(this->mJointPos, intdata.tGJPos[0].dJPos[0], sizeof(double)*MaxAxisNum);
 					break;
 				case hsc3::algo::M_Done:
-					
 					if(iID <= this->mDataNum)
 					{
 						bCalcOut = true;
@@ -283,6 +288,7 @@ namespace hsc3
 						if((errorID != 0) && (errorID < Waring))
 							status = hsc3::algo::M_Error;
 						status = hsc3::algo::M_UnInit;
+						memcpy(this->mJointPos, intdata.tGJPos[0].dJPos[0], sizeof(double)*MaxAxisNum);
 						goto outres;
 					}
 					iID = 0;
@@ -297,23 +303,22 @@ namespace hsc3
 			outres:
 			if(bCalcOut)
 			{
-				memcpy(jointpos, intdata.tGJPos[0].dJPos[0], sizeof(double)*MaxAxisNum);
-				memcpy(this->mJointPos, intdata.tGJPos[0].dJPos[0], sizeof(double)*MaxAxisNum);
+				memcpy(jointpos, this->mJointPos, sizeof(double)*MaxAxisNum);
 				this->mCalibrate->calcJPosToCPos(jointpos, -1, -1, spacepos);				// 获取空间位置
 
 				for(int i=0; i<MaxAxisNum; i++)
 				{
-					jointvel[i] = (jointpos[i] - dLastJointPos[i]) / CYCLE;					// 获取关节速度
+					jointvel[i] = (jointpos[i] - this->mLastJointPos[i]) / CYCLE;					// 获取关节速度
 					if((jointvel[i] > 500) || (jointvel[i] < -500))
 						jointvel[i] = 0.0;
 
-					jointacc[i] = (jointvel[i] - dLastJointVelPos[i]) / CYCLE;				// 获取关节加速度
-					if((jointacc[i] > 30) || (jointacc[i] < -30))
-						jointacc[i] = 0.0;
+					jointacc[i] = (jointvel[i] - this->mLastVel[i]) / CYCLE;				// 获取关节加速度
+					//if((jointacc[i] > 10) || (jointacc[i] < -10))
+					//	jointacc[i] = 0.0;
 				}
 
-				memcpy(dLastJointPos, jointpos, sizeof(double)*MaxAxisNum);
-				memcpy(dLastJointVelPos, jointvel, sizeof(double)*MaxAxisNum);
+				memcpy(this->mLastJointPos, jointpos, sizeof(double)*MaxAxisNum);
+				memcpy(this->mLastVel, jointvel, sizeof(double)*MaxAxisNum);
 			}
 
 			return status;
@@ -321,6 +326,8 @@ namespace hsc3
 
 		void MotionCombine::planManual(int axisnum, bool dir, bool isjoint, double *nowpos)
 		{
+			memset(this->mLastJointPos, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mLastVel, 0.0, sizeof(double)*MaxAxisNum);
 			hsc3::algo::ManualPara mManualPara;
 			mManualPara.iAxisNum = axisnum;
 			mManualPara.iGroupNum = 0;
@@ -352,8 +359,6 @@ namespace hsc3
 		hsc3::algo::HS_MStatus MotionCombine::execManualIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos)
 		{
 			int iErrorId = 0;
-			static double dLastJointPos[MaxAxisNum] = {0.0};
-			static double dLastJointVelPos[MaxAxisNum] = {0.0};
 			hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
 			hsc3::algo::HS_GroupJPos groupjpos = {0.0};
 			status = this->mBaseManualMove->Move(iErrorId, groupjpos);					// 获取周期关节插补点
@@ -362,17 +367,17 @@ namespace hsc3
 
 			for(int i=0; i<MaxAxisNum; i++)
 			{
-				jointvel[i] = (jointpos[i] - dLastJointPos[i]) / CYCLE;					// 获取关节速度
+				jointvel[i] = (jointpos[i] - this->mLastJointPos[i]) / CYCLE;					// 获取关节速度
 				if((jointvel[i] > 300) || (jointvel[i] < -300))
 					jointvel[i] = 0.0;
 
-				jointacc[i] = (jointvel[i] - dLastJointVelPos[i]) / CYCLE;				// 获取关节加速度
+				jointacc[i] = (jointvel[i] - this->mLastVel[i]) / CYCLE;				// 获取关节加速度
 				if((jointacc[i] > 1000) || (jointacc[i] < -1000))
 					jointacc[i] = 0.0;
 			}
 
-			memcpy(dLastJointPos, jointpos, sizeof(double)*MaxAxisNum);
-			memcpy(dLastJointVelPos, jointvel, sizeof(double)*MaxAxisNum);
+			memcpy(this->mLastJointPos, jointpos, sizeof(double)*MaxAxisNum);
+			memcpy(this->mLastVel, jointvel, sizeof(double)*MaxAxisNum);
 
 			return status;
 		}
@@ -380,6 +385,11 @@ namespace hsc3
 		void MotionCombine::stopPlanManual()
 		{
 			this->mBaseManualMove->StopPlan();
+		}
+
+		void MotionCombine::resetMotion()
+		{
+			this->mAutoMove->execReset();
 		}
 	}
 }

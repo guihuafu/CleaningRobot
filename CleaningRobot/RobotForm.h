@@ -150,7 +150,7 @@ namespace CleaningRobot {
 			this->SpaceChart->ChartAreas[0]->AxisX->IntervalAutoMode = IntervalAutoMode::VariableCount;
 
 			this->Coordinate->SelectedIndex = 1;	// 显示列表中的第一个
-			motioncombine = new hsc3::algo::MotionCombine();
+			this->mMotioncombine = new hsc3::algo::MotionCombine();
 		}
 
 	protected:
@@ -178,6 +178,7 @@ namespace CleaningRobot {
 	private: System::Windows::Forms::DataVisualization::Charting::Chart^  JointAccChart;
 	private: System::Windows::Forms::Button^  J1PosButton;
 	private: System::Windows::Forms::Timer^  JointMoveTimer;
+	private: System::Windows::Forms::Timer^  AutoMoveTimer;
 	private: System::Windows::Forms::Button^  J1NegButton;
 	private: System::Windows::Forms::Button^  J2PosButton;
 	private: System::Windows::Forms::Button^  J2NegButton;
@@ -192,6 +193,8 @@ namespace CleaningRobot {
 	private: System::Windows::Forms::TextBox^  JointAngle3;
 	private: System::Windows::Forms::TextBox^  JointAngle4;
 	private: System::Windows::Forms::TextBox^  SpaceA;
+	private: System::Windows::Forms::TextBox^  SpaceB;
+	private: System::Windows::Forms::TextBox^  SpaceC;
 	private: System::Windows::Forms::TextBox^  SpaceZ;
 	private: System::Windows::Forms::TextBox^  SpaceY;
 	private: System::Windows::Forms::TextBox^  SpaceX;
@@ -203,6 +206,8 @@ namespace CleaningRobot {
 	private: System::Windows::Forms::Label^  Y;
 	private: System::Windows::Forms::Label^  Z;
 	private: System::Windows::Forms::Label^  A;
+	private: System::Windows::Forms::Label^  B;
+	private: System::Windows::Forms::Label^  C;
 	private: System::Windows::Forms::ComboBox^  Coordinate;
 	private: System::Windows::Forms::TextBox^  MoveToPos1;
 	private: System::Windows::Forms::TextBox^  MoveToPos2;
@@ -214,7 +219,7 @@ namespace CleaningRobot {
 	private: System::Windows::Forms::Button^  TestPosButton;
 	private: System::Windows::Forms::TextBox^  RatioBox;
 	private: System::Windows::Forms::Label^  RatioLabel;
-	hsc3::algo::MotionCombine *motioncombine;
+	hsc3::algo::MotionCombine *mMotioncombine;
 	bool mIsJointMove;
 	bool mAllAxisShow;
 	int mCurrentTime;
@@ -286,6 +291,11 @@ namespace CleaningRobot {
 			this->TestPosButton = (gcnew System::Windows::Forms::Button());
 			this->RatioBox = (gcnew System::Windows::Forms::TextBox());
 			this->RatioLabel = (gcnew System::Windows::Forms::Label());
+			this->SpaceB = (gcnew System::Windows::Forms::TextBox());
+			this->SpaceC = (gcnew System::Windows::Forms::TextBox());
+			this->B = (gcnew System::Windows::Forms::Label());
+			this->C = (gcnew System::Windows::Forms::Label());
+			this->AutoMoveTimer = (gcnew System::Windows::Forms::Timer(this->components));
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->JointChart))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->SpaceChart))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->JointVelChart))->BeginInit();
@@ -633,7 +643,7 @@ namespace CleaningRobot {
 			this->MoveToPos4->Name = L"MoveToPos4";
 			this->MoveToPos4->Size = System::Drawing::Size(66, 25);
 			this->MoveToPos4->TabIndex = 35;
-			this->MoveToPos4->Text = L"0.0";
+			this->MoveToPos4->Text = L"90.0";
 			// 
 			// MessageBox
 			// 
@@ -689,11 +699,52 @@ namespace CleaningRobot {
 			this->RatioLabel->TabIndex = 41;
 			this->RatioLabel->Text = L"倍率";
 			// 
+			// SpaceB
+			// 
+			this->SpaceB->Location = System::Drawing::Point(47, 564);
+			this->SpaceB->Name = L"SpaceB";
+			this->SpaceB->Size = System::Drawing::Size(96, 25);
+			this->SpaceB->TabIndex = 42;
+			// 
+			// SpaceC
+			// 
+			this->SpaceC->Location = System::Drawing::Point(47, 603);
+			this->SpaceC->Name = L"SpaceC";
+			this->SpaceC->Size = System::Drawing::Size(96, 25);
+			this->SpaceC->TabIndex = 43;
+			// 
+			// B
+			// 
+			this->B->AutoSize = true;
+			this->B->Location = System::Drawing::Point(26, 570);
+			this->B->Name = L"B";
+			this->B->Size = System::Drawing::Size(15, 15);
+			this->B->TabIndex = 44;
+			this->B->Text = L"B";
+			// 
+			// C
+			// 
+			this->C->AutoSize = true;
+			this->C->Location = System::Drawing::Point(26, 608);
+			this->C->Name = L"C";
+			this->C->Size = System::Drawing::Size(15, 15);
+			this->C->TabIndex = 45;
+			this->C->Text = L"C";
+			// 
+			// AutoMoveTimer
+			// 
+			this->AutoMoveTimer->Interval = 10;
+			this->AutoMoveTimer->Tick += gcnew System::EventHandler(this, &RobotForm::AutoMoveTimer_Tick);
+			// 
 			// RobotForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 15);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(1754, 754);
+			this->ClientSize = System::Drawing::Size(1486, 706);
+			this->Controls->Add(this->C);
+			this->Controls->Add(this->B);
+			this->Controls->Add(this->SpaceC);
+			this->Controls->Add(this->SpaceB);
 			this->Controls->Add(this->RatioLabel);
 			this->Controls->Add(this->RatioBox);
 			this->Controls->Add(this->TestPosButton);
@@ -762,36 +813,43 @@ namespace CleaningRobot {
 					 series->Points->Clear();
 			 }
 
-	private: System::Void setChart(int axixnum, int count, double *jointpos, double *jointvel, double *jointacc, double *spacepos, bool allshow)
+	private: System::Void setChart(int axixnum, int count, double *jointpos, double *jointvel, double *jointacc, double *spacepos, bool allshow, bool isjoint)
 			{
+				int iShowSingleNum = (axixnum == 4) ? 3 : axixnum;
+				int iSpace4AxisNum = (isjoint) ? 4 : 6;
+
 				this->JointAngle1->Text = jointpos[0].ToString("0.#######"); this->JointAngle2->Text = jointpos[1].ToString("0.#######");
-				this->JointAngle3->Text = jointpos[2].ToString("0.#######"); this->JointAngle4->Text = jointpos[3].ToString("0.#######");
+				this->JointAngle3->Text = jointpos[2].ToString("0.#######"); this->JointAngle4->Text = jointpos[4].ToString("0.#######"); // 根据此模型五轴为末端轴
 				this->SpaceX->Text = spacepos[0].ToString("0.#######"); this->SpaceY->Text = spacepos[1].ToString("0.#######");
 				this->SpaceZ->Text = spacepos[2].ToString("0.#######"); this->SpaceA->Text = spacepos[3].ToString("0.#######");
-				
+				this->SpaceB->Text = spacepos[4].ToString("0.#######"); this->SpaceC->Text = spacepos[5].ToString("0.#######");
+
 				if(!allshow)
 				{
-					this->JointChart->Series[axixnum]->Points->AddXY(count, jointpos[axixnum]);			// 添加关节1数据点
-					this->JointVelChart->Series[axixnum]->Points->AddXY(count, jointvel[axixnum]);	// 添加关节速度1数据点
-					this->JointAccChart->Series[axixnum]->Points->AddXY(count, jointacc[axixnum]);// 添加关节速度1数据点
-					this->SpaceChart->Series[axixnum]->Points->AddXY(count, spacepos[axixnum]);		// 添加空间X轴数据点
+					this->JointChart->Series[iShowSingleNum]->Points->AddXY(count, jointpos[axixnum]);			// 添加关节数据点
+					this->JointVelChart->Series[iShowSingleNum]->Points->AddXY(count, jointvel[axixnum]);		// 添加关节速度数据点
+					this->JointAccChart->Series[iShowSingleNum]->Points->AddXY(count, jointacc[axixnum]);		// 添加关节速度数据点
+					this->SpaceChart->Series[iShowSingleNum]->Points->AddXY(count, spacepos[axixnum]);			// 添加空间数据点
 				}
 				else
 				{
-					this->JointChart->Series["关节1"]->Points->AddXY(count, jointpos[0]);			// 添加关节1数据点
-					this->JointChart->Series["关节2"]->Points->AddXY(count, jointpos[1]);			// 添加关节2数据点
-					this->JointChart->Series["关节3"]->Points->AddXY(count, jointpos[2]);			// 添加关节3数据点
-					this->JointChart->Series["关节4"]->Points->AddXY(count, jointpos[3]);			// 添加关节4数据点
+					this->JointChart->Series["关节1"]->Points->AddXY(count, jointpos[0]);						// 添加关节1数据点
+					this->JointChart->Series["关节2"]->Points->AddXY(count, jointpos[1]);						// 添加关节2数据点
+					this->JointChart->Series["关节3"]->Points->AddXY(count, jointpos[2]);						// 添加关节3数据点
+					if(isjoint)
+						this->JointChart->Series["关节4"]->Points->AddXY(count, jointpos[iSpace4AxisNum]);			// 添加关节4数据点
 
-					this->JointVelChart->Series["关节速度1"]->Points->AddXY(count, jointvel[0]);	// 添加关节速度1数据点
-					this->JointVelChart->Series["关节速度2"]->Points->AddXY(count, jointvel[1]);	// 添加关节速度2数据点
-					this->JointVelChart->Series["关节速度3"]->Points->AddXY(count, jointvel[2]);	// 添加关节速度3数据点
-					this->JointVelChart->Series["关节速度4"]->Points->AddXY(count, jointvel[3]);	// 添加关节速度4数据点
+					this->JointVelChart->Series["关节速度1"]->Points->AddXY(count, jointvel[0]);				// 添加关节速度1数据点
+					this->JointVelChart->Series["关节速度2"]->Points->AddXY(count, jointvel[1]);				// 添加关节速度2数据点
+					this->JointVelChart->Series["关节速度3"]->Points->AddXY(count, jointvel[2]);				// 添加关节速度3数据点
+					if(isjoint)
+						this->JointVelChart->Series["关节速度4"]->Points->AddXY(count, jointvel[iSpace4AxisNum]);	// 添加关节速度4数据点
 
-					this->JointAccChart->Series["关节加速度1"]->Points->AddXY(count, jointacc[0]);	// 添加关节加速度1数据点
-					this->JointAccChart->Series["关节加速度2"]->Points->AddXY(count, jointacc[1]);	// 添加关节加速度2数据点
-					this->JointAccChart->Series["关节加速度3"]->Points->AddXY(count, jointacc[2]);	// 添加关节加速度3数据点
-					this->JointAccChart->Series["关节加速度4"]->Points->AddXY(count, jointacc[3]);	// 添加关节加速度4数据点
+					this->JointAccChart->Series["关节加速度1"]->Points->AddXY(count, jointacc[0]);				// 添加关节加速度1数据点
+					this->JointAccChart->Series["关节加速度2"]->Points->AddXY(count, jointacc[1]);				// 添加关节加速度2数据点
+					this->JointAccChart->Series["关节加速度3"]->Points->AddXY(count, jointacc[2]);				// 添加关节加速度3数据点
+					if(isjoint)
+						this->JointAccChart->Series["关节加速度4"]->Points->AddXY(count, jointacc[iSpace4AxisNum]);	// 添加关节加速度4数据点
 
 					this->SpaceChart->Series["空间X轴"]->Points->AddXY(count, spacepos[0]);			// 添加空间X轴数据点
 					this->SpaceChart->Series["空间Y轴"]->Points->AddXY(count, spacepos[1]);			// 添加空间Y轴数据点
@@ -799,18 +857,18 @@ namespace CleaningRobot {
 				}
 			 }
 
-	private: System::Void planJoint(int axisnum, bool dir, double *nowpos)
+	private: System::Void planJoint(int axisnum, bool dir, bool isjoint, double *nowpos)
 			 {
 				 this->mJointMoveNum = axisnum;
-				 this->motioncombine->planManual(axisnum, dir, this->mIsJointMove, nowpos);
+				 this->mMotioncombine->planManual(axisnum, dir, isjoint, nowpos);
 				 this->JointMoveTimer->Start();
 			 }
 
 	private: System::Void stayJoint(int axisnum)
 			 {
 				 this->mCurrentTime = this->mCurrentTime + 1;
-				 this->motioncombine->execManualIntMove(this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos);
-				 this->setChart(axisnum, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos, this->mAllAxisShow);
+				 this->mMotioncombine->execManualIntMove(this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos);
+				 this->setChart(axisnum, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos, this->mAllAxisShow, true);
 				 printf("stayJoint: %f %f %f %f %f %f \n",mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5]);
 			 }
 
@@ -819,12 +877,12 @@ namespace CleaningRobot {
 				 hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
 				 this->mJointMoveNum = axisnum;
 				 this->JointMoveTimer->Stop();
-				 this->motioncombine->stopPlanManual();
+				 this->mMotioncombine->stopPlanManual();
 				 while(status != hsc3::algo::M_Done)
 				 {
 					 this->mCurrentTime = this->mCurrentTime + 1;
-					 status = this->motioncombine->execManualIntMove(this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos);
-					 this->setChart(axisnum, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos, this->mAllAxisShow);
+					 status = this->mMotioncombine->execManualIntMove(this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos);
+					 this->setChart(axisnum, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos, this->mAllAxisShow, true);
 					 printf("stopJoint: %f %f %f %f %f %f \n",mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5]);
 				 }
 			 }
@@ -833,6 +891,7 @@ namespace CleaningRobot {
 
 	private: System::Void MoveToStart_Click(System::Object^  sender, System::EventArgs^  e) 
 			 {
+				double dAngleChange = 3.1415926535898 / 180.0;
 				double dMoveToPos[MaxAxisNum] = {0.0};
 				double num = 0.0;
 				hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
@@ -840,31 +899,32 @@ namespace CleaningRobot {
 				try
 				{
 					dMoveToPos[0] = Double::Parse(this->MoveToPos1->Text); dMoveToPos[1] = Double::Parse(this->MoveToPos2->Text);
-					dMoveToPos[2] = Double::Parse(this->MoveToPos3->Text); dMoveToPos[3] = Double::Parse(this->MoveToPos4->Text);
-					printf("MoveToStart_Click--Pos %f %f %f %f \n", dMoveToPos[0], dMoveToPos[1], dMoveToPos[2], dMoveToPos[3]);
+					dMoveToPos[2] = Double::Parse(this->MoveToPos3->Text); dMoveToPos[4] = Double::Parse(this->MoveToPos4->Text); // 根据此模型五轴为末端轴
+					printf("MoveToStart_Click--Pos %f %f %f %f \n", dMoveToPos[0], dMoveToPos[1], dMoveToPos[2], dMoveToPos[4]);
 					if(this->mIsJointMove)
 					{
-						motioncombine->planJoint(dMoveToPos);
-						while(status != hsc3::algo::M_Done)
+						mMotioncombine->planJoint(dMoveToPos);
+						while((status != hsc3::algo::M_Done) && (status != hsc3::algo::M_Error))
 						{
-							status = this->motioncombine->execJointIntMove(this->mJointPos, this->mJointVel, this->mJointAcc,this->mSpacePos);
-							this->setChart(0, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos, true);
+							status = this->mMotioncombine->execJointIntMove(this->mJointPos, this->mJointVel, this->mJointAcc,this->mSpacePos);
+							this->setChart(0, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos, true, true);
 							printf("status=%d, outPos: %f %f %f %f %f %f %f \n", status, mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5],mJointPos[6]);
-							//printf("planJoint--status=%d, outVelPos: %f %f %f %f %f %f %f\n", status,mJointAcc[0],mJointAcc[1],mJointAcc[2],mJointAcc[3],mJointAcc[4],mJointAcc[5],mJointPos[6]);
+							//printf("planJoint--status=%d, outVelPos: %f %f %f %f %f %f %f\n", status,mJointAcc[0],mJointAcc[1],mJointAcc[2],mJointAcc[3],mJointAcc[4],mJointAcc[5],mJointAcc[6]);
 							this->mCurrentTime = this->mCurrentTime + 1;
 						}
 					}
 					else
 					{
-						motioncombine->planSpace();
+						mMotioncombine->planSpace();
 						while((status != hsc3::algo::M_Done) && (status != hsc3::algo::M_Error))
 						{
-							status = this->motioncombine->execSpaceIntMove(this->mJointPos, this->mJointVel, this->mJointAcc,this->mSpacePos);
-							this->setChart(0, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos, true);
+							status = this->mMotioncombine->execSpaceIntMove(this->mJointPos, this->mJointVel, this->mJointAcc,this->mSpacePos);
+							this->setChart(0, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos, true, false);
 							printf("planSpace--status=%d, outJPos: %f %f %f %f %f %f %f\n", status,mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5],mJointPos[6]);
-							//printf("planSpace--status=%d, outSPos: %f %f %f %f %f %f %f\n", status,dSpacePos[0],dSpacePos[1],dSpacePos[2],dSpacePos[3],dSpacePos[4],dSpacePos[5],mJointPos[6]);
-							//printf("planSpace--status=%d, outVelPos: %f %f %f %f %f %f %f\n", status,mJointVel[0],mJointVel[1],mJointVel[2],mJointVel[3],mJointVel[4],mJointVel[5],mJointPos[6]);
-							//printf("planSpace--status=%d, outAccPos: %f %f %f %f %f %f %f\n", status,mJointAcc[0],mJointAcc[1],mJointAcc[2],mJointAcc[3],mJointAcc[4],mJointAcc[5],mJointPos[6]);
+							//printf("planSpace--status=%d, outJPos: %f %f %f %f %f %f %f\n", status,mJointPos[0]*dAngleChange,mJointPos[1]*dAngleChange,mJointPos[2]*dAngleChange,mJointPos[3]*dAngleChange,mJointPos[4]*dAngleChange,mJointPos[5]*dAngleChange,mJointPos[6]*dAngleChange);
+							//printf("planSpace--status=%d, outSPos: %f %f %f %f %f %f %f\n", status,dSpacePos[0],dSpacePos[1],dSpacePos[2],dSpacePos[3],dSpacePos[4],dSpacePos[5],dSpacePos[6]);
+							//printf("planSpace--status=%d, outVelPos: %f %f %f %f %f %f %f\n", status,mJointVel[0],mJointVel[1],mJointVel[2],mJointVel[3],mJointVel[4],mJointVel[5],mJointVel[6]);
+							//printf("planSpace--status=%d, outAccPos: %f %f %f %f %f %f %f\n", status,mJointAcc[0],mJointAcc[1],mJointAcc[2],mJointAcc[3],mJointAcc[4],mJointAcc[5],mJointAcc[6]);
 							this->mCurrentTime = this->mCurrentTime + 1;
 						}
 					}
@@ -880,8 +940,11 @@ namespace CleaningRobot {
 				this->stayJoint(this->mJointMoveNum);
 			 }
 
+	private: System::Void AutoMoveTimer_Tick(System::Object^  sender, System::EventArgs^  e) {
+			}
+
 	private: System::Void J1PosButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->planJoint(0, true, this->mJointPos);
+				this->planJoint(0, true, this->mIsJointMove, this->mJointPos);
 			 }
 
 	private: System::Void J1PosButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
@@ -889,7 +952,7 @@ namespace CleaningRobot {
 			 }
 
 	private: System::Void J1NegButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->planJoint(0, false, this->mJointPos);
+				this->planJoint(0, false, this->mIsJointMove, this->mJointPos);
 			 }
 
 	private: System::Void J1NegButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
@@ -897,7 +960,7 @@ namespace CleaningRobot {
 			 }
 
 	private: System::Void J2PosButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->planJoint(1, true, this->mJointPos);
+				this->planJoint(1, true, this->mIsJointMove, this->mJointPos);
 			 }
 
 	private: System::Void J2PosButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
@@ -905,7 +968,7 @@ namespace CleaningRobot {
 			 }
 
 	private: System::Void J2NegButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->planJoint(1, false, this->mJointPos);
+				this->planJoint(1, false, this->mIsJointMove, this->mJointPos);
 			 }
 
 	private: System::Void J2NegButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
@@ -913,7 +976,7 @@ namespace CleaningRobot {
 			 }
 
 	private: System::Void J3PosButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->planJoint(2, true, this->mJointPos);
+				this->planJoint(2, true, this->mIsJointMove, this->mJointPos);
 			 }
 
 	private: System::Void J3PosButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
@@ -921,7 +984,7 @@ namespace CleaningRobot {
 			 }
 
 	private: System::Void J3NegButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->planJoint(2, false, this->mJointPos);
+				this->planJoint(2, false, this->mIsJointMove, this->mJointPos);
 			 }
 
 	private: System::Void J3NegButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
@@ -929,25 +992,26 @@ namespace CleaningRobot {
 			 }
 
 	private: System::Void J4PosButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->planJoint(3, true, this->mJointPos);
+				this->planJoint(4, true, true, this->mJointPos);
 			 }
 
 	private: System::Void J4PosButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->stopJoint(3);
+				this->stopJoint(4);
 			 }
 
 	private: System::Void J4NegButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->planJoint(3, false, this->mJointPos);
+				this->planJoint(4, false, true, this->mJointPos);
 			 }
 
 	private: System::Void J4NegButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->stopJoint(3);
+				this->stopJoint(4);
 			 }
 
 	private: System::Void ClearChart_Click(System::Object^  sender, System::EventArgs^  e) 
 			 {
-				 this->MessageBox->Text = " ";
+				this->MessageBox->Text = " ";
 				this->clearChart();
+				this->mMotioncombine->resetMotion();
 			 }
 
 	private: System::Void AllAxisShow_CheckedChanged(System::Object^  sender, System::EventArgs^  e) 
@@ -975,7 +1039,7 @@ namespace CleaningRobot {
 					 this->J1PosButton->Text = "X+"; this->J1NegButton->Text = "X-";
 					 this->J2PosButton->Text = "Y+"; this->J2NegButton->Text = "Y-";
 					 this->J3PosButton->Text = "Z+"; this->J3NegButton->Text = "Z-";
-					 this->J4PosButton->Text = "A+"; this->J4NegButton->Text = "A-";
+					 this->J4PosButton->Text = "E+"; this->J4NegButton->Text = "E-";
 				 }
 				 printf("Coordinate_SelectedIndexChanged--%s, index=%d \n", this->Coordinate->SelectedItem->ToString(), this->Coordinate->SelectedIndex);
 			 }
@@ -983,13 +1047,13 @@ namespace CleaningRobot {
 	private: System::Void HomePosButton_Click(System::Object^  sender, System::EventArgs^  e) 
 			 {
 				 this->MoveToPos1->Text = "0.0";   this->MoveToPos2->Text = "-90.0";
-				 this->MoveToPos3->Text = "180.0"; this->MoveToPos4->Text = "0.0";
+				 this->MoveToPos3->Text = "180.0"; this->MoveToPos4->Text = "90.0";
 			 }
 
 	private: System::Void TestPosButton_Click(System::Object^  sender, System::EventArgs^  e) 
 			 {
 				 this->MoveToPos1->Text = "60.0";   this->MoveToPos2->Text = "-20.0";
-				 this->MoveToPos3->Text = "100.0"; this->MoveToPos4->Text = "90.0";
+				 this->MoveToPos3->Text = "100.0"; this->MoveToPos4->Text = "30.0";
 			 }
 
 	private: System::Void RatioBox_TextChanged(System::Object^  sender, System::EventArgs^  e) 
@@ -998,7 +1062,7 @@ namespace CleaningRobot {
 				 try
 				 {
 					 dRatio = Double::Parse(this->RatioBox->Text);
-					 this->motioncombine->setRatio(dRatio);
+					 this->mMotioncombine->setRatio(dRatio);
 				 }
 				 catch (FormatException^ ex)
 				 {
