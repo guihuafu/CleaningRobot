@@ -123,8 +123,8 @@ namespace CleaningRobot {
 			SpaceSeries3->ChartType = SeriesChartType::Line;
 			SpaceSeries3->Color = Color::Green;
 			this->SpaceChart->Series->Add(SpaceSeries3);
-			// 添加空间A轴位置曲线
-			Series^ SpaceSeries4 = gcnew Series("空间A轴");
+			// 添加空间E轴位置曲线
+			Series^ SpaceSeries4 = gcnew Series("空间E轴");
 			SpaceSeries4->ChartType = SeriesChartType::Line;
 			SpaceSeries4->Color = Color::Orange;
 			this->SpaceChart->Series->Add(SpaceSeries4);
@@ -171,7 +171,7 @@ namespace CleaningRobot {
 	protected: 
 
 	private:
-		// 私有变量定义
+	// 私有变量定义
 
 	private: System::Windows::Forms::DataVisualization::Charting::Chart^  SpaceChart;
 	private: System::Windows::Forms::DataVisualization::Charting::Chart^  JointVelChart;
@@ -240,14 +240,14 @@ namespace CleaningRobot {
 		void InitializeComponent(void)
 		{
 			this->components = (gcnew System::ComponentModel::Container());
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea1 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^  legend1 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea2 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^  legend2 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea3 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^  legend3 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea4 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^  legend4 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea9 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^  legend9 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea10 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^  legend10 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea11 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^  legend11 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea12 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^  legend12 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
 			this->MoveStartButton = (gcnew System::Windows::Forms::Button());
 			this->JointChart = (gcnew System::Windows::Forms::DataVisualization::Charting::Chart());
 			this->SpaceChart = (gcnew System::Windows::Forms::DataVisualization::Charting::Chart());
@@ -314,10 +314,10 @@ namespace CleaningRobot {
 			// 
 			// JointChart
 			// 
-			chartArea1->Name = L"ChartArea1";
-			this->JointChart->ChartAreas->Add(chartArea1);
-			legend1->Name = L"Legend1";
-			this->JointChart->Legends->Add(legend1);
+			chartArea9->Name = L"ChartArea1";
+			this->JointChart->ChartAreas->Add(chartArea9);
+			legend9->Name = L"Legend1";
+			this->JointChart->Legends->Add(legend9);
 			this->JointChart->Location = System::Drawing::Point(158, 108);
 			this->JointChart->Name = L"JointChart";
 			this->JointChart->Size = System::Drawing::Size(649, 289);
@@ -326,10 +326,10 @@ namespace CleaningRobot {
 			// 
 			// SpaceChart
 			// 
-			chartArea2->Name = L"ChartArea1";
-			this->SpaceChart->ChartAreas->Add(chartArea2);
-			legend2->Name = L"Legend1";
-			this->SpaceChart->Legends->Add(legend2);
+			chartArea10->Name = L"ChartArea1";
+			this->SpaceChart->ChartAreas->Add(chartArea10);
+			legend10->Name = L"Legend1";
+			this->SpaceChart->Legends->Add(legend10);
 			this->SpaceChart->Location = System::Drawing::Point(158, 403);
 			this->SpaceChart->Name = L"SpaceChart";
 			this->SpaceChart->Size = System::Drawing::Size(649, 289);
@@ -338,10 +338,10 @@ namespace CleaningRobot {
 			// 
 			// JointVelChart
 			// 
-			chartArea3->Name = L"ChartArea1";
-			this->JointVelChart->ChartAreas->Add(chartArea3);
-			legend3->Name = L"Legend1";
-			this->JointVelChart->Legends->Add(legend3);
+			chartArea11->Name = L"ChartArea1";
+			this->JointVelChart->ChartAreas->Add(chartArea11);
+			legend11->Name = L"Legend1";
+			this->JointVelChart->Legends->Add(legend11);
 			this->JointVelChart->Location = System::Drawing::Point(817, 108);
 			this->JointVelChart->Name = L"JointVelChart";
 			this->JointVelChart->RightToLeft = System::Windows::Forms::RightToLeft::No;
@@ -362,7 +362,7 @@ namespace CleaningRobot {
 			// 
 			// JointMoveTimer
 			// 
-			this->JointMoveTimer->Interval = 10;
+			this->JointMoveTimer->Interval = 5;
 			this->JointMoveTimer->Tick += gcnew System::EventHandler(this, &RobotForm::JointMoveTimer_Tick);
 			// 
 			// J1NegButton
@@ -465,10 +465,10 @@ namespace CleaningRobot {
 			// 
 			// JointAccChart
 			// 
-			chartArea4->Name = L"ChartArea1";
-			this->JointAccChart->ChartAreas->Add(chartArea4);
-			legend4->Name = L"Legend1";
-			this->JointAccChart->Legends->Add(legend4);
+			chartArea12->Name = L"ChartArea1";
+			this->JointAccChart->ChartAreas->Add(chartArea12);
+			legend12->Name = L"Legend1";
+			this->JointAccChart->Legends->Add(legend12);
 			this->JointAccChart->Location = System::Drawing::Point(817, 403);
 			this->JointAccChart->Name = L"JointAccChart";
 			this->JointAccChart->Size = System::Drawing::Size(649, 289);
@@ -733,7 +733,7 @@ namespace CleaningRobot {
 			// 
 			// AutoMoveTimer
 			// 
-			this->AutoMoveTimer->Interval = 10;
+			this->AutoMoveTimer->Interval = 1;
 			this->AutoMoveTimer->Tick += gcnew System::EventHandler(this, &RobotForm::AutoMoveTimer_Tick);
 			// 
 			// RobotForm
@@ -891,7 +891,6 @@ namespace CleaningRobot {
 
 	private: System::Void MoveToStart_Click(System::Object^  sender, System::EventArgs^  e) 
 			 {
-				double dAngleChange = 3.1415926535898 / 180.0;
 				double dMoveToPos[MaxAxisNum] = {0.0};
 				double num = 0.0;
 				hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
@@ -903,30 +902,13 @@ namespace CleaningRobot {
 					printf("MoveToStart_Click--Pos %f %f %f %f \n", dMoveToPos[0], dMoveToPos[1], dMoveToPos[2], dMoveToPos[4]);
 					if(this->mIsJointMove)
 					{
-						mMotioncombine->planJoint(dMoveToPos);
-						while((status != hsc3::algo::M_Done) && (status != hsc3::algo::M_Error))
-						{
-							status = this->mMotioncombine->execJointIntMove(this->mJointPos, this->mJointVel, this->mJointAcc,this->mSpacePos);
-							this->setChart(0, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos, true, true);
-							printf("status=%d, outPos: %f %f %f %f %f %f %f \n", status, mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5],mJointPos[6]);
-							//printf("planJoint--status=%d, outVelPos: %f %f %f %f %f %f %f\n", status,mJointAcc[0],mJointAcc[1],mJointAcc[2],mJointAcc[3],mJointAcc[4],mJointAcc[5],mJointAcc[6]);
-							this->mCurrentTime = this->mCurrentTime + 1;
-						}
+						this->mMotioncombine->planJoint(dMoveToPos);
+						this->AutoMoveTimer->Start();
 					}
 					else
 					{
-						mMotioncombine->planSpace();
-						while((status != hsc3::algo::M_Done) && (status != hsc3::algo::M_Error))
-						{
-							status = this->mMotioncombine->execSpaceIntMove(this->mJointPos, this->mJointVel, this->mJointAcc,this->mSpacePos);
-							this->setChart(0, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos, true, false);
-							printf("planSpace--status=%d, outJPos: %f %f %f %f %f %f %f\n", status,mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5],mJointPos[6]);
-							//printf("planSpace--status=%d, outJPos: %f %f %f %f %f %f %f\n", status,mJointPos[0]*dAngleChange,mJointPos[1]*dAngleChange,mJointPos[2]*dAngleChange,mJointPos[3]*dAngleChange,mJointPos[4]*dAngleChange,mJointPos[5]*dAngleChange,mJointPos[6]*dAngleChange);
-							//printf("planSpace--status=%d, outSPos: %f %f %f %f %f %f %f\n", status,dSpacePos[0],dSpacePos[1],dSpacePos[2],dSpacePos[3],dSpacePos[4],dSpacePos[5],dSpacePos[6]);
-							//printf("planSpace--status=%d, outVelPos: %f %f %f %f %f %f %f\n", status,mJointVel[0],mJointVel[1],mJointVel[2],mJointVel[3],mJointVel[4],mJointVel[5],mJointVel[6]);
-							//printf("planSpace--status=%d, outAccPos: %f %f %f %f %f %f %f\n", status,mJointAcc[0],mJointAcc[1],mJointAcc[2],mJointAcc[3],mJointAcc[4],mJointAcc[5],mJointAcc[6]);
-							this->mCurrentTime = this->mCurrentTime + 1;
-						}
+						this->mMotioncombine->planSpace();
+						this->AutoMoveTimer->Start();
 					}
 				}
 				catch (FormatException^ ex)
@@ -936,11 +918,36 @@ namespace CleaningRobot {
 				}
 			 }
 
-	private: System::Void JointMoveTimer_Tick(System::Object^  sender, System::EventArgs^  e) {
+	private: System::Void JointMoveTimer_Tick(System::Object^  sender, System::EventArgs^  e) 
+			{
 				this->stayJoint(this->mJointMoveNum);
-			 }
+			}
 
-	private: System::Void AutoMoveTimer_Tick(System::Object^  sender, System::EventArgs^  e) {
+	private: System::Void AutoMoveTimer_Tick(System::Object^  sender, System::EventArgs^  e) 
+			{
+				double dAngleChange = 3.1415926535898 / 180.0;
+				hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
+				if(this->mIsJointMove)
+				{
+					status = this->mMotioncombine->execJointIntMove(this->mJointPos, this->mJointVel, this->mJointAcc,this->mSpacePos);
+					this->setChart(0, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos, true, true);
+					printf("status=%d, outPos: %f %f %f %f %f %f %f \n", status, mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5],mJointPos[6]);
+					//printf("planJoint--status=%d, outVelPos: %f %f %f %f %f %f %f\n", status,mJointAcc[0],mJointAcc[1],mJointAcc[2],mJointAcc[3],mJointAcc[4],mJointAcc[5],mJointAcc[6]);
+					
+				}
+				else
+				{
+					status = this->mMotioncombine->execSpaceIntMove(this->mJointPos, this->mJointVel, this->mJointAcc,this->mSpacePos);
+					this->setChart(0, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos, true, false);
+					printf("planSpace--status=%d, outJPos: %f %f %f %f %f %f %f\n", status,mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5],mJointPos[6]);
+					//printf("planSpace--status=%d, outJPos: %f %f %f %f %f %f %f\n", status,mJointPos[0]*dAngleChange,mJointPos[1]*dAngleChange,mJointPos[2]*dAngleChange,mJointPos[3]*dAngleChange,mJointPos[4]*dAngleChange,mJointPos[5]*dAngleChange,mJointPos[6]*dAngleChange);
+					//printf("planSpace--status=%d, outSPos: %f %f %f %f %f %f %f\n", status,dSpacePos[0],dSpacePos[1],dSpacePos[2],dSpacePos[3],dSpacePos[4],dSpacePos[5],dSpacePos[6]);
+					//printf("planSpace--status=%d, outVelPos: %f %f %f %f %f %f %f\n", status,mJointVel[0],mJointVel[1],mJointVel[2],mJointVel[3],mJointVel[4],mJointVel[5],mJointVel[6]);
+					//printf("planSpace--status=%d, outAccPos: %f %f %f %f %f %f %f\n", status,mJointAcc[0],mJointAcc[1],mJointAcc[2],mJointAcc[3],mJointAcc[4],mJointAcc[5],mJointAcc[6]);
+				}
+				this->mCurrentTime = this->mCurrentTime + 1;
+				if((status == hsc3::algo::M_Done) || (status == hsc3::algo::M_Error))
+					this->AutoMoveTimer->Stop();
 			}
 
 	private: System::Void J1PosButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {

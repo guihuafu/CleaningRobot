@@ -89,8 +89,8 @@
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="CleaningRobot.cpp" />
-    <ClCompile Include="MotionCombine.cpp" />
     <ClCompile Include="src\calibration\calibrate.cpp" />
+    <ClCompile Include="src\MotionCombine.cpp" />
     <ClCompile Include="src\planmove\automove\baseautomove.cpp" />
     <ClCompile Include="src\planmove\automove\BezierCurve.cpp" />
     <ClCompile Include="src\planmove\automove\HS_AutoMove.cpp" />
@@ -119,7 +119,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MotionCombine.h" />
     <ClInclude Include="RobotForm.h">
       <FileType>CppForm</FileType>
     </ClInclude>
@@ -135,6 +134,7 @@
     <ClInclude Include="src\include\manualmove\manualmoveparadef.h" />
     <ClInclude Include="src\include\motionpara.h" />
     <ClInclude Include="src\include\motionparamanager.h" />
+    <ClInclude Include="src\MotionCombine.h" />
     <ClInclude Include="src\planmove\automove\AutoControl.h" />
     <ClInclude Include="src\planmove\automove\BezierCurve.h" />
     <ClInclude Include="src\planmove\automove\HS_AutoMove.h" />
