@@ -24,6 +24,7 @@ namespace CleaningRobot {
 		// 构造函数代码
 		RobotForm(void)
 		{
+			this->mCombineTestRun = false;
 			this->mIsJointMove = true;
 			this->mAllAxisShow = false;
 			this->mCurrentTime = 0;
@@ -219,7 +220,10 @@ namespace CleaningRobot {
 	private: System::Windows::Forms::Button^  TestPosButton;
 	private: System::Windows::Forms::TextBox^  RatioBox;
 	private: System::Windows::Forms::Label^  RatioLabel;
+	private: System::Windows::Forms::Timer^  CombineTimer;
+	private: System::Windows::Forms::Button^  CombineTestButton;
 	hsc3::algo::MotionCombine *mMotioncombine;
+	bool mCombineTestRun;
 	bool mIsJointMove;
 	bool mAllAxisShow;
 	int mCurrentTime;
@@ -227,7 +231,8 @@ namespace CleaningRobot {
 	double *mJointPos;
 	double *mSpacePos;
 	double *mJointVel;
-	double *mJointAcc;
+
+		 double *mJointAcc;
 
 #pragma region Windows Form Designer generated code
 
@@ -240,14 +245,14 @@ namespace CleaningRobot {
 		void InitializeComponent(void)
 		{
 			this->components = (gcnew System::ComponentModel::Container());
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea9 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^  legend9 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea10 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^  legend10 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea11 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^  legend11 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea12 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^  legend12 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea1 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^  legend1 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea2 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^  legend2 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea3 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^  legend3 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea4 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^  legend4 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
 			this->MoveStartButton = (gcnew System::Windows::Forms::Button());
 			this->JointChart = (gcnew System::Windows::Forms::DataVisualization::Charting::Chart());
 			this->SpaceChart = (gcnew System::Windows::Forms::DataVisualization::Charting::Chart());
@@ -296,6 +301,8 @@ namespace CleaningRobot {
 			this->B = (gcnew System::Windows::Forms::Label());
 			this->C = (gcnew System::Windows::Forms::Label());
 			this->AutoMoveTimer = (gcnew System::Windows::Forms::Timer(this->components));
+			this->CombineTimer = (gcnew System::Windows::Forms::Timer(this->components));
+			this->CombineTestButton = (gcnew System::Windows::Forms::Button());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->JointChart))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->SpaceChart))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->JointVelChart))->BeginInit();
@@ -314,10 +321,10 @@ namespace CleaningRobot {
 			// 
 			// JointChart
 			// 
-			chartArea9->Name = L"ChartArea1";
-			this->JointChart->ChartAreas->Add(chartArea9);
-			legend9->Name = L"Legend1";
-			this->JointChart->Legends->Add(legend9);
+			chartArea1->Name = L"ChartArea1";
+			this->JointChart->ChartAreas->Add(chartArea1);
+			legend1->Name = L"Legend1";
+			this->JointChart->Legends->Add(legend1);
 			this->JointChart->Location = System::Drawing::Point(158, 108);
 			this->JointChart->Name = L"JointChart";
 			this->JointChart->Size = System::Drawing::Size(649, 289);
@@ -326,10 +333,10 @@ namespace CleaningRobot {
 			// 
 			// SpaceChart
 			// 
-			chartArea10->Name = L"ChartArea1";
-			this->SpaceChart->ChartAreas->Add(chartArea10);
-			legend10->Name = L"Legend1";
-			this->SpaceChart->Legends->Add(legend10);
+			chartArea2->Name = L"ChartArea1";
+			this->SpaceChart->ChartAreas->Add(chartArea2);
+			legend2->Name = L"Legend1";
+			this->SpaceChart->Legends->Add(legend2);
 			this->SpaceChart->Location = System::Drawing::Point(158, 403);
 			this->SpaceChart->Name = L"SpaceChart";
 			this->SpaceChart->Size = System::Drawing::Size(649, 289);
@@ -338,10 +345,10 @@ namespace CleaningRobot {
 			// 
 			// JointVelChart
 			// 
-			chartArea11->Name = L"ChartArea1";
-			this->JointVelChart->ChartAreas->Add(chartArea11);
-			legend11->Name = L"Legend1";
-			this->JointVelChart->Legends->Add(legend11);
+			chartArea3->Name = L"ChartArea1";
+			this->JointVelChart->ChartAreas->Add(chartArea3);
+			legend3->Name = L"Legend1";
+			this->JointVelChart->Legends->Add(legend3);
 			this->JointVelChart->Location = System::Drawing::Point(817, 108);
 			this->JointVelChart->Name = L"JointVelChart";
 			this->JointVelChart->RightToLeft = System::Windows::Forms::RightToLeft::No;
@@ -465,10 +472,10 @@ namespace CleaningRobot {
 			// 
 			// JointAccChart
 			// 
-			chartArea12->Name = L"ChartArea1";
-			this->JointAccChart->ChartAreas->Add(chartArea12);
-			legend12->Name = L"Legend1";
-			this->JointAccChart->Legends->Add(legend12);
+			chartArea4->Name = L"ChartArea1";
+			this->JointAccChart->ChartAreas->Add(chartArea4);
+			legend4->Name = L"Legend1";
+			this->JointAccChart->Legends->Add(legend4);
 			this->JointAccChart->Location = System::Drawing::Point(817, 403);
 			this->JointAccChart->Name = L"JointAccChart";
 			this->JointAccChart->Size = System::Drawing::Size(649, 289);
@@ -736,11 +743,27 @@ namespace CleaningRobot {
 			this->AutoMoveTimer->Interval = 1;
 			this->AutoMoveTimer->Tick += gcnew System::EventHandler(this, &RobotForm::AutoMoveTimer_Tick);
 			// 
+			// CombineTimer
+			// 
+			this->CombineTimer->Interval = 1;
+			this->CombineTimer->Tick += gcnew System::EventHandler(this, &RobotForm::CombineTimer_Tick);
+			// 
+			// CombineTestButton
+			// 
+			this->CombineTestButton->Location = System::Drawing::Point(1401, 22);
+			this->CombineTestButton->Name = L"CombineTestButton";
+			this->CombineTestButton->Size = System::Drawing::Size(81, 28);
+			this->CombineTestButton->TabIndex = 46;
+			this->CombineTestButton->Text = L"联合测试";
+			this->CombineTestButton->UseVisualStyleBackColor = true;
+			this->CombineTestButton->Click += gcnew System::EventHandler(this, &RobotForm::CombineTestButton_Click);
+			// 
 			// RobotForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 15);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(1486, 706);
+			this->ClientSize = System::Drawing::Size(1517, 706);
+			this->Controls->Add(this->CombineTestButton);
 			this->Controls->Add(this->C);
 			this->Controls->Add(this->B);
 			this->Controls->Add(this->SpaceC);
@@ -1077,6 +1100,30 @@ namespace CleaningRobot {
 					 printf("RatioBox_TextChanged Error\n");
 				 }
 			 }
+
+	private: System::Void CombineTestButton_Click(System::Object^  sender, System::EventArgs^  e) 
+			 {
+				 this->mCurrentTime = 0;
+				 this->mCombineTestRun = true;
+				 this->CombineTimer->Start();
+			 }
+
+	private: System::Void CombineTimer_Tick(System::Object^  sender, System::EventArgs^  e) 
+			 {
+				 int iStatus = 1;
+				 double dOutPos[MaxAxisNum] = {0.0};
+				 iStatus = this->mMotioncombine->execMotion(this->mCombineTestRun);
+				 this->mMotioncombine->getResult(dOutPos);
+				 printf("CombineTimer Pos %f %f %f %f %f %f \n", dOutPos[0], dOutPos[1], dOutPos[2], dOutPos[3], dOutPos[4], dOutPos[5]);
+				 this->setChart(0, this->mCurrentTime, dOutPos, this->mJointVel, this->mJointAcc, this->mSpacePos, true, true);
+				 this->mCurrentTime = this->mCurrentTime + 1;
+				 this->mCombineTestRun = false;
+				 if(iStatus == 3)
+				 {
+					 this->CombineTimer->Stop();
+				 }
+			 }
+
 };
 
 }

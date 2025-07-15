@@ -396,5 +396,24 @@ namespace hsc3
 		{
 			this->mAutoMove->execReset();
 		}
+
+		int MotionCombine::execMotion(bool isrun)
+		{
+			hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
+			double dJointPos[MaxAxisNum] = {0.0};
+			double dJointVel[MaxAxisNum] = {0.0};
+			double dJointAcc[MaxAxisNum] = {0.0};
+			double dSpacePos[MaxAxisNum] = {0.0};
+			double dMoveToPos[MaxAxisNum] = {60.0, -20.0, 100.0, 0.0, 30.0, 0.0, 0.0, 0.0, 0.0};
+			if(isrun)
+				this->planJoint(dMoveToPos);
+			status = this->execJointIntMove(this->mJointPos, dJointVel, dJointAcc, dSpacePos);
+			return (int)status;
+		}
+
+		void MotionCombine::getResult(double *pos)
+		{
+			memcpy(pos, this->mJointPos, sizeof(double)*MaxAxisNum);
+		}
 	}
 }

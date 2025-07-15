@@ -12,12 +12,13 @@ namespace hsc3
 	{
 		class MotionCombine
 		{
+		private:
+			void initPara();
 		public:
 			MotionCombine();
 			~MotionCombine();
 			void setRatio(double ratio);
 			double getRatio();
-			void initPara();
 			void planJoint(double *endpos);
 			hsc3::algo::HS_MStatus execJointIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos);
 			void planSpace();
@@ -27,6 +28,9 @@ namespace hsc3
 			hsc3::algo::HS_MStatus execManualIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos);
 			void stopPlanManual();
 			void resetMotion();
+
+			int execMotion(bool isrun);
+			void getResult(double *pos);
 		public:
 			hsc3::algo::GroupStaticPara mGroupStaticPara[4];
 

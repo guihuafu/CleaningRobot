@@ -51,7 +51,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>D:\Project\HB\CleaningRobot\CleaningRobot\src\include\automove;D:\Project\HB\CleaningRobot\CleaningRobot\src\include\manualmove;D:\Project\HB\CleaningRobot\CleaningRobot\src\include;D:\Project\HB\CleaningRobot\CleaningRobot\src\planmove\automove;D:\Project\HB\CleaningRobot\CleaningRobot\src\planmove\basemove;D:\Project\HB\CleaningRobot\CleaningRobot\src\planmove\manualmove;D:\Project\HB\CleaningRobot\CleaningRobot\src\planmove\mathoperation;D:\Project\HB\CleaningRobot\CleaningRobot\src\planmove\motionpara;D:\Project\HB\CleaningRobot\CleaningRobot\src\include\calibrate;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Project\HB\CleaningRobot\CleaningRobot\src\include\automove;D:\Project\HB\CleaningRobot\CleaningRobot\src\include\manualmove;D:\Project\HB\CleaningRobot\CleaningRobot\src\include;D:\Project\HB\CleaningRobot\CleaningRobot\src\planmove\automove;D:\Project\HB\CleaningRobot\CleaningRobot\src\planmove\basemove;D:\Project\HB\CleaningRobot\CleaningRobot\src\planmove\manualmove;D:\Project\HB\CleaningRobot\CleaningRobot\src\planmove\mathoperation;D:\Project\HB\CleaningRobot\CleaningRobot\src\planmove\motionpara;D:\Project\HB\CleaningRobot\CleaningRobot\src\include\calibrate;D:\Project\HB\CleaningRobot\CleaningRobot\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
