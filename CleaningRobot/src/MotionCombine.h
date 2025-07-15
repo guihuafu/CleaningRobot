@@ -16,6 +16,7 @@ namespace hsc3
 			MotionCombine();
 			~MotionCombine();
 			void setRatio(double ratio);
+			double getRatio();
 			void initPara();
 			void planJoint(double *endpos);
 			hsc3::algo::HS_MStatus execJointIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos);

@@ -32,10 +32,10 @@ CXX_SRC += $(wildcard $(SRC_DIR)/planmove/motionpara/*.cpp)
 OBJS := $(patsubst %.c,%.o,$(C_SRC)) $(patsubst %.cpp,%.o,$(CXX_SRC))
 
 ./$(TARGETDIR)/$(TARGET):$(OBJS)
-	gcc $(CFLAGS) $(OBJS) -o $@ $(LDFLAGS)
+	gcc $(CFLAGS) $(OBJS) -lstdc++ -o $@ $(LDFLAGS)
 	@echo "Build finshed"
 %.o:%.c
-	gcc $(CFLAGS) -c -o $@ $<
+	gcc $(CFLAGS) -lstdc++ -c -o $@ $<
 %.o:%.cpp
 	g++ $(CFLAGS) -c -o $@ $< 
 

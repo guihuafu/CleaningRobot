@@ -27,7 +27,6 @@ namespace hsc3
 			this->mAutoMove = new hsc3::algo::BaseAutoMove(mMotionPara, CYCLE, 2);
 			this->mBaseManualMove = new hsc3::algo::BaseManualMove(mMotionPara, CYCLE);
 			this->mCalibrate = new hsc3::algo::Calibrate(mMotionPara, CYCLE, 0);
-			
 		}
 
 		MotionCombine::~MotionCombine()
@@ -41,6 +40,11 @@ namespace hsc3
 		{
 			this->mRatio = ratio / 100.0;
 			printf("MotionCombine::setRatio--%f \n", this->mRatio);
+		}
+
+		double MotionCombine::getRatio()
+		{
+			return this->mRatio;
 		}
 
 		void MotionCombine::initPara()

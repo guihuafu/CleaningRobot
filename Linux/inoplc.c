@@ -1,6 +1,7 @@
 
 #define __DEBUG__
 #include <libinoplc.h>
+#include "classwrapper.h"
 
 __IOBLCOK_DEFINE MyIOBlock
 {
@@ -26,12 +27,14 @@ __IOBLCOK_DEFINE etc20_outputs
 	UINT   device_control;
 	USINT  digital_output1;
 	USINT  digital_output2;
+	LREAL  digital_output3;
 };
 
 __IOBLCOK_DEFINE etc20_extra
 {
 	DWORD  interval;
 	WORD   errcode;
+	LREAL  output1;
 };
 
 /**
@@ -203,13 +206,24 @@ int ExampleCall(int id, void *pdata)
  */
 int Etc20Example(int id, void *pinputs, void *poutputs, void *pextra)
 {
+	//void* obj = createInstance();
+	void* obj;
+	static int bFirstStart = 1;
+	if(bFirstStart == 1)
+	{
+		obj = createInstance();
+		bFirstStart = 0;
+	}
+
 	static int a = 0, b = 0;
 	if (pinputs == NULL || poutputs == NULL)
 		return -1;
 
 	struct MyIOBlock *piBlock = pinputs;
 	struct MyIOBlock *poBlock = poutputs;
-	struct etc20_outputs *po = (struct etc20_outputs*)poBlock->ptr;
+	struct etc20_inputs *poin = (struct etc20_inputs*)piBlock->ptr;
+	struct etc20_outputs *poout = (struct etc20_outputs*)poBlock->ptr;
+	struct etc20_extra *pext = (struct etc20_extra*)pextra;
 
 	a = a + 1;
 	b = b + 1;
@@ -220,8 +234,22 @@ int Etc20Example(int id, void *pinputs, void *poutputs, void *pextra)
 	if(a > 200)
 		a = 0;
 	
-	po->digital_output1 = a;
-	po->digital_output2 = b;
+	poin->fault_id = 10;
+	poin->digital_input1 = 16;
+	poin->digital_input2 = 17;
+	
+	poout->digital_output1 = a;
+	poout->digital_output2 = b;
+	poout->digital_output3 = 33.67;
+	
+	pext->interval = 55;
+	pext->errcode = 56;
+	pext->output1 = 66.67;
+	
+	setRatio(obj, 33.0);
+	double dRatio = getRatio(obj);
+	
+	//poout->data_output3 = 33.33;
 
 	return 0;
 }
