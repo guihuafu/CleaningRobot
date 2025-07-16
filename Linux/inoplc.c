@@ -27,7 +27,7 @@ __IOBLCOK_DEFINE etc20_outputs
 	UINT   device_control;
 	USINT  digital_output1;
 	USINT  digital_output2;
-	LREAL  digital_output3;
+	USINT  digital_output3;
 };
 
 __IOBLCOK_DEFINE etc20_extra
@@ -208,6 +208,7 @@ int Etc20Example(int id, void *pinputs, void *poutputs, void *pextra)
 {
 	//void* obj = createInstance();
 	void* obj;
+	int iStatus = 0;
 	static int bFirstStart = 1;
 	if(bFirstStart == 1)
 	{
@@ -224,6 +225,8 @@ int Etc20Example(int id, void *pinputs, void *poutputs, void *pextra)
 	struct etc20_inputs *poin = (struct etc20_inputs*)piBlock->ptr;
 	struct etc20_outputs *poout = (struct etc20_outputs*)poBlock->ptr;
 	struct etc20_extra *pext = (struct etc20_extra*)pextra;
+	
+	
 
 	a = a + 1;
 	b = b + 1;
@@ -234,22 +237,39 @@ int Etc20Example(int id, void *pinputs, void *poutputs, void *pextra)
 	if(a > 200)
 		a = 0;
 	
-	poin->fault_id = 10;
-	poin->digital_input1 = 16;
-	poin->digital_input2 = 17;
+	if(poin->digital_input1 == 1)
+	{
+		poout->digital_output3 = 2;
+		iStatus = execMotion(obj, 1);
+	}
+	else if(poin->digital_input1 == 2)
+	{
+		poout->digital_output3 = 3;
+		iStatus = execMotion(obj, 0);
+		if(iStatus == 3)
+			poout->digital_output1 = 3;
+	}
+	else
+	{
+		poout->digital_output3 = 1;
+	}
 	
-	poout->digital_output1 = a;
+	
+	//poin->fault_id = 10;
+	//poin->digital_input1 = 16;
+	//poin->digital_input2 = 17;
+	
+	//poout->digital_output1 = a;
 	poout->digital_output2 = b;
-	poout->digital_output3 = 33.67;
+	//poout->digital_output3 = 33.67;
 	
-	pext->interval = 55;
-	pext->errcode = 56;
-	pext->output1 = 66.67;
+	//pext->interval = 55;
+	//pext->errcode = 56;
+	//pext->output1 = 66.67;
 	
-	setRatio(obj, 33.0);
-	double dRatio = getRatio(obj);
+	//setRatio(obj, 33.0);
+	//double dRatio = getRatio(obj);
 	
-	//poout->data_output3 = 33.33;
 
-	return 0;
+	return iStatus;
 }
