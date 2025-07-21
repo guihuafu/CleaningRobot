@@ -28,6 +28,7 @@ __IOBLCOK_DEFINE etc20_outputs
 	USINT  digital_output1;
 	USINT  digital_output2;
 	USINT  digital_output3;
+	USINT  digital_output4[9];
 };
 
 __IOBLCOK_DEFINE etc20_extra
@@ -204,10 +205,12 @@ int ExampleCall(int id, void *pdata)
  *	@retval -1 = failed
  *	@retval  0 = success
  */
+
+void* obj = NULL;
 int Etc20Example(int id, void *pinputs, void *poutputs, void *pextra)
 {
 	//void* obj = createInstance();
-	void* obj;
+	
 	int iStatus = 0;
 	static int bFirstStart = 1;
 	if(bFirstStart == 1)
@@ -225,8 +228,7 @@ int Etc20Example(int id, void *pinputs, void *poutputs, void *pextra)
 	struct etc20_inputs *poin = (struct etc20_inputs*)piBlock->ptr;
 	struct etc20_outputs *poout = (struct etc20_outputs*)poBlock->ptr;
 	struct etc20_extra *pext = (struct etc20_extra*)pextra;
-	
-	
+	double dPos[9] = {0.0};
 
 	a = a + 1;
 	b = b + 1;
@@ -246,6 +248,11 @@ int Etc20Example(int id, void *pinputs, void *poutputs, void *pextra)
 	{
 		poout->digital_output3 = 3;
 		iStatus = execMotion(obj, 0);
+		getResult(obj, dPos);
+		poout->digital_output4[0] = (int)dPos[0];
+		poout->digital_output4[1] = (int)dPos[1];
+		poout->digital_output4[2] = (int)dPos[2];
+		poout->digital_output4[3] = (int)dPos[3];
 		if(iStatus == 3)
 			poout->digital_output1 = 3;
 	}
@@ -262,6 +269,11 @@ int Etc20Example(int id, void *pinputs, void *poutputs, void *pextra)
 	//poout->digital_output1 = a;
 	poout->digital_output2 = b;
 	//poout->digital_output3 = 33.67;
+
+	// poout->digital_output4[0] = a;
+	// poout->digital_output4[1] = b;
+	// poout->digital_output4[2] = 11;
+	// poout->digital_output4[3] = 22;
 	
 	//pext->interval = 55;
 	//pext->errcode = 56;

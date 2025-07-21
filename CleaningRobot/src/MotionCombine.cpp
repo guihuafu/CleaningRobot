@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "MotionCombine.h"
 #include "HS3_MotionAlertDef.h"
+#include <stdio.h>
 #include <cstring>
 
 namespace hsc3
@@ -49,7 +50,7 @@ namespace hsc3
 
 		void MotionCombine::initPara()
 		{
-			mGroupStaticPara[0].tGroupModelPara.eRobtype = hsc3::algo::HS_RobotType::HSROB_PUMA;
+			mGroupStaticPara[0].tGroupModelPara.eRobtype = hsc3::algo::HSROB_PUMA;
 			mGroupStaticPara[0].tGroupVelocityPara.dVtran = 1700.0;
 			mGroupStaticPara[0].tGroupVelocityPara.dVrot = 50.0;
 			mGroupStaticPara[0].tGroupVelocityPara.dVtranacc = 100.0;
@@ -99,25 +100,25 @@ namespace hsc3
 			memset(this->mLastVel, 0.0, sizeof(double)*MaxAxisNum);
 
 			groupdata.iLineNum = 0;
-			groupdata.tHS_GroupRel.eGroupRelType[0] = hsc3::algo::GroupRelType::GRT_Independent;
-			groupdata.tHS_GroupRel.eGroupRelType[1] = hsc3::algo::GroupRelType::GRT_NoUse;
-			groupdata.tHS_GroupRel.eGroupRelType[2] = hsc3::algo::GroupRelType::GRT_NoUse;
-			groupdata.tHS_GroupRel.eGroupRelType[3] = hsc3::algo::GroupRelType::GRT_NoUse;
+			groupdata.tHS_GroupRel.eGroupRelType[0] = hsc3::algo::GRT_Independent;
+			groupdata.tHS_GroupRel.eGroupRelType[1] = hsc3::algo::GRT_NoUse;
+			groupdata.tHS_GroupRel.eGroupRelType[2] = hsc3::algo::GRT_NoUse;
+			groupdata.tHS_GroupRel.eGroupRelType[3] = hsc3::algo::GRT_NoUse;
 			groupdata.dCnt = 0.0;
 			groupdata.dCR = 0.0;
 			groupdata.iSmooth = 0;
 			groupdata.bStartMove = true;
 			groupdata.bWristQYFlag = false;
 			groupdata.tFilterControl.bFilterOpenFlag = false;
-			groupdata.tBaseMoveData[0].eTrajType = hsc3::algo::HS_MOVETYPE::MP_Joint;
-			groupdata.tBaseMoveData[0].sCurCoordinate.iCoordinate = hsc3::algo::COORD_SYSTEM::JOINT_COORD_SYSTEM;
+			groupdata.tBaseMoveData[0].eTrajType = hsc3::algo::MP_Joint;
+			groupdata.tBaseMoveData[0].sCurCoordinate.iCoordinate = hsc3::algo::JOINT_COORD_SYSTEM;
 			groupdata.tBaseMoveData[0].sCurCoordinate.iToolNum = -1;
 			groupdata.tBaseMoveData[0].sCurCoordinate.iWorkNum = -1;
 			groupdata.tBaseMoveData[0].sStartPos.dPos[0] = 0.0; groupdata.tBaseMoveData[0].sStartPos.dPos[1] = -90.0; groupdata.tBaseMoveData[0].sStartPos.dPos[2] = 180.0;
 			groupdata.tBaseMoveData[0].sStartPos.dPos[3] = 0.0; groupdata.tBaseMoveData[0].sStartPos.dPos[4] = 90.0; groupdata.tBaseMoveData[0].sStartPos.dPos[5] = 0.0;
 			groupdata.tBaseMoveData[0].sStartPos.dPos[6] = 0.0; groupdata.tBaseMoveData[0].sStartPos.dPos[7] = 0.0; groupdata.tBaseMoveData[0].sStartPos.dPos[8] = 0.0;
 			groupdata.tBaseMoveData[0].sStartPos.iPose = 0;
-			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iCoordinate = hsc3::algo::COORD_SYSTEM::JOINT_COORD_SYSTEM;
+			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iCoordinate = hsc3::algo::JOINT_COORD_SYSTEM;
 			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iToolNum = -1;
 			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iWorkNum = -1;
 			memset(groupdata.tBaseMoveData[0].sMidPos.dPos, 0, sizeof(double) * 9);
@@ -125,7 +126,7 @@ namespace hsc3
 			groupdata.tBaseMoveData[0].sEndPos.dPos[3] = endpos[3]; groupdata.tBaseMoveData[0].sEndPos.dPos[4] = endpos[4]; groupdata.tBaseMoveData[0].sEndPos.dPos[5] = endpos[5];
 			groupdata.tBaseMoveData[0].sEndPos.dPos[6] = endpos[6]; groupdata.tBaseMoveData[0].sEndPos.dPos[7] = 0; groupdata.tBaseMoveData[0].sEndPos.dPos[8] = 0;
 			groupdata.tBaseMoveData[0].sEndPos.iPose = 0;
-			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iCoordinate = hsc3::algo::COORD_SYSTEM::JOINT_COORD_SYSTEM;
+			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iCoordinate = hsc3::algo::JOINT_COORD_SYSTEM;
 			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iToolNum = -1;
 			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iWorkNum = -1;
 			groupdata.tBaseMoveData[0].b2mid = false;
@@ -173,18 +174,18 @@ namespace hsc3
 		{
 			hsc3::algo::GroupMotionData groupdata = {0};
 			groupdata.iLineNum = linenum;
-			groupdata.tHS_GroupRel.eGroupRelType[0] = hsc3::algo::GroupRelType::GRT_Independent;
-			groupdata.tHS_GroupRel.eGroupRelType[1] = hsc3::algo::GroupRelType::GRT_NoUse;
-			groupdata.tHS_GroupRel.eGroupRelType[2] = hsc3::algo::GroupRelType::GRT_NoUse;
-			groupdata.tHS_GroupRel.eGroupRelType[3] = hsc3::algo::GroupRelType::GRT_NoUse;
+			groupdata.tHS_GroupRel.eGroupRelType[0] = hsc3::algo::GRT_Independent;
+			groupdata.tHS_GroupRel.eGroupRelType[1] = hsc3::algo::GRT_NoUse;
+			groupdata.tHS_GroupRel.eGroupRelType[2] = hsc3::algo::GRT_NoUse;
+			groupdata.tHS_GroupRel.eGroupRelType[3] = hsc3::algo::GRT_NoUse;
 			groupdata.dCnt = 0.0;
 			groupdata.dCR = 0.0;
 			groupdata.iSmooth = 0;
 			groupdata.bStartMove = firstmove;
 			groupdata.bWristQYFlag = false;
 			groupdata.tFilterControl.bFilterOpenFlag = false;
-			groupdata.tBaseMoveData[0].eTrajType = hsc3::algo::HS_MOVETYPE::MP_Line;
-			groupdata.tBaseMoveData[0].sCurCoordinate.iCoordinate = hsc3::algo::COORD_SYSTEM::BASE_COORD_SYSTEM;
+			groupdata.tBaseMoveData[0].eTrajType = hsc3::algo::MP_Line;
+			groupdata.tBaseMoveData[0].sCurCoordinate.iCoordinate = hsc3::algo::BASE_COORD_SYSTEM;
 			groupdata.tBaseMoveData[0].sCurCoordinate.iToolNum = -1;
 			groupdata.tBaseMoveData[0].sCurCoordinate.iWorkNum = -1;
 			groupdata.tBaseMoveData[0].sStartPos.iPose = 0;
@@ -193,14 +194,14 @@ namespace hsc3
 
 			if(firstmove)
 			{
-				groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iCoordinate = hsc3::algo::COORD_SYSTEM::JOINT_COORD_SYSTEM;
+				groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iCoordinate = hsc3::algo::JOINT_COORD_SYSTEM;
 				groupdata.tBaseMoveData[0].sStartPos.dPos[0] = 0.0; groupdata.tBaseMoveData[0].sStartPos.dPos[1] = -90.0; groupdata.tBaseMoveData[0].sStartPos.dPos[2] = 180.0;
 				groupdata.tBaseMoveData[0].sStartPos.dPos[3] = 0.0; groupdata.tBaseMoveData[0].sStartPos.dPos[4] = 90.0; groupdata.tBaseMoveData[0].sStartPos.dPos[5] = 0.0;
 				groupdata.tBaseMoveData[0].sStartPos.dPos[6] = 0; groupdata.tBaseMoveData[0].sStartPos.dPos[7] = 0; groupdata.tBaseMoveData[0].sStartPos.dPos[8] = 0;
 			}
 			else
 			{
-				groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iCoordinate = hsc3::algo::COORD_SYSTEM::BASE_COORD_SYSTEM;
+				groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iCoordinate = hsc3::algo::BASE_COORD_SYSTEM;
 				groupdata.tBaseMoveData[0].sStartPos.dPos[0] = startpos[0]; groupdata.tBaseMoveData[0].sStartPos.dPos[1] = startpos[1]; groupdata.tBaseMoveData[0].sStartPos.dPos[2] = startpos[2];
 				groupdata.tBaseMoveData[0].sStartPos.dPos[3] = startpos[3]; groupdata.tBaseMoveData[0].sStartPos.dPos[4] = startpos[4]; groupdata.tBaseMoveData[0].sStartPos.dPos[5] = startpos[5];
 				groupdata.tBaseMoveData[0].sStartPos.dPos[6] = 0; groupdata.tBaseMoveData[0].sStartPos.dPos[7] = 0; groupdata.tBaseMoveData[0].sStartPos.dPos[8] = 0;
@@ -211,7 +212,7 @@ namespace hsc3
 			groupdata.tBaseMoveData[0].sEndPos.dPos[3] = endpos[3]; groupdata.tBaseMoveData[0].sEndPos.dPos[4] = endpos[4]; groupdata.tBaseMoveData[0].sEndPos.dPos[5] = endpos[5];
 			groupdata.tBaseMoveData[0].sEndPos.dPos[6] = endpos[6]; groupdata.tBaseMoveData[0].sEndPos.dPos[7] = 0; groupdata.tBaseMoveData[0].sEndPos.dPos[8] = 0;
 			groupdata.tBaseMoveData[0].sEndPos.iPose = 0;
-			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iCoordinate = hsc3::algo::COORD_SYSTEM::BASE_COORD_SYSTEM;
+			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iCoordinate = hsc3::algo::BASE_COORD_SYSTEM;
 			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iToolNum = -1;
 			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iWorkNum = -1;
 			groupdata.tBaseMoveData[0].b2mid = false;
@@ -343,17 +344,17 @@ namespace hsc3
 			mManualPara.dVtran = 250.0;
 			mManualPara.dVrot = 120.0;
 			memset(mManualPara.iToolNum, 0, sizeof(int)*MAXGROUPNUM);
-			mManualPara.tHS_GroupRel.eGroupRelType[0] = hsc3::algo::GroupRelType::GRT_Independent;
-			mManualPara.tHS_GroupRel.eGroupRelType[1] = hsc3::algo::GroupRelType::GRT_NoUse;
-			mManualPara.tHS_GroupRel.eGroupRelType[2] = hsc3::algo::GroupRelType::GRT_NoUse;
-			mManualPara.tHS_GroupRel.eGroupRelType[3] = hsc3::algo::GroupRelType::GRT_NoUse;
+			mManualPara.tHS_GroupRel.eGroupRelType[0] = hsc3::algo::GRT_Independent;
+			mManualPara.tHS_GroupRel.eGroupRelType[1] = hsc3::algo::GRT_NoUse;
+			mManualPara.tHS_GroupRel.eGroupRelType[2] = hsc3::algo::GRT_NoUse;
+			mManualPara.tHS_GroupRel.eGroupRelType[3] = hsc3::algo::GRT_NoUse;
 			mManualPara.hs_coordinate.iToolNum = -1;
 			mManualPara.hs_coordinate.iWorkNum = -1;
 
 			if(isjoint)
-				mManualPara.hs_coordinate.iCoordinate = hsc3::algo::COORD_SYSTEM::JOINT_COORD_SYSTEM;
+				mManualPara.hs_coordinate.iCoordinate = hsc3::algo::JOINT_COORD_SYSTEM;
 			else
-				mManualPara.hs_coordinate.iCoordinate = hsc3::algo::COORD_SYSTEM::BASE_COORD_SYSTEM;
+				mManualPara.hs_coordinate.iCoordinate = hsc3::algo::BASE_COORD_SYSTEM;
 
 			int iErrorId = 0;
 			hsc3::algo::HS_GroupJPos groupjpos = {0.0};

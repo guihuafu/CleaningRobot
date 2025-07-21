@@ -10,6 +10,11 @@ extern "C" int execMotion(void* obj, int en)
 	static_cast<hsc3::algo::MotionCombine*>(obj)->execMotion(en);
 }
 
+extern "C" void getResult(void* obj, double *pos)
+{
+	static_cast<hsc3::algo::MotionCombine*>(obj)->getResult(pos);
+}
+
 extern "C" int setRatio(void* obj, double radio)
 {
 	static_cast<hsc3::algo::MotionCombine*>(obj)->setRatio(radio);
