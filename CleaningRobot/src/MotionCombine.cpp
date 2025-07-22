@@ -409,6 +409,7 @@ namespace hsc3
 			if(isrun)
 				this->planJoint(dMoveToPos);
 			status = this->execJointIntMove(this->mJointPos, dJointVel, dJointAcc, dSpacePos);
+			printf("CombineTimer Pos %f %f %f %f %f %f \n", mJointPos[0], mJointPos[1], mJointPos[2], mJointPos[3], mJointPos[4], mJointPos[5]);
 			return (int)status;
 		}
 

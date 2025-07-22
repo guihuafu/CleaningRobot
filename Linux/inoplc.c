@@ -11,6 +11,33 @@ __IOBLCOK_DEFINE MyIOBlock
 };
 
 ///< define the block of inputs
+__IOBLCOK_DEFINE motion_inputs
+{
+	INT		iStatus;
+	INT		iServoErr;
+	LREAL	dFbPos[9];
+	LREAL	dFbVel[9];
+	LREAL	dFbAcc[9];
+};
+
+///< define the block of outpus
+__IOBLCOK_DEFINE motion_outputs
+{
+	INT    iCmdWord;
+	INT    iCmdErr;
+	LREAL  dCmdPos[9];
+	LREAL  dCmdVel[9];
+	LREAL  dCmdAcc[9];
+};
+
+__IOBLCOK_DEFINE motion_extra
+{
+	DWORD  interval;
+	WORD   errcode;
+	USINT  output1;
+};
+
+///< define the block of inputs
 __IOBLCOK_DEFINE etc20_inputs
 {
 	UINT   lbus_status;
@@ -35,7 +62,7 @@ __IOBLCOK_DEFINE etc20_extra
 {
 	DWORD  interval;
 	WORD   errcode;
-	LREAL  output1;
+	USINT  output1;
 };
 
 /**
@@ -205,12 +232,9 @@ int ExampleCall(int id, void *pdata)
  *	@retval -1 = failed
  *	@retval  0 = success
  */
-
 void* obj = NULL;
 int Etc20Example(int id, void *pinputs, void *poutputs, void *pextra)
 {
-	//void* obj = createInstance();
-	
 	int iStatus = 0;
 	static int bFirstStart = 1;
 	if(bFirstStart == 1)
@@ -282,6 +306,66 @@ int Etc20Example(int id, void *pinputs, void *poutputs, void *pextra)
 	//setRatio(obj, 33.0);
 	//double dRatio = getRatio(obj);
 	
+
+	return iStatus;
+}
+
+int MotionMove(int id, void *pinputs, void *poutputs, void *pextra)
+{
+	int iStatus = 0;
+	static double a = 0;
+	static int bFirstStart = 1;
+	if(bFirstStart == 1)
+	{
+		obj = createInstance();
+		bFirstStart = 0;
+	}
+
+	if (pinputs == NULL || poutputs == NULL)
+		return -1;
+
+	a = a + 1;
+	if(a > 200)
+		a = 0;
+	
+	struct MyIOBlock *piBlock = pinputs;
+	struct MyIOBlock *poBlock = poutputs;
+	struct motion_inputs *poin = (struct motion_inputs*)piBlock->ptr;
+	struct motion_outputs *poout = (struct motion_outputs*)poBlock->ptr;
+	struct motion_extra *pext = (struct motion_extra*)pextra;
+	double dPos[9] = {0.0};
+
+	if(poin->iStatus == 1)
+	{
+		poout->iCmdErr = 2;
+		iStatus = execMotion(obj, 1);
+		printf("/---MotionMove--1 \n");
+	}
+	else if(poin->iStatus == 2)
+	{
+		poout->iCmdErr = 3;
+		iStatus = execMotion(obj, 0);
+		getResult(obj, dPos);
+		poout->dCmdPos[0] = dPos[0];
+		poout->dCmdPos[1] = dPos[1];
+		poout->dCmdPos[2] = dPos[2];
+		poout->dCmdPos[3] = dPos[3];
+		if(iStatus == 3)
+			poout->iCmdWord = 3;
+		printf("/---MotionMove--2 \n");
+	}
+	else
+	{
+		poout->iCmdErr = 1;
+	}
+
+	poout->dCmdVel[0] = 11.1;
+	poout->dCmdAcc[0] = a;
+
+	poout->dCmdPos[5] = 56.6;
+	poout->dCmdPos[6] = 57.7;
+	poout->dCmdPos[7] = 58.8;
+	poout->dCmdPos[8] = 59.9;
 
 	return iStatus;
 }
