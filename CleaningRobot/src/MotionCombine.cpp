@@ -398,10 +398,31 @@ namespace hsc3
 			this->mAutoMove->execReset();
 		}
 
+		int MotionCombine::execMotion(int mode, GroupConfigPara *config, GroupCommandPara *cmddata, GroupFeedbackPara *fbdata)
+		{
+			hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
+
+			if(config->iRunMode == hsc3::algo::Mode_Manual)
+			{
+				status = this->execManualIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
+			}
+			else if(config->iRunMode == hsc3::algo::Mode_Auto)
+			{
+				if(config->bIsJoint)
+				{
+					status = this->execJointIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
+				}
+				else
+				{
+					status = this->execSpaceIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
+				}
+			}
+			return (int)status;
+		}
+
 		int MotionCombine::execMotion(bool isrun)
 		{
 			hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
-			double dJointPos[MaxAxisNum] = {0.0};
 			double dJointVel[MaxAxisNum] = {0.0};
 			double dJointAcc[MaxAxisNum] = {0.0};
 			double dSpacePos[MaxAxisNum] = {0.0};

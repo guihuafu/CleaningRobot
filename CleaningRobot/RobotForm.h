@@ -25,20 +25,25 @@ namespace CleaningRobot {
 		RobotForm(void)
 		{
 			this->mCombineTestRun = false;
-			this->mIsJointMove = true;
 			this->mAllAxisShow = false;
 			this->mCurrentTime = 0;
-			this->mJointMoveNum = 0;
-			this->mJointPos = new double[MaxAxisNum];
-			this->mSpacePos = new double[MaxAxisNum];
-			this->mJointVel = new double[MaxAxisNum];
-			this->mJointAcc = new double[MaxAxisNum];
-			this->mJointPos[0] = 0.0; this->mJointPos[1] = -90.0; this->mJointPos[2] = 180.0;
-			this->mJointPos[3] = 0.0; this->mJointPos[4] = 90.0; this->mJointPos[5] = 0.0;
-			this->mJointPos[6] = 0.0; this->mJointPos[7] = 0.0; this->mJointPos[8] = 0.0;
-			memset(this->mSpacePos, 0.0, sizeof(double)*MaxAxisNum);
-			memset(this->mJointVel, 0.0, sizeof(double)*MaxAxisNum);
-			memset(this->mJointAcc, 0.0, sizeof(double)*MaxAxisNum);
+			this->mCfgPara = new hsc3::algo::GroupConfigPara;
+			this->mCmdPara = new hsc3::algo::GroupCommandPara;
+			this->mFbPara = new hsc3::algo::GroupFeedbackPara;
+			this->mCfgPara->iAxisNum = 0;
+			this->mCfgPara->bDir = true;
+			this->mCfgPara->bIsJoint = true;
+			this->mCfgPara->iRunMode = hsc3::algo::Mode_Manual;
+			memset(this->mCfgPara->dPos, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mFbPara->dFbAxisPos, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mFbPara->dFbAxisVel, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mFbPara->dFbAxisAcc, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mCmdPara->dCmdAxisVel, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mCmdPara->dCmdAxisAcc, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mCmdPara->dCmdSpacePos, 0.0, sizeof(double)*MaxAxisNum);
+			this->mCmdPara->dCmdAxisPos[0] = 0.0; this->mCmdPara->dCmdAxisPos[1] = -90.0; this->mCmdPara->dCmdAxisPos[2] = 180.0;
+			this->mCmdPara->dCmdAxisPos[3] = 0.0; this->mCmdPara->dCmdAxisPos[4] = 90.0; this->mCmdPara->dCmdAxisPos[5] = 0.0;
+			this->mCmdPara->dCmdAxisPos[6] = 0.0; this->mCmdPara->dCmdAxisPos[7] = 0.0; this->mCmdPara->dCmdAxisPos[8] = 0.0;
 
 			CreateConsole();		// 控制台窗口初始化
 			InitializeComponent();  // 空间窗口初始化
@@ -159,10 +164,10 @@ namespace CleaningRobot {
 		{
 			if (components)
 			{
-				delete []mJointPos;
-				delete []mJointVel;
-				delete []mJointAcc;
-				delete []mSpacePos;
+				delete mMotioncombine;
+				delete mCfgPara;
+				delete mCmdPara;
+				delete mFbPara;
 				delete components;
 			}
 		}
@@ -223,16 +228,12 @@ namespace CleaningRobot {
 	private: System::Windows::Forms::Timer^  CombineTimer;
 	private: System::Windows::Forms::Button^  CombineTestButton;
 	hsc3::algo::MotionCombine *mMotioncombine;
+	hsc3::algo::GroupConfigPara *mCfgPara;
+	hsc3::algo::GroupCommandPara *mCmdPara;
+	hsc3::algo::GroupFeedbackPara *mFbPara;
 	bool mCombineTestRun;
-	bool mIsJointMove;
 	bool mAllAxisShow;
 	int mCurrentTime;
-	int mJointMoveNum;
-	double *mJointPos;
-	double *mSpacePos;
-	double *mJointVel;
-
-		 double *mJointAcc;
 
 #pragma region Windows Form Designer generated code
 
@@ -819,7 +820,6 @@ namespace CleaningRobot {
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->JointAccChart))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
-
 		}
 
 #pragma endregion
@@ -882,7 +882,8 @@ namespace CleaningRobot {
 
 	private: System::Void planJoint(int axisnum, bool dir, bool isjoint, double *nowpos)
 			 {
-				 this->mJointMoveNum = axisnum;
+				 this->mCfgPara->iRunMode = hsc3::algo::Mode_Manual;
+				 this->mCfgPara->iAxisNum = axisnum;
 				 this->mMotioncombine->planManual(axisnum, dir, isjoint, nowpos);
 				 this->JointMoveTimer->Start();
 			 }
@@ -890,23 +891,23 @@ namespace CleaningRobot {
 	private: System::Void stayJoint(int axisnum)
 			 {
 				 this->mCurrentTime = this->mCurrentTime + 1;
-				 this->mMotioncombine->execManualIntMove(this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos);
-				 this->setChart(axisnum, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos, this->mAllAxisShow, true);
-				 printf("stayJoint: %f %f %f %f %f %f \n",mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5]);
+				 this->mMotioncombine->execMotion(0, this->mCfgPara, this->mCmdPara, this->mFbPara);
+				 this->setChart(axisnum, this->mCurrentTime, this->mCmdPara->dCmdAxisPos, this->mCmdPara->dCmdAxisVel, this->mCmdPara->dCmdAxisAcc, this->mCmdPara->dCmdSpacePos, this->mAllAxisShow, true);
+				 printf("stayJoint: %f %f %f %f %f %f \n",mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5]);
 			 }
 
 	private: System::Void stopJoint(int axisnum)
 			 {
 				 hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
-				 this->mJointMoveNum = axisnum;
+				 this->mCfgPara->iAxisNum = axisnum;
 				 this->JointMoveTimer->Stop();
 				 this->mMotioncombine->stopPlanManual();
 				 while(status != hsc3::algo::M_Done)
 				 {
 					 this->mCurrentTime = this->mCurrentTime + 1;
-					 status = this->mMotioncombine->execManualIntMove(this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos);
-					 this->setChart(axisnum, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos, this->mAllAxisShow, true);
-					 printf("stopJoint: %f %f %f %f %f %f \n",mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5]);
+					 status = (hsc3::algo::HS_MStatus)this->mMotioncombine->execMotion(0, this->mCfgPara, this->mCmdPara, this->mFbPara);
+					 this->setChart(axisnum, this->mCurrentTime, this->mCmdPara->dCmdAxisPos, this->mCmdPara->dCmdAxisVel, this->mCmdPara->dCmdAxisAcc, this->mCmdPara->dCmdSpacePos, this->mAllAxisShow, true);
+					 printf("stopJoint: %f %f %f %f %f %f \n",mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5]);
 				 }
 			 }
 
@@ -917,13 +918,13 @@ namespace CleaningRobot {
 				double dMoveToPos[MaxAxisNum] = {0.0};
 				double num = 0.0;
 				hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
-
+				this->mCfgPara->iRunMode = hsc3::algo::Mode_Auto;
 				try
 				{
 					dMoveToPos[0] = Double::Parse(this->MoveToPos1->Text); dMoveToPos[1] = Double::Parse(this->MoveToPos2->Text);
 					dMoveToPos[2] = Double::Parse(this->MoveToPos3->Text); dMoveToPos[4] = Double::Parse(this->MoveToPos4->Text); // 根据此模型五轴为末端轴
 					printf("MoveToStart_Click--Pos %f %f %f %f \n", dMoveToPos[0], dMoveToPos[1], dMoveToPos[2], dMoveToPos[4]);
-					if(this->mIsJointMove)
+					if(this->mCfgPara->bIsJoint)
 					{
 						this->mMotioncombine->planJoint(dMoveToPos);
 						this->AutoMoveTimer->Start();
@@ -943,30 +944,28 @@ namespace CleaningRobot {
 
 	private: System::Void JointMoveTimer_Tick(System::Object^  sender, System::EventArgs^  e) 
 			{
-				this->stayJoint(this->mJointMoveNum);
+				this->stayJoint(this->mCfgPara->iAxisNum);
 			}
 
 	private: System::Void AutoMoveTimer_Tick(System::Object^  sender, System::EventArgs^  e) 
 			{
-				double dAngleChange = 3.1415926535898 / 180.0;
+				//double dAngleChange = 3.1415926535898 / 180.0;
 				hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
-				if(this->mIsJointMove)
+				if(this->mCfgPara->bIsJoint)
 				{
-					status = this->mMotioncombine->execJointIntMove(this->mJointPos, this->mJointVel, this->mJointAcc,this->mSpacePos);
-					this->setChart(0, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos, true, true);
-					printf("status=%d, outPos: %f %f %f %f %f %f %f \n", status, mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5],mJointPos[6]);
-					//printf("planJoint--status=%d, outVelPos: %f %f %f %f %f %f %f\n", status,mJointAcc[0],mJointAcc[1],mJointAcc[2],mJointAcc[3],mJointAcc[4],mJointAcc[5],mJointAcc[6]);
-					
+					status = (hsc3::algo::HS_MStatus)this->mMotioncombine->execMotion(0, this->mCfgPara, this->mCmdPara, this->mFbPara);
+					this->setChart(0, this->mCurrentTime, this->mCmdPara->dCmdAxisPos, this->mCmdPara->dCmdAxisVel, this->mCmdPara->dCmdAxisAcc, this->mCmdPara->dCmdSpacePos, true, true);
+					printf("planJoint--status=%d, outPos: %f %f %f %f %f %f %f \n", status, mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5],mCmdPara->dCmdAxisPos[6]);
 				}
 				else
 				{
-					status = this->mMotioncombine->execSpaceIntMove(this->mJointPos, this->mJointVel, this->mJointAcc,this->mSpacePos);
-					this->setChart(0, this->mCurrentTime, this->mJointPos, this->mJointVel, this->mJointAcc, this->mSpacePos, true, false);
-					printf("planSpace--status=%d, outJPos: %f %f %f %f %f %f %f\n", status,mJointPos[0],mJointPos[1],mJointPos[2],mJointPos[3],mJointPos[4],mJointPos[5],mJointPos[6]);
-					//printf("planSpace--status=%d, outJPos: %f %f %f %f %f %f %f\n", status,mJointPos[0]*dAngleChange,mJointPos[1]*dAngleChange,mJointPos[2]*dAngleChange,mJointPos[3]*dAngleChange,mJointPos[4]*dAngleChange,mJointPos[5]*dAngleChange,mJointPos[6]*dAngleChange);
-					//printf("planSpace--status=%d, outSPos: %f %f %f %f %f %f %f\n", status,dSpacePos[0],dSpacePos[1],dSpacePos[2],dSpacePos[3],dSpacePos[4],dSpacePos[5],dSpacePos[6]);
-					//printf("planSpace--status=%d, outVelPos: %f %f %f %f %f %f %f\n", status,mJointVel[0],mJointVel[1],mJointVel[2],mJointVel[3],mJointVel[4],mJointVel[5],mJointVel[6]);
-					//printf("planSpace--status=%d, outAccPos: %f %f %f %f %f %f %f\n", status,mJointAcc[0],mJointAcc[1],mJointAcc[2],mJointAcc[3],mJointAcc[4],mJointAcc[5],mJointAcc[6]);
+					status = (hsc3::algo::HS_MStatus)this->mMotioncombine->execMotion(0, this->mCfgPara, this->mCmdPara, this->mFbPara);
+					this->setChart(0, this->mCurrentTime, this->mCmdPara->dCmdAxisPos, this->mCmdPara->dCmdAxisVel, this->mCmdPara->dCmdAxisAcc, this->mCmdPara->dCmdSpacePos, true, false);
+					printf("planSpace--status=%d, outJPos: %f %f %f %f %f %f %f\n", status,mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5],mCmdPara->dCmdAxisPos[6]);
+					//printf("planSpace--status=%d, outJPos: %f %f %f %f %f %f %f\n", status,mCmdPara->dCmdAxisPos[0]*dAngleChange,mCmdPara->dCmdAxisPos[1]*dAngleChange,mCmdPara->dCmdAxisPos[2]*dAngleChange,mCmdPara->dCmdAxisPos[3]*dAngleChange,mCmdPara->dCmdAxisPos[4]*dAngleChange,mCmdPara->dCmdAxisPos[5]*dAngleChange,mCmdPara->dCmdAxisPos[6]*dAngleChange);
+					//printf("planSpace--status=%d, outSPos: %f %f %f %f %f %f %f\n", status,mCmdPara->dCmdSpacePos[0],mCmdPara->dCmdSpacePos[1],mCmdPara->dCmdSpacePos[2],mCmdPara->dCmdSpacePos[3],mCmdPara->dCmdSpacePos[4],mCmdPara->dCmdSpacePos[5],mCmdPara->dCmdSpacePos[6]);
+					//printf("planSpace--status=%d, outVelPos: %f %f %f %f %f %f %f\n", status,mCmdPara->dCmdAxisVel[0],mCmdPara->dCmdAxisVel[1],mCmdPara->dCmdAxisVel[2],mCmdPara->dCmdAxisVel[3],mCmdPara->dCmdAxisVel[4],mCmdPara->dCmdAxisVel[5],mCmdPara->dCmdAxisVel[6]);
+					//printf("planSpace--status=%d, outAccPos: %f %f %f %f %f %f %f\n", status,mCmdPara->dCmdAxisAcc[0],mCmdPara->dCmdAxisAcc[1],mCmdPara->dCmdAxisAcc[2],mCmdPara->dCmdAxisAcc[3],mCmdPara->dCmdAxisAcc[4],mCmdPara->dCmdAxisAcc[5],mCmdPara->dCmdAxisAcc[6]);
 				}
 				this->mCurrentTime = this->mCurrentTime + 1;
 				if((status == hsc3::algo::M_Done) || (status == hsc3::algo::M_Error))
@@ -974,7 +973,7 @@ namespace CleaningRobot {
 			}
 
 	private: System::Void J1PosButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->planJoint(0, true, this->mIsJointMove, this->mJointPos);
+				this->planJoint(0, true, this->mCfgPara->bIsJoint, this->mCmdPara->dCmdAxisPos);
 			 }
 
 	private: System::Void J1PosButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
@@ -982,7 +981,7 @@ namespace CleaningRobot {
 			 }
 
 	private: System::Void J1NegButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->planJoint(0, false, this->mIsJointMove, this->mJointPos);
+				this->planJoint(0, false, this->mCfgPara->bIsJoint, this->mCmdPara->dCmdAxisPos);
 			 }
 
 	private: System::Void J1NegButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
@@ -990,7 +989,7 @@ namespace CleaningRobot {
 			 }
 
 	private: System::Void J2PosButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->planJoint(1, true, this->mIsJointMove, this->mJointPos);
+				this->planJoint(1, true, this->mCfgPara->bIsJoint, this->mCmdPara->dCmdAxisPos);
 			 }
 
 	private: System::Void J2PosButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
@@ -998,7 +997,7 @@ namespace CleaningRobot {
 			 }
 
 	private: System::Void J2NegButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->planJoint(1, false, this->mIsJointMove, this->mJointPos);
+				this->planJoint(1, false, this->mCfgPara->bIsJoint, this->mCmdPara->dCmdAxisPos);
 			 }
 
 	private: System::Void J2NegButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
@@ -1006,7 +1005,7 @@ namespace CleaningRobot {
 			 }
 
 	private: System::Void J3PosButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->planJoint(2, true, this->mIsJointMove, this->mJointPos);
+				this->planJoint(2, true, this->mCfgPara->bIsJoint, this->mCmdPara->dCmdAxisPos);
 			 }
 
 	private: System::Void J3PosButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
@@ -1014,7 +1013,7 @@ namespace CleaningRobot {
 			 }
 
 	private: System::Void J3NegButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->planJoint(2, false, this->mIsJointMove, this->mJointPos);
+				this->planJoint(2, false, this->mCfgPara->bIsJoint, this->mCmdPara->dCmdAxisPos);
 			 }
 
 	private: System::Void J3NegButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
@@ -1022,7 +1021,7 @@ namespace CleaningRobot {
 			 }
 
 	private: System::Void J4PosButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->planJoint(4, true, true, this->mJointPos);
+				this->planJoint(4, true, true, this->mCmdPara->dCmdAxisPos);
 			 }
 
 	private: System::Void J4PosButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
@@ -1030,7 +1029,7 @@ namespace CleaningRobot {
 			 }
 
 	private: System::Void J4NegButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->planJoint(4, false, true, this->mJointPos);
+				this->planJoint(4, false, true, this->mCmdPara->dCmdAxisPos);
 			 }
 
 	private: System::Void J4NegButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
@@ -1055,7 +1054,7 @@ namespace CleaningRobot {
 				 this->clearChart();
 				 if(this->Coordinate->SelectedIndex == 0)
 				 {
-					 this->mIsJointMove = true;
+					 this->mCfgPara->bIsJoint = true;
 					 this->PosLabel->Text = "关节位置";
 					 this->J1PosButton->Text = "J1+"; this->J1NegButton->Text = "J1-";
 					 this->J2PosButton->Text = "J2+"; this->J2NegButton->Text = "J2-";
@@ -1064,7 +1063,7 @@ namespace CleaningRobot {
 				 }
 				 else
 				 {
-					 this->mIsJointMove = false;
+					 this->mCfgPara->bIsJoint = false;
 					 this->PosLabel->Text = "空间位置";
 					 this->J1PosButton->Text = "X+"; this->J1NegButton->Text = "X-";
 					 this->J2PosButton->Text = "Y+"; this->J2NegButton->Text = "Y-";
@@ -1112,10 +1111,11 @@ namespace CleaningRobot {
 			 {
 				 int iStatus = 1;
 				 double dOutPos[MaxAxisNum] = {0.0};
+				 double dBuffer[MaxAxisNum] = {0.0};
 				 iStatus = this->mMotioncombine->execMotion(this->mCombineTestRun);
 				 this->mMotioncombine->getResult(dOutPos);
 				 printf("CombineTimer Pos %f %f %f %f %f %f \n", dOutPos[0], dOutPos[1], dOutPos[2], dOutPos[3], dOutPos[4], dOutPos[5]);
-				 this->setChart(0, this->mCurrentTime, dOutPos, this->mJointVel, this->mJointAcc, this->mSpacePos, true, true);
+				 this->setChart(0, this->mCurrentTime, dOutPos, dBuffer, dBuffer, dBuffer, true, true);
 				 this->mCurrentTime = this->mCurrentTime + 1;
 				 this->mCombineTestRun = false;
 				 if(iStatus == 3)

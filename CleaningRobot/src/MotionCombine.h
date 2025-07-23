@@ -14,26 +14,29 @@ namespace hsc3
 		{
 		private:
 			void initPara();
+			hsc3::algo::GroupMotionData dealElemt(bool firstmove, int linenum, double *startpos, double *endpos);
+			hsc3::algo::HS_MStatus execJointIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos);
+			hsc3::algo::HS_MStatus execSpaceIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos);
+			hsc3::algo::HS_MStatus execManualIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos);
+			
 		public:
 			MotionCombine();
 			~MotionCombine();
 			void setRatio(double ratio);
 			double getRatio();
-			void planJoint(double *endpos);
-			hsc3::algo::HS_MStatus execJointIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos);
-			void planSpace();
-			hsc3::algo::GroupMotionData dealElemt(bool firstmove, int linenum, double *startpos, double *endpos);
-			hsc3::algo::HS_MStatus execSpaceIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos);
-			void planManual(int axisnum, bool dir, bool isjoint, double *nowpos);
-			hsc3::algo::HS_MStatus execManualIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos);
-			void stopPlanManual();
 			void resetMotion();
 
+			void planJoint(double *endpos);
+			void planSpace();
+			void planManual(int axisnum, bool dir, bool isjoint, double *nowpos);
+			void stopPlanManual();
+
+			int execMotion(int mode, GroupConfigPara *config, GroupCommandPara *cmddata, GroupFeedbackPara *fbdata);
 			int execMotion(bool isrun);
 			void getResult(double *pos);
 		public:
 			hsc3::algo::GroupStaticPara mGroupStaticPara[4];
-
+			
 		private:
 			int mDataNum;
 			double mRatio;
