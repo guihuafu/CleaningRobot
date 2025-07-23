@@ -398,15 +398,14 @@ namespace hsc3
 			this->mAutoMove->execReset();
 		}
 
-		int MotionCombine::execMotion(int mode, GroupConfigPara *config, GroupCommandPara *cmddata, GroupFeedbackPara *fbdata)
+		hsc3::algo::HS_MStatus MotionCombine::execInt(GroupConfigPara *config, GroupCommandPara *cmddata, GroupFeedbackPara *fbdata)
 		{
 			hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
-
-			if(config->iRunMode == hsc3::algo::Mode_Manual)
+			if(config->iIntMode == hsc3::algo::Int_Manual)
 			{
 				status = this->execManualIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
 			}
-			else if(config->iRunMode == hsc3::algo::Mode_Auto)
+			else if(config->iIntMode == hsc3::algo::Int_Auto)
 			{
 				if(config->bIsJoint)
 				{
@@ -417,6 +416,34 @@ namespace hsc3
 					status = this->execSpaceIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
 				}
 			}
+			return status;
+		}
+
+		int MotionCombine::execMotion(int mode, GroupConfigPara *config, GroupCommandPara *cmddata, GroupFeedbackPara *fbdata)
+		{
+			hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
+
+			switch((hsc3::algo::PlanMode)mode)
+			{
+			case hsc3::algo::Plan_Manual:
+				this->planManual(config->iAxisNum, config->bDir, config->bIsJoint, fbdata->dFbAxisPos);
+				break;
+			case hsc3::algo::Plan_Auto:
+				if(config->bIsJoint)
+					this->planJoint(config->dPos);
+				else
+					this->planSpace();
+				break;
+			case hsc3::algo::Plan_Stop:
+				this->stopPlanManual();
+				break;
+			case hsc3::algo::Plan_None:
+				status = this->execInt(config, cmddata, fbdata);
+				break;
+			default:
+				break;
+			}
+
 			return (int)status;
 		}
 

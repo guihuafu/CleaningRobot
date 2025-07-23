@@ -33,7 +33,7 @@ namespace CleaningRobot {
 			this->mCfgPara->iAxisNum = 0;
 			this->mCfgPara->bDir = true;
 			this->mCfgPara->bIsJoint = true;
-			this->mCfgPara->iRunMode = hsc3::algo::Mode_Manual;
+			this->mCfgPara->iIntMode = hsc3::algo::Int_None;
 			memset(this->mCfgPara->dPos, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mFbPara->dFbAxisPos, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mFbPara->dFbAxisVel, 0.0, sizeof(double)*MaxAxisNum);
@@ -882,16 +882,19 @@ namespace CleaningRobot {
 
 	private: System::Void planJoint(int axisnum, bool dir, bool isjoint, double *nowpos)
 			 {
-				 this->mCfgPara->iRunMode = hsc3::algo::Mode_Manual;
+				 this->mCfgPara->iIntMode = hsc3::algo::Int_Manual;
 				 this->mCfgPara->iAxisNum = axisnum;
-				 this->mMotioncombine->planManual(axisnum, dir, isjoint, nowpos);
+				 this->mCfgPara->bDir = dir;
+				 this->mCfgPara->bIsJoint = isjoint;
+				 memcpy(this->mFbPara->dFbAxisPos, nowpos, sizeof(double)*MaxAxisNum);
+				 this->mMotioncombine->execMotion(hsc3::algo::Plan_Manual, this->mCfgPara, this->mCmdPara, this->mFbPara);
 				 this->JointMoveTimer->Start();
 			 }
 
 	private: System::Void stayJoint(int axisnum)
 			 {
 				 this->mCurrentTime = this->mCurrentTime + 1;
-				 this->mMotioncombine->execMotion(0, this->mCfgPara, this->mCmdPara, this->mFbPara);
+				 this->mMotioncombine->execMotion(hsc3::algo::Plan_None, this->mCfgPara, this->mCmdPara, this->mFbPara);
 				 this->setChart(axisnum, this->mCurrentTime, this->mCmdPara->dCmdAxisPos, this->mCmdPara->dCmdAxisVel, this->mCmdPara->dCmdAxisAcc, this->mCmdPara->dCmdSpacePos, this->mAllAxisShow, true);
 				 printf("stayJoint: %f %f %f %f %f %f \n",mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5]);
 			 }
@@ -901,11 +904,11 @@ namespace CleaningRobot {
 				 hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
 				 this->mCfgPara->iAxisNum = axisnum;
 				 this->JointMoveTimer->Stop();
-				 this->mMotioncombine->stopPlanManual();
+				 this->mMotioncombine->execMotion(hsc3::algo::Plan_Stop, this->mCfgPara, this->mCmdPara, this->mFbPara);
 				 while(status != hsc3::algo::M_Done)
 				 {
 					 this->mCurrentTime = this->mCurrentTime + 1;
-					 status = (hsc3::algo::HS_MStatus)this->mMotioncombine->execMotion(0, this->mCfgPara, this->mCmdPara, this->mFbPara);
+					 status = (hsc3::algo::HS_MStatus)this->mMotioncombine->execMotion(hsc3::algo::Plan_None, this->mCfgPara, this->mCmdPara, this->mFbPara);
 					 this->setChart(axisnum, this->mCurrentTime, this->mCmdPara->dCmdAxisPos, this->mCmdPara->dCmdAxisVel, this->mCmdPara->dCmdAxisAcc, this->mCmdPara->dCmdSpacePos, this->mAllAxisShow, true);
 					 printf("stopJoint: %f %f %f %f %f %f \n",mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5]);
 				 }
@@ -915,25 +918,15 @@ namespace CleaningRobot {
 
 	private: System::Void MoveToStart_Click(System::Object^  sender, System::EventArgs^  e) 
 			 {
-				double dMoveToPos[MaxAxisNum] = {0.0};
-				double num = 0.0;
 				hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
-				this->mCfgPara->iRunMode = hsc3::algo::Mode_Auto;
+				this->mCfgPara->iIntMode = hsc3::algo::Int_Auto;
 				try
 				{
-					dMoveToPos[0] = Double::Parse(this->MoveToPos1->Text); dMoveToPos[1] = Double::Parse(this->MoveToPos2->Text);
-					dMoveToPos[2] = Double::Parse(this->MoveToPos3->Text); dMoveToPos[4] = Double::Parse(this->MoveToPos4->Text); // 根据此模型五轴为末端轴
-					printf("MoveToStart_Click--Pos %f %f %f %f \n", dMoveToPos[0], dMoveToPos[1], dMoveToPos[2], dMoveToPos[4]);
-					if(this->mCfgPara->bIsJoint)
-					{
-						this->mMotioncombine->planJoint(dMoveToPos);
-						this->AutoMoveTimer->Start();
-					}
-					else
-					{
-						this->mMotioncombine->planSpace();
-						this->AutoMoveTimer->Start();
-					}
+					this->mCfgPara->dPos[0] = Double::Parse(this->MoveToPos1->Text); this->mCfgPara->dPos[1] = Double::Parse(this->MoveToPos2->Text);
+					this->mCfgPara->dPos[2] = Double::Parse(this->MoveToPos3->Text); this->mCfgPara->dPos[4] = Double::Parse(this->MoveToPos4->Text); // 根据此模型五轴为末端轴
+					printf("MoveToStart_Click--Pos %f %f %f %f \n", this->mCfgPara->dPos[0], this->mCfgPara->dPos[1], this->mCfgPara->dPos[2], this->mCfgPara->dPos[4]);
+					this->mMotioncombine->execMotion(hsc3::algo::Int_Auto, this->mCfgPara, this->mCmdPara, this->mFbPara);
+					this->AutoMoveTimer->Start();
 				}
 				catch (FormatException^ ex)
 				{
@@ -953,13 +946,13 @@ namespace CleaningRobot {
 				hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
 				if(this->mCfgPara->bIsJoint)
 				{
-					status = (hsc3::algo::HS_MStatus)this->mMotioncombine->execMotion(0, this->mCfgPara, this->mCmdPara, this->mFbPara);
+					status = (hsc3::algo::HS_MStatus)this->mMotioncombine->execMotion(hsc3::algo::Plan_None, this->mCfgPara, this->mCmdPara, this->mFbPara);
 					this->setChart(0, this->mCurrentTime, this->mCmdPara->dCmdAxisPos, this->mCmdPara->dCmdAxisVel, this->mCmdPara->dCmdAxisAcc, this->mCmdPara->dCmdSpacePos, true, true);
 					printf("planJoint--status=%d, outPos: %f %f %f %f %f %f %f \n", status, mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5],mCmdPara->dCmdAxisPos[6]);
 				}
 				else
 				{
-					status = (hsc3::algo::HS_MStatus)this->mMotioncombine->execMotion(0, this->mCfgPara, this->mCmdPara, this->mFbPara);
+					status = (hsc3::algo::HS_MStatus)this->mMotioncombine->execMotion(hsc3::algo::Plan_None, this->mCfgPara, this->mCmdPara, this->mFbPara);
 					this->setChart(0, this->mCurrentTime, this->mCmdPara->dCmdAxisPos, this->mCmdPara->dCmdAxisVel, this->mCmdPara->dCmdAxisAcc, this->mCmdPara->dCmdSpacePos, true, false);
 					printf("planSpace--status=%d, outJPos: %f %f %f %f %f %f %f\n", status,mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5],mCmdPara->dCmdAxisPos[6]);
 					//printf("planSpace--status=%d, outJPos: %f %f %f %f %f %f %f\n", status,mCmdPara->dCmdAxisPos[0]*dAngleChange,mCmdPara->dCmdAxisPos[1]*dAngleChange,mCmdPara->dCmdAxisPos[2]*dAngleChange,mCmdPara->dCmdAxisPos[3]*dAngleChange,mCmdPara->dCmdAxisPos[4]*dAngleChange,mCmdPara->dCmdAxisPos[5]*dAngleChange,mCmdPara->dCmdAxisPos[6]*dAngleChange);

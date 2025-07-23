@@ -187,23 +187,25 @@ enum HS_MStatus
 	M_StopDone_F  = 5,			//小线段停止完成当前段运动
 };
 
-enum RunMode
+// 插补状态
+enum IntMode
 {
-	Mode_Manual  = 0,
-	Mode_Auto    = 1,
+	Int_None	= 0,
+	Int_Manual  = 1,
+	Int_Auto    = 2,
 };
 
 enum PlanMode
 {
 	Plan_None		= 0,
 	Plan_Manual		= 1,
-	Plan_AutoJoint	= 2,
-	Plan_AutoLine	= 3,
+	Plan_Auto		= 2,
+	Plan_Stop		= 3,
 };
 
 struct GroupConfigPara
 {
-	RunMode iRunMode;
+	IntMode iIntMode;
 	bool bIsJoint;
 	int iAxisNum;
 	bool  bDir;
