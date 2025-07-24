@@ -187,14 +187,6 @@ enum HS_MStatus
 	M_StopDone_F  = 5,			//小线段停止完成当前段运动
 };
 
-// 插补状态
-enum IntMode
-{
-	Int_None	= 0,
-	Int_Manual  = 1,
-	Int_Auto    = 2,
-};
-
 enum PlanMode
 {
 	Plan_None		= 0,
@@ -205,7 +197,7 @@ enum PlanMode
 
 struct GroupConfigPara
 {
-	IntMode iIntMode;
+	PlanMode ePlanMode;
 	bool bIsJoint;
 	int iAxisNum;
 	bool  bDir;

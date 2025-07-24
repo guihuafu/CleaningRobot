@@ -236,80 +236,83 @@ void* obj = NULL;
 int Etc20Example(int id, void *pinputs, void *poutputs, void *pextra)
 {
 	int iStatus = 0;
-	static int bFirstStart = 1;
-	if(bFirstStart == 1)
-	{
-		obj = createInstance();
-		bFirstStart = 0;
-	}
+	// static int bFirstStart = 1;
+	// if(bFirstStart == 1)
+	// {
+	// 	obj = createInstance();
+	// 	bFirstStart = 0;
+	// }
 
-	static int a = 0, b = 0;
-	if (pinputs == NULL || poutputs == NULL)
-		return -1;
+	// static int a = 0, b = 0;
+	// if (pinputs == NULL || poutputs == NULL)
+	// 	return -1;
 
-	struct MyIOBlock *piBlock = pinputs;
-	struct MyIOBlock *poBlock = poutputs;
-	struct etc20_inputs *poin = (struct etc20_inputs*)piBlock->ptr;
-	struct etc20_outputs *poout = (struct etc20_outputs*)poBlock->ptr;
-	struct etc20_extra *pext = (struct etc20_extra*)pextra;
-	double dPos[9] = {0.0};
+	// struct MyIOBlock *piBlock = pinputs;
+	// struct MyIOBlock *poBlock = poutputs;
+	// struct etc20_inputs *poin = (struct etc20_inputs*)piBlock->ptr;
+	// struct etc20_outputs *poout = (struct etc20_outputs*)poBlock->ptr;
+	// struct etc20_extra *pext = (struct etc20_extra*)pextra;
+	// double dPos[9] = {0.0};
 
-	a = a + 1;
-	b = b + 1;
+	// a = a + 1;
+	// b = b + 1;
 	
-	if(b > 100)
-		b = 0;
+	// if(b > 100)
+	// 	b = 0;
 	
-	if(a > 200)
-		a = 0;
+	// if(a > 200)
+	// 	a = 0;
 	
-	if(poin->digital_input1 == 1)
-	{
-		poout->digital_output3 = 2;
-		iStatus = execMotion(obj, 1);
-	}
-	else if(poin->digital_input1 == 2)
-	{
-		poout->digital_output3 = 3;
-		iStatus = execMotion(obj, 0);
-		getResult(obj, dPos);
-		poout->digital_output4[0] = (int)dPos[0];
-		poout->digital_output4[1] = (int)dPos[1];
-		poout->digital_output4[2] = (int)dPos[2];
-		poout->digital_output4[3] = (int)dPos[3];
-		if(iStatus == 3)
-			poout->digital_output1 = 3;
-	}
-	else
-	{
-		poout->digital_output3 = 1;
-	}
+	// if(poin->digital_input1 == 1)
+	// {
+	// 	poout->digital_output3 = 2;
+	// 	iStatus = execMotion(obj, 1);
+	// }
+	// else if(poin->digital_input1 == 2)
+	// {
+	// 	poout->digital_output3 = 3;
+	// 	iStatus = execMotion(obj, 0);
+	// 	getResult(obj, dPos);
+	// 	poout->digital_output4[0] = (int)dPos[0];
+	// 	poout->digital_output4[1] = (int)dPos[1];
+	// 	poout->digital_output4[2] = (int)dPos[2];
+	// 	poout->digital_output4[3] = (int)dPos[3];
+	// 	if(iStatus == 3)
+	// 		poout->digital_output1 = 3;
+	// }
+	// else
+	// {
+	// 	poout->digital_output3 = 1;
+	// }
 	
 	
-	//poin->fault_id = 10;
-	//poin->digital_input1 = 16;
-	//poin->digital_input2 = 17;
+	// //poin->fault_id = 10;
+	// //poin->digital_input1 = 16;
+	// //poin->digital_input2 = 17;
 	
-	//poout->digital_output1 = a;
-	poout->digital_output2 = b;
-	//poout->digital_output3 = 33.67;
+	// //poout->digital_output1 = a;
+	// poout->digital_output2 = b;
+	// //poout->digital_output3 = 33.67;
 
-	// poout->digital_output4[0] = a;
-	// poout->digital_output4[1] = b;
-	// poout->digital_output4[2] = 11;
-	// poout->digital_output4[3] = 22;
+	// // poout->digital_output4[0] = a;
+	// // poout->digital_output4[1] = b;
+	// // poout->digital_output4[2] = 11;
+	// // poout->digital_output4[3] = 22;
 	
-	//pext->interval = 55;
-	//pext->errcode = 56;
-	//pext->output1 = 66.67;
+	// //pext->interval = 55;
+	// //pext->errcode = 56;
+	// //pext->output1 = 66.67;
 	
-	//setRatio(obj, 33.0);
-	//double dRatio = getRatio(obj);
+	// //setRatio(obj, 33.0);
+	// //double dRatio = getRatio(obj);
 	
 
 	return iStatus;
 }
 
+
+struct MyIOBlock *piBlock;
+struct MyIOBlock *poBlock;
 int MotionMove(int id, void *pinputs, void *poutputs, void *pextra)
 {
 	int iStatus = 0;
@@ -328,8 +331,8 @@ int MotionMove(int id, void *pinputs, void *poutputs, void *pextra)
 	if(a > 200)
 		a = 0;
 	
-	struct MyIOBlock *piBlock = pinputs;
-	struct MyIOBlock *poBlock = poutputs;
+	piBlock = pinputs;
+	poBlock = poutputs;
 	struct motion_inputs *poin = (struct motion_inputs*)piBlock->ptr;
 	struct motion_outputs *poout = (struct motion_outputs*)poBlock->ptr;
 	struct motion_extra *pext = (struct motion_extra*)pextra;

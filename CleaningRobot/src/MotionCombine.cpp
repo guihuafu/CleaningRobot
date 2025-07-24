@@ -28,6 +28,18 @@ namespace hsc3
 			this->mAutoMove = new hsc3::algo::BaseAutoMove(mMotionPara, CYCLE, 2);
 			this->mBaseManualMove = new hsc3::algo::BaseManualMove(mMotionPara, CYCLE);
 			this->mCalibrate = new hsc3::algo::Calibrate(mMotionPara, CYCLE, 0);
+			
+			this->mGroupConfigPara.ePlanMode = hsc3::algo::Plan_None;
+			this->mGroupConfigPara.iAxisNum = 0;
+			this->mGroupConfigPara.bIsJoint = true;
+			this->mGroupConfigPara.bDir = true;
+			memset(this->mGroupConfigPara.dPos, 0.0, sizeof(double)*MaxAxisNum);
+
+			this->mGroupFeedbackPara.iStatus = 0;
+			this->mGroupFeedbackPara.iServoErr = 0;
+			memset(this->mGroupFeedbackPara.dFbAxisPos, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mGroupFeedbackPara.dFbAxisVel, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mGroupFeedbackPara.dFbAxisAcc, 0.0, sizeof(double)*MaxAxisNum);
 		}
 
 		MotionCombine::~MotionCombine()
@@ -332,8 +344,9 @@ namespace hsc3
 
 		void MotionCombine::planManual(int axisnum, bool dir, bool isjoint, double *nowpos)
 		{
-			memset(this->mLastJointPos, 0.0, sizeof(double)*MaxAxisNum);
-			memset(this->mLastVel, 0.0, sizeof(double)*MaxAxisNum);
+			printf("planManual nowpos %f %f %f %f %f %f \n",nowpos[0],nowpos[1],nowpos[2],nowpos[3],nowpos[4],nowpos[5]);
+			//memset(this->mLastJointPos, 0.0, sizeof(double)*MaxAxisNum);
+			//memset(this->mLastVel, 0.0, sizeof(double)*MaxAxisNum);
 			hsc3::algo::ManualPara mManualPara;
 			mManualPara.iAxisNum = axisnum;
 			mManualPara.iGroupNum = 0;
@@ -398,35 +411,18 @@ namespace hsc3
 			this->mAutoMove->execReset();
 		}
 
-		hsc3::algo::HS_MStatus MotionCombine::execInt(GroupConfigPara *config, GroupCommandPara *cmddata, GroupFeedbackPara *fbdata)
+		int MotionCombine::execPlan(GroupConfigPara *config)
 		{
-			hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
-			if(config->iIntMode == hsc3::algo::Int_Manual)
-			{
-				status = this->execManualIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
-			}
-			else if(config->iIntMode == hsc3::algo::Int_Auto)
-			{
-				if(config->bIsJoint)
-				{
-					status = this->execJointIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
-				}
-				else
-				{
-					status = this->execSpaceIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
-				}
-			}
-			return status;
-		}
+			this->mGroupConfigPara.ePlanMode = config->ePlanMode;
+			this->mGroupConfigPara.iAxisNum = config->iAxisNum;
+			this->mGroupConfigPara.bIsJoint = config->bIsJoint;
+			this->mGroupConfigPara.bDir = config->bDir;
+			memcpy(this->mGroupConfigPara.dPos, config->dPos, sizeof(double)*MaxAxisNum);
 
-		int MotionCombine::execMotion(int mode, GroupConfigPara *config, GroupCommandPara *cmddata, GroupFeedbackPara *fbdata)
-		{
-			hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
-
-			switch((hsc3::algo::PlanMode)mode)
+			switch(config->ePlanMode)
 			{
 			case hsc3::algo::Plan_Manual:
-				this->planManual(config->iAxisNum, config->bDir, config->bIsJoint, fbdata->dFbAxisPos);
+				this->planManual(config->iAxisNum, config->bDir, config->bIsJoint, this->mGroupFeedbackPara.dFbAxisPos);
 				break;
 			case hsc3::algo::Plan_Auto:
 				if(config->bIsJoint)
@@ -437,33 +433,42 @@ namespace hsc3
 			case hsc3::algo::Plan_Stop:
 				this->stopPlanManual();
 				break;
-			case hsc3::algo::Plan_None:
-				status = this->execInt(config, cmddata, fbdata);
-				break;
 			default:
 				break;
 			}
 
-			return (int)status;
+			return 0;
 		}
 
-		int MotionCombine::execMotion(bool isrun)
+		int MotionCombine::execMove(GroupCommandPara *cmddata, GroupFeedbackPara *fbdata)
 		{
 			hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
-			double dJointVel[MaxAxisNum] = {0.0};
-			double dJointAcc[MaxAxisNum] = {0.0};
-			double dSpacePos[MaxAxisNum] = {0.0};
-			double dMoveToPos[MaxAxisNum] = {60.0, -20.0, 100.0, 0.0, 30.0, 0.0, 0.0, 0.0, 0.0};
-			if(isrun)
-				this->planJoint(dMoveToPos);
-			status = this->execJointIntMove(this->mJointPos, dJointVel, dJointAcc, dSpacePos);
-			printf("CombineTimer Pos %f %f %f %f %f %f \n", mJointPos[0], mJointPos[1], mJointPos[2], mJointPos[3], mJointPos[4], mJointPos[5]);
-			return (int)status;
-		}
 
-		void MotionCombine::getResult(double *pos)
-		{
-			memcpy(pos, this->mJointPos, sizeof(double)*MaxAxisNum);
+			memcpy(this->mGroupFeedbackPara.dFbAxisPos, fbdata->dFbAxisPos, sizeof(double)*MaxAxisNum);
+			memcpy(this->mGroupFeedbackPara.dFbAxisVel, fbdata->dFbAxisVel, sizeof(double)*MaxAxisNum);
+			memcpy(this->mGroupFeedbackPara.dFbAxisAcc, fbdata->dFbAxisAcc, sizeof(double)*MaxAxisNum);
+
+			if(this->mGroupConfigPara.ePlanMode == hsc3::algo::Plan_Manual)
+			{
+				status = this->execManualIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
+			}
+			else if(this->mGroupConfigPara.ePlanMode == hsc3::algo::Plan_Auto)
+			{
+				if(this->mGroupConfigPara.bIsJoint)
+				{
+					status = this->execJointIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
+				}
+				else
+				{
+					status = this->execSpaceIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
+				}
+			}
+			else if(this->mGroupConfigPara.ePlanMode == hsc3::algo::Plan_Stop)
+			{
+				status = this->execManualIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
+			}
+
+			return (int)status;
 		}
 	}
 }

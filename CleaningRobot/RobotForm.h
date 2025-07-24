@@ -33,7 +33,6 @@ namespace CleaningRobot {
 			this->mCfgPara->iAxisNum = 0;
 			this->mCfgPara->bDir = true;
 			this->mCfgPara->bIsJoint = true;
-			this->mCfgPara->iIntMode = hsc3::algo::Int_None;
 			memset(this->mCfgPara->dPos, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mFbPara->dFbAxisPos, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mFbPara->dFbAxisVel, 0.0, sizeof(double)*MaxAxisNum);
@@ -44,6 +43,7 @@ namespace CleaningRobot {
 			this->mCmdPara->dCmdAxisPos[0] = 0.0; this->mCmdPara->dCmdAxisPos[1] = -90.0; this->mCmdPara->dCmdAxisPos[2] = 180.0;
 			this->mCmdPara->dCmdAxisPos[3] = 0.0; this->mCmdPara->dCmdAxisPos[4] = 90.0; this->mCmdPara->dCmdAxisPos[5] = 0.0;
 			this->mCmdPara->dCmdAxisPos[6] = 0.0; this->mCmdPara->dCmdAxisPos[7] = 0.0; this->mCmdPara->dCmdAxisPos[8] = 0.0;
+			this->mStatus = hsc3::algo::M_UnInit;
 
 			CreateConsole();		// 控制台窗口初始化
 			InitializeComponent();  // 空间窗口初始化
@@ -157,6 +157,7 @@ namespace CleaningRobot {
 
 			this->Coordinate->SelectedIndex = 1;	// 显示列表中的第一个
 			this->mMotioncombine = new hsc3::algo::MotionCombine();
+			this->SystemRunTimer->Start();
 		}
 
 	protected:
@@ -225,12 +226,14 @@ namespace CleaningRobot {
 	private: System::Windows::Forms::Button^  TestPosButton;
 	private: System::Windows::Forms::TextBox^  RatioBox;
 	private: System::Windows::Forms::Label^  RatioLabel;
-	private: System::Windows::Forms::Timer^  CombineTimer;
+
 	private: System::Windows::Forms::Button^  CombineTestButton;
+	private: System::Windows::Forms::Timer^  SystemRunTimer;
 	hsc3::algo::MotionCombine *mMotioncombine;
 	hsc3::algo::GroupConfigPara *mCfgPara;
 	hsc3::algo::GroupCommandPara *mCmdPara;
 	hsc3::algo::GroupFeedbackPara *mFbPara;
+	hsc3::algo::HS_MStatus mStatus;
 	bool mCombineTestRun;
 	bool mAllAxisShow;
 	int mCurrentTime;
@@ -302,8 +305,8 @@ namespace CleaningRobot {
 			this->B = (gcnew System::Windows::Forms::Label());
 			this->C = (gcnew System::Windows::Forms::Label());
 			this->AutoMoveTimer = (gcnew System::Windows::Forms::Timer(this->components));
-			this->CombineTimer = (gcnew System::Windows::Forms::Timer(this->components));
 			this->CombineTestButton = (gcnew System::Windows::Forms::Button());
+			this->SystemRunTimer = (gcnew System::Windows::Forms::Timer(this->components));
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->JointChart))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->SpaceChart))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->JointVelChart))->BeginInit();
@@ -312,9 +315,10 @@ namespace CleaningRobot {
 			// 
 			// MoveStartButton
 			// 
-			this->MoveStartButton->Location = System::Drawing::Point(1188, 7);
+			this->MoveStartButton->Location = System::Drawing::Point(1782, 11);
+			this->MoveStartButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->MoveStartButton->Name = L"MoveStartButton";
-			this->MoveStartButton->Size = System::Drawing::Size(85, 45);
+			this->MoveStartButton->Size = System::Drawing::Size(128, 72);
 			this->MoveStartButton->TabIndex = 0;
 			this->MoveStartButton->Text = L"开始运动";
 			this->MoveStartButton->UseVisualStyleBackColor = true;
@@ -326,9 +330,10 @@ namespace CleaningRobot {
 			this->JointChart->ChartAreas->Add(chartArea1);
 			legend1->Name = L"Legend1";
 			this->JointChart->Legends->Add(legend1);
-			this->JointChart->Location = System::Drawing::Point(158, 108);
+			this->JointChart->Location = System::Drawing::Point(237, 173);
+			this->JointChart->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->JointChart->Name = L"JointChart";
-			this->JointChart->Size = System::Drawing::Size(649, 289);
+			this->JointChart->Size = System::Drawing::Size(974, 462);
 			this->JointChart->TabIndex = 1;
 			this->JointChart->Text = L"关节位置";
 			// 
@@ -338,9 +343,10 @@ namespace CleaningRobot {
 			this->SpaceChart->ChartAreas->Add(chartArea2);
 			legend2->Name = L"Legend1";
 			this->SpaceChart->Legends->Add(legend2);
-			this->SpaceChart->Location = System::Drawing::Point(158, 403);
+			this->SpaceChart->Location = System::Drawing::Point(237, 645);
+			this->SpaceChart->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->SpaceChart->Name = L"SpaceChart";
-			this->SpaceChart->Size = System::Drawing::Size(649, 289);
+			this->SpaceChart->Size = System::Drawing::Size(974, 462);
 			this->SpaceChart->TabIndex = 2;
 			this->SpaceChart->Text = L"空间位置";
 			// 
@@ -350,18 +356,20 @@ namespace CleaningRobot {
 			this->JointVelChart->ChartAreas->Add(chartArea3);
 			legend3->Name = L"Legend1";
 			this->JointVelChart->Legends->Add(legend3);
-			this->JointVelChart->Location = System::Drawing::Point(817, 108);
+			this->JointVelChart->Location = System::Drawing::Point(1226, 173);
+			this->JointVelChart->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->JointVelChart->Name = L"JointVelChart";
 			this->JointVelChart->RightToLeft = System::Windows::Forms::RightToLeft::No;
-			this->JointVelChart->Size = System::Drawing::Size(649, 289);
+			this->JointVelChart->Size = System::Drawing::Size(974, 462);
 			this->JointVelChart->TabIndex = 3;
 			this->JointVelChart->Text = L"关节速度";
 			// 
 			// J1PosButton
 			// 
-			this->J1PosButton->Location = System::Drawing::Point(156, 10);
+			this->J1PosButton->Location = System::Drawing::Point(234, 16);
+			this->J1PosButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->J1PosButton->Name = L"J1PosButton";
-			this->J1PosButton->Size = System::Drawing::Size(77, 39);
+			this->J1PosButton->Size = System::Drawing::Size(116, 62);
 			this->J1PosButton->TabIndex = 4;
 			this->J1PosButton->Text = L"J1+";
 			this->J1PosButton->UseVisualStyleBackColor = true;
@@ -370,14 +378,15 @@ namespace CleaningRobot {
 			// 
 			// JointMoveTimer
 			// 
-			this->JointMoveTimer->Interval = 5;
+			this->JointMoveTimer->Interval = 1;
 			this->JointMoveTimer->Tick += gcnew System::EventHandler(this, &RobotForm::JointMoveTimer_Tick);
 			// 
 			// J1NegButton
 			// 
-			this->J1NegButton->Location = System::Drawing::Point(250, 10);
+			this->J1NegButton->Location = System::Drawing::Point(375, 16);
+			this->J1NegButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->J1NegButton->Name = L"J1NegButton";
-			this->J1NegButton->Size = System::Drawing::Size(77, 39);
+			this->J1NegButton->Size = System::Drawing::Size(116, 62);
 			this->J1NegButton->TabIndex = 5;
 			this->J1NegButton->Text = L"J1-";
 			this->J1NegButton->UseVisualStyleBackColor = true;
@@ -386,9 +395,10 @@ namespace CleaningRobot {
 			// 
 			// J2PosButton
 			// 
-			this->J2PosButton->Location = System::Drawing::Point(156, 55);
+			this->J2PosButton->Location = System::Drawing::Point(234, 88);
+			this->J2PosButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->J2PosButton->Name = L"J2PosButton";
-			this->J2PosButton->Size = System::Drawing::Size(77, 39);
+			this->J2PosButton->Size = System::Drawing::Size(116, 62);
 			this->J2PosButton->TabIndex = 6;
 			this->J2PosButton->Text = L"J2+";
 			this->J2PosButton->UseVisualStyleBackColor = true;
@@ -397,9 +407,10 @@ namespace CleaningRobot {
 			// 
 			// J2NegButton
 			// 
-			this->J2NegButton->Location = System::Drawing::Point(250, 55);
+			this->J2NegButton->Location = System::Drawing::Point(375, 88);
+			this->J2NegButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->J2NegButton->Name = L"J2NegButton";
-			this->J2NegButton->Size = System::Drawing::Size(77, 39);
+			this->J2NegButton->Size = System::Drawing::Size(116, 62);
 			this->J2NegButton->TabIndex = 7;
 			this->J2NegButton->Text = L"J2-";
 			this->J2NegButton->UseVisualStyleBackColor = true;
@@ -408,9 +419,10 @@ namespace CleaningRobot {
 			// 
 			// J3NegButton
 			// 
-			this->J3NegButton->Location = System::Drawing::Point(456, 10);
+			this->J3NegButton->Location = System::Drawing::Point(684, 16);
+			this->J3NegButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->J3NegButton->Name = L"J3NegButton";
-			this->J3NegButton->Size = System::Drawing::Size(77, 39);
+			this->J3NegButton->Size = System::Drawing::Size(116, 62);
 			this->J3NegButton->TabIndex = 9;
 			this->J3NegButton->Text = L"J3-";
 			this->J3NegButton->UseVisualStyleBackColor = true;
@@ -419,9 +431,10 @@ namespace CleaningRobot {
 			// 
 			// J3PosButton
 			// 
-			this->J3PosButton->Location = System::Drawing::Point(362, 10);
+			this->J3PosButton->Location = System::Drawing::Point(543, 16);
+			this->J3PosButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->J3PosButton->Name = L"J3PosButton";
-			this->J3PosButton->Size = System::Drawing::Size(77, 39);
+			this->J3PosButton->Size = System::Drawing::Size(116, 62);
 			this->J3PosButton->TabIndex = 8;
 			this->J3PosButton->Text = L"J3+";
 			this->J3PosButton->UseVisualStyleBackColor = true;
@@ -430,9 +443,10 @@ namespace CleaningRobot {
 			// 
 			// J4NegButton
 			// 
-			this->J4NegButton->Location = System::Drawing::Point(456, 55);
+			this->J4NegButton->Location = System::Drawing::Point(684, 88);
+			this->J4NegButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->J4NegButton->Name = L"J4NegButton";
-			this->J4NegButton->Size = System::Drawing::Size(77, 39);
+			this->J4NegButton->Size = System::Drawing::Size(116, 62);
 			this->J4NegButton->TabIndex = 11;
 			this->J4NegButton->Text = L"J4-";
 			this->J4NegButton->UseVisualStyleBackColor = true;
@@ -441,9 +455,10 @@ namespace CleaningRobot {
 			// 
 			// J4PosButton
 			// 
-			this->J4PosButton->Location = System::Drawing::Point(362, 55);
+			this->J4PosButton->Location = System::Drawing::Point(543, 88);
+			this->J4PosButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->J4PosButton->Name = L"J4PosButton";
-			this->J4PosButton->Size = System::Drawing::Size(77, 39);
+			this->J4PosButton->Size = System::Drawing::Size(116, 62);
 			this->J4PosButton->TabIndex = 10;
 			this->J4PosButton->Text = L"J4+";
 			this->J4PosButton->UseVisualStyleBackColor = true;
@@ -452,9 +467,10 @@ namespace CleaningRobot {
 			// 
 			// ClearChart
 			// 
-			this->ClearChart->Location = System::Drawing::Point(1188, 57);
+			this->ClearChart->Location = System::Drawing::Point(1782, 91);
+			this->ClearChart->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->ClearChart->Name = L"ClearChart";
-			this->ClearChart->Size = System::Drawing::Size(85, 45);
+			this->ClearChart->Size = System::Drawing::Size(128, 72);
 			this->ClearChart->TabIndex = 12;
 			this->ClearChart->Text = L"清除";
 			this->ClearChart->UseVisualStyleBackColor = true;
@@ -463,9 +479,10 @@ namespace CleaningRobot {
 			// AllAxisShow
 			// 
 			this->AllAxisShow->AutoSize = true;
-			this->AllAxisShow->Location = System::Drawing::Point(669, 23);
+			this->AllAxisShow->Location = System::Drawing::Point(1004, 37);
+			this->AllAxisShow->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->AllAxisShow->Name = L"AllAxisShow";
-			this->AllAxisShow->Size = System::Drawing::Size(59, 19);
+			this->AllAxisShow->Size = System::Drawing::Size(90, 28);
 			this->AllAxisShow->TabIndex = 13;
 			this->AllAxisShow->Text = L"全显";
 			this->AllAxisShow->UseVisualStyleBackColor = true;
@@ -477,137 +494,154 @@ namespace CleaningRobot {
 			this->JointAccChart->ChartAreas->Add(chartArea4);
 			legend4->Name = L"Legend1";
 			this->JointAccChart->Legends->Add(legend4);
-			this->JointAccChart->Location = System::Drawing::Point(817, 403);
+			this->JointAccChart->Location = System::Drawing::Point(1226, 645);
+			this->JointAccChart->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->JointAccChart->Name = L"JointAccChart";
-			this->JointAccChart->Size = System::Drawing::Size(649, 289);
+			this->JointAccChart->Size = System::Drawing::Size(974, 462);
 			this->JointAccChart->TabIndex = 14;
 			this->JointAccChart->Text = L"关节加速度";
 			// 
 			// JointAngle1
 			// 
-			this->JointAngle1->Location = System::Drawing::Point(47, 108);
+			this->JointAngle1->Location = System::Drawing::Point(70, 173);
+			this->JointAngle1->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->JointAngle1->Name = L"JointAngle1";
-			this->JointAngle1->Size = System::Drawing::Size(96, 25);
+			this->JointAngle1->Size = System::Drawing::Size(142, 35);
 			this->JointAngle1->TabIndex = 15;
 			// 
 			// JointAngle2
 			// 
-			this->JointAngle2->Location = System::Drawing::Point(47, 149);
+			this->JointAngle2->Location = System::Drawing::Point(70, 238);
+			this->JointAngle2->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->JointAngle2->Name = L"JointAngle2";
-			this->JointAngle2->Size = System::Drawing::Size(96, 25);
+			this->JointAngle2->Size = System::Drawing::Size(142, 35);
 			this->JointAngle2->TabIndex = 16;
 			// 
 			// JointAngle3
 			// 
-			this->JointAngle3->Location = System::Drawing::Point(47, 190);
+			this->JointAngle3->Location = System::Drawing::Point(70, 304);
+			this->JointAngle3->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->JointAngle3->Name = L"JointAngle3";
-			this->JointAngle3->Size = System::Drawing::Size(96, 25);
+			this->JointAngle3->Size = System::Drawing::Size(142, 35);
 			this->JointAngle3->TabIndex = 17;
 			// 
 			// JointAngle4
 			// 
-			this->JointAngle4->Location = System::Drawing::Point(47, 231);
+			this->JointAngle4->Location = System::Drawing::Point(70, 370);
+			this->JointAngle4->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->JointAngle4->Name = L"JointAngle4";
-			this->JointAngle4->Size = System::Drawing::Size(96, 25);
+			this->JointAngle4->Size = System::Drawing::Size(142, 35);
 			this->JointAngle4->TabIndex = 18;
 			// 
 			// SpaceA
 			// 
-			this->SpaceA->Location = System::Drawing::Point(47, 526);
+			this->SpaceA->Location = System::Drawing::Point(70, 842);
+			this->SpaceA->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->SpaceA->Name = L"SpaceA";
-			this->SpaceA->Size = System::Drawing::Size(96, 25);
+			this->SpaceA->Size = System::Drawing::Size(142, 35);
 			this->SpaceA->TabIndex = 22;
 			// 
 			// SpaceZ
 			// 
-			this->SpaceZ->Location = System::Drawing::Point(47, 485);
+			this->SpaceZ->Location = System::Drawing::Point(70, 776);
+			this->SpaceZ->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->SpaceZ->Name = L"SpaceZ";
-			this->SpaceZ->Size = System::Drawing::Size(96, 25);
+			this->SpaceZ->Size = System::Drawing::Size(142, 35);
 			this->SpaceZ->TabIndex = 21;
 			// 
 			// SpaceY
 			// 
-			this->SpaceY->Location = System::Drawing::Point(47, 444);
+			this->SpaceY->Location = System::Drawing::Point(70, 710);
+			this->SpaceY->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->SpaceY->Name = L"SpaceY";
-			this->SpaceY->Size = System::Drawing::Size(96, 25);
+			this->SpaceY->Size = System::Drawing::Size(142, 35);
 			this->SpaceY->TabIndex = 20;
 			// 
 			// SpaceX
 			// 
-			this->SpaceX->Location = System::Drawing::Point(47, 403);
+			this->SpaceX->Location = System::Drawing::Point(70, 645);
+			this->SpaceX->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->SpaceX->Name = L"SpaceX";
-			this->SpaceX->Size = System::Drawing::Size(96, 25);
+			this->SpaceX->Size = System::Drawing::Size(142, 35);
 			this->SpaceX->TabIndex = 19;
 			// 
 			// J1
 			// 
 			this->J1->AutoSize = true;
-			this->J1->Location = System::Drawing::Point(19, 111);
+			this->J1->Location = System::Drawing::Point(28, 178);
+			this->J1->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
 			this->J1->Name = L"J1";
-			this->J1->Size = System::Drawing::Size(23, 15);
+			this->J1->Size = System::Drawing::Size(34, 24);
 			this->J1->TabIndex = 23;
 			this->J1->Text = L"J1";
 			// 
 			// J2
 			// 
 			this->J2->AutoSize = true;
-			this->J2->Location = System::Drawing::Point(19, 154);
+			this->J2->Location = System::Drawing::Point(28, 246);
+			this->J2->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
 			this->J2->Name = L"J2";
-			this->J2->Size = System::Drawing::Size(23, 15);
+			this->J2->Size = System::Drawing::Size(34, 24);
 			this->J2->TabIndex = 24;
 			this->J2->Text = L"J2";
 			// 
 			// J3
 			// 
 			this->J3->AutoSize = true;
-			this->J3->Location = System::Drawing::Point(19, 194);
+			this->J3->Location = System::Drawing::Point(28, 310);
+			this->J3->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
 			this->J3->Name = L"J3";
-			this->J3->Size = System::Drawing::Size(23, 15);
+			this->J3->Size = System::Drawing::Size(34, 24);
 			this->J3->TabIndex = 25;
 			this->J3->Text = L"J3";
 			// 
 			// J4
 			// 
 			this->J4->AutoSize = true;
-			this->J4->Location = System::Drawing::Point(19, 237);
+			this->J4->Location = System::Drawing::Point(28, 379);
+			this->J4->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
 			this->J4->Name = L"J4";
-			this->J4->Size = System::Drawing::Size(23, 15);
+			this->J4->Size = System::Drawing::Size(34, 24);
 			this->J4->TabIndex = 26;
 			this->J4->Text = L"J4";
 			// 
 			// X
 			// 
 			this->X->AutoSize = true;
-			this->X->Location = System::Drawing::Point(26, 409);
+			this->X->Location = System::Drawing::Point(39, 654);
+			this->X->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
 			this->X->Name = L"X";
-			this->X->Size = System::Drawing::Size(15, 15);
+			this->X->Size = System::Drawing::Size(22, 24);
 			this->X->TabIndex = 27;
 			this->X->Text = L"X";
 			// 
 			// Y
 			// 
 			this->Y->AutoSize = true;
-			this->Y->Location = System::Drawing::Point(26, 450);
+			this->Y->Location = System::Drawing::Point(39, 720);
+			this->Y->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
 			this->Y->Name = L"Y";
-			this->Y->Size = System::Drawing::Size(15, 15);
+			this->Y->Size = System::Drawing::Size(22, 24);
 			this->Y->TabIndex = 28;
 			this->Y->Text = L"Y";
 			// 
 			// Z
 			// 
 			this->Z->AutoSize = true;
-			this->Z->Location = System::Drawing::Point(26, 488);
+			this->Z->Location = System::Drawing::Point(39, 781);
+			this->Z->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
 			this->Z->Name = L"Z";
-			this->Z->Size = System::Drawing::Size(15, 15);
+			this->Z->Size = System::Drawing::Size(22, 24);
 			this->Z->TabIndex = 29;
 			this->Z->Text = L"Z";
 			// 
 			// A
 			// 
 			this->A->AutoSize = true;
-			this->A->Location = System::Drawing::Point(26, 531);
+			this->A->Location = System::Drawing::Point(39, 850);
+			this->A->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
 			this->A->Name = L"A";
-			this->A->Size = System::Drawing::Size(15, 15);
+			this->A->Size = System::Drawing::Size(22, 24);
 			this->A->TabIndex = 30;
 			this->A->Text = L"A";
 			// 
@@ -615,65 +649,73 @@ namespace CleaningRobot {
 			// 
 			this->Coordinate->FormattingEnabled = true;
 			this->Coordinate->Items->AddRange(gcnew cli::array< System::Object^  >(2) {L"关节坐标", L"空间坐标"});
-			this->Coordinate->Location = System::Drawing::Point(570, 62);
+			this->Coordinate->Location = System::Drawing::Point(855, 99);
+			this->Coordinate->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->Coordinate->Name = L"Coordinate";
-			this->Coordinate->Size = System::Drawing::Size(148, 23);
+			this->Coordinate->Size = System::Drawing::Size(220, 32);
 			this->Coordinate->TabIndex = 31;
 			this->Coordinate->SelectedIndexChanged += gcnew System::EventHandler(this, &RobotForm::Coordinate_SelectedIndexChanged);
 			// 
 			// MoveToPos1
 			// 
-			this->MoveToPos1->Location = System::Drawing::Point(824, 19);
+			this->MoveToPos1->Location = System::Drawing::Point(1236, 30);
+			this->MoveToPos1->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->MoveToPos1->Name = L"MoveToPos1";
-			this->MoveToPos1->Size = System::Drawing::Size(66, 25);
+			this->MoveToPos1->Size = System::Drawing::Size(97, 35);
 			this->MoveToPos1->TabIndex = 32;
 			this->MoveToPos1->Text = L"0.0";
 			// 
 			// MoveToPos2
 			// 
-			this->MoveToPos2->Location = System::Drawing::Point(917, 19);
+			this->MoveToPos2->Location = System::Drawing::Point(1376, 30);
+			this->MoveToPos2->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->MoveToPos2->Name = L"MoveToPos2";
-			this->MoveToPos2->Size = System::Drawing::Size(66, 25);
+			this->MoveToPos2->Size = System::Drawing::Size(97, 35);
 			this->MoveToPos2->TabIndex = 33;
 			this->MoveToPos2->Text = L"-90.0";
 			// 
 			// MoveToPos3
 			// 
-			this->MoveToPos3->Location = System::Drawing::Point(1003, 19);
+			this->MoveToPos3->Location = System::Drawing::Point(1504, 30);
+			this->MoveToPos3->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->MoveToPos3->Name = L"MoveToPos3";
-			this->MoveToPos3->Size = System::Drawing::Size(66, 25);
+			this->MoveToPos3->Size = System::Drawing::Size(97, 35);
 			this->MoveToPos3->TabIndex = 34;
 			this->MoveToPos3->Text = L"180.0";
 			// 
 			// MoveToPos4
 			// 
-			this->MoveToPos4->Location = System::Drawing::Point(1099, 19);
+			this->MoveToPos4->Location = System::Drawing::Point(1648, 30);
+			this->MoveToPos4->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->MoveToPos4->Name = L"MoveToPos4";
-			this->MoveToPos4->Size = System::Drawing::Size(66, 25);
+			this->MoveToPos4->Size = System::Drawing::Size(97, 35);
 			this->MoveToPos4->TabIndex = 35;
 			this->MoveToPos4->Text = L"90.0";
 			// 
 			// MessageBox
 			// 
-			this->MessageBox->Location = System::Drawing::Point(754, 58);
+			this->MessageBox->Location = System::Drawing::Point(1131, 93);
+			this->MessageBox->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->MessageBox->Name = L"MessageBox";
-			this->MessageBox->Size = System::Drawing::Size(411, 25);
+			this->MessageBox->Size = System::Drawing::Size(614, 35);
 			this->MessageBox->TabIndex = 36;
 			// 
 			// PosLabel
 			// 
 			this->PosLabel->AutoSize = true;
-			this->PosLabel->Location = System::Drawing::Point(751, 24);
+			this->PosLabel->Location = System::Drawing::Point(1126, 38);
+			this->PosLabel->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
 			this->PosLabel->Name = L"PosLabel";
-			this->PosLabel->Size = System::Drawing::Size(67, 15);
+			this->PosLabel->Size = System::Drawing::Size(106, 24);
 			this->PosLabel->TabIndex = 37;
 			this->PosLabel->Text = L"关节位置";
 			// 
 			// HomePosButton
 			// 
-			this->HomePosButton->Location = System::Drawing::Point(1310, 23);
+			this->HomePosButton->Location = System::Drawing::Point(1965, 37);
+			this->HomePosButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->HomePosButton->Name = L"HomePosButton";
-			this->HomePosButton->Size = System::Drawing::Size(85, 26);
+			this->HomePosButton->Size = System::Drawing::Size(128, 42);
 			this->HomePosButton->TabIndex = 38;
 			this->HomePosButton->Text = L"零点位置";
 			this->HomePosButton->UseVisualStyleBackColor = true;
@@ -681,9 +723,10 @@ namespace CleaningRobot {
 			// 
 			// TestPosButton
 			// 
-			this->TestPosButton->Location = System::Drawing::Point(1310, 61);
+			this->TestPosButton->Location = System::Drawing::Point(1965, 98);
+			this->TestPosButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->TestPosButton->Name = L"TestPosButton";
-			this->TestPosButton->Size = System::Drawing::Size(85, 26);
+			this->TestPosButton->Size = System::Drawing::Size(128, 42);
 			this->TestPosButton->TabIndex = 39;
 			this->TestPosButton->Text = L"测试位置";
 			this->TestPosButton->UseVisualStyleBackColor = true;
@@ -691,9 +734,10 @@ namespace CleaningRobot {
 			// 
 			// RatioBox
 			// 
-			this->RatioBox->Location = System::Drawing::Point(570, 20);
+			this->RatioBox->Location = System::Drawing::Point(855, 32);
+			this->RatioBox->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->RatioBox->Name = L"RatioBox";
-			this->RatioBox->Size = System::Drawing::Size(47, 25);
+			this->RatioBox->Size = System::Drawing::Size(68, 35);
 			this->RatioBox->TabIndex = 40;
 			this->RatioBox->Text = L"30";
 			this->RatioBox->TextChanged += gcnew System::EventHandler(this, &RobotForm::RatioBox_TextChanged);
@@ -701,41 +745,46 @@ namespace CleaningRobot {
 			// RatioLabel
 			// 
 			this->RatioLabel->AutoSize = true;
-			this->RatioLabel->Location = System::Drawing::Point(619, 24);
+			this->RatioLabel->Location = System::Drawing::Point(928, 38);
+			this->RatioLabel->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
 			this->RatioLabel->Name = L"RatioLabel";
-			this->RatioLabel->Size = System::Drawing::Size(37, 15);
+			this->RatioLabel->Size = System::Drawing::Size(58, 24);
 			this->RatioLabel->TabIndex = 41;
 			this->RatioLabel->Text = L"倍率";
 			// 
 			// SpaceB
 			// 
-			this->SpaceB->Location = System::Drawing::Point(47, 564);
+			this->SpaceB->Location = System::Drawing::Point(70, 902);
+			this->SpaceB->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->SpaceB->Name = L"SpaceB";
-			this->SpaceB->Size = System::Drawing::Size(96, 25);
+			this->SpaceB->Size = System::Drawing::Size(142, 35);
 			this->SpaceB->TabIndex = 42;
 			// 
 			// SpaceC
 			// 
-			this->SpaceC->Location = System::Drawing::Point(47, 603);
+			this->SpaceC->Location = System::Drawing::Point(70, 965);
+			this->SpaceC->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->SpaceC->Name = L"SpaceC";
-			this->SpaceC->Size = System::Drawing::Size(96, 25);
+			this->SpaceC->Size = System::Drawing::Size(142, 35);
 			this->SpaceC->TabIndex = 43;
 			// 
 			// B
 			// 
 			this->B->AutoSize = true;
-			this->B->Location = System::Drawing::Point(26, 570);
+			this->B->Location = System::Drawing::Point(39, 912);
+			this->B->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
 			this->B->Name = L"B";
-			this->B->Size = System::Drawing::Size(15, 15);
+			this->B->Size = System::Drawing::Size(22, 24);
 			this->B->TabIndex = 44;
 			this->B->Text = L"B";
 			// 
 			// C
 			// 
 			this->C->AutoSize = true;
-			this->C->Location = System::Drawing::Point(26, 608);
+			this->C->Location = System::Drawing::Point(39, 973);
+			this->C->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
 			this->C->Name = L"C";
-			this->C->Size = System::Drawing::Size(15, 15);
+			this->C->Size = System::Drawing::Size(22, 24);
 			this->C->TabIndex = 45;
 			this->C->Text = L"C";
 			// 
@@ -744,26 +793,27 @@ namespace CleaningRobot {
 			this->AutoMoveTimer->Interval = 1;
 			this->AutoMoveTimer->Tick += gcnew System::EventHandler(this, &RobotForm::AutoMoveTimer_Tick);
 			// 
-			// CombineTimer
-			// 
-			this->CombineTimer->Interval = 1;
-			this->CombineTimer->Tick += gcnew System::EventHandler(this, &RobotForm::CombineTimer_Tick);
-			// 
 			// CombineTestButton
 			// 
-			this->CombineTestButton->Location = System::Drawing::Point(1401, 22);
+			this->CombineTestButton->Location = System::Drawing::Point(2102, 35);
+			this->CombineTestButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->CombineTestButton->Name = L"CombineTestButton";
-			this->CombineTestButton->Size = System::Drawing::Size(81, 28);
+			this->CombineTestButton->Size = System::Drawing::Size(122, 45);
 			this->CombineTestButton->TabIndex = 46;
 			this->CombineTestButton->Text = L"联合测试";
 			this->CombineTestButton->UseVisualStyleBackColor = true;
 			this->CombineTestButton->Click += gcnew System::EventHandler(this, &RobotForm::CombineTestButton_Click);
 			// 
+			// SystemRunTimer
+			// 
+			this->SystemRunTimer->Interval = 1;
+			this->SystemRunTimer->Tick += gcnew System::EventHandler(this, &RobotForm::SystemRunTimer_Tick);
+			// 
 			// RobotForm
 			// 
-			this->AutoScaleDimensions = System::Drawing::SizeF(8, 15);
+			this->AutoScaleDimensions = System::Drawing::SizeF(12, 24);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(1517, 706);
+			this->ClientSize = System::Drawing::Size(2276, 1130);
 			this->Controls->Add(this->CombineTestButton);
 			this->Controls->Add(this->C);
 			this->Controls->Add(this->B);
@@ -811,6 +861,7 @@ namespace CleaningRobot {
 			this->Controls->Add(this->SpaceChart);
 			this->Controls->Add(this->JointChart);
 			this->Controls->Add(this->MoveStartButton);
+			this->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->Name = L"RobotForm";
 			this->Text = L"CleaningRobot";
 			this->Load += gcnew System::EventHandler(this, &RobotForm::RobotForm_Load);
@@ -820,6 +871,7 @@ namespace CleaningRobot {
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->JointAccChart))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
+
 		}
 
 #pragma endregion
@@ -882,50 +934,42 @@ namespace CleaningRobot {
 
 	private: System::Void planJoint(int axisnum, bool dir, bool isjoint, double *nowpos)
 			 {
-				 this->mCfgPara->iIntMode = hsc3::algo::Int_Manual;
+				 this->mCfgPara->ePlanMode = hsc3::algo::Plan_Manual;
 				 this->mCfgPara->iAxisNum = axisnum;
 				 this->mCfgPara->bDir = dir;
 				 this->mCfgPara->bIsJoint = isjoint;
-				 memcpy(this->mFbPara->dFbAxisPos, nowpos, sizeof(double)*MaxAxisNum);
-				 this->mMotioncombine->execMotion(hsc3::algo::Plan_Manual, this->mCfgPara, this->mCmdPara, this->mFbPara);
+				 printf("planJoint %f %f %f %f %f %f\n", mFbPara->dFbAxisPos[0],mFbPara->dFbAxisPos[1],mFbPara->dFbAxisPos[2],mFbPara->dFbAxisPos[3],mFbPara->dFbAxisPos[4],mFbPara->dFbAxisPos[5]);
+				 this->mMotioncombine->execPlan(this->mCfgPara);
 				 this->JointMoveTimer->Start();
 			 }
 
 	private: System::Void stayJoint(int axisnum)
 			 {
 				 this->mCurrentTime = this->mCurrentTime + 1;
-				 this->mMotioncombine->execMotion(hsc3::algo::Plan_None, this->mCfgPara, this->mCmdPara, this->mFbPara);
 				 this->setChart(axisnum, this->mCurrentTime, this->mCmdPara->dCmdAxisPos, this->mCmdPara->dCmdAxisVel, this->mCmdPara->dCmdAxisAcc, this->mCmdPara->dCmdSpacePos, this->mAllAxisShow, true);
-				 printf("stayJoint: %f %f %f %f %f %f \n",mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5]);
+				 printf("stayJoint--pos: %f %f %f %f %f %f \n",mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5]);
+				 //printf("stayJoint--vel: %f %f %f %f %f %f \n",mCmdPara->dCmdAxisVel[0],mCmdPara->dCmdAxisVel[1],mCmdPara->dCmdAxisVel[2],mCmdPara->dCmdAxisVel[3],mCmdPara->dCmdAxisVel[4],mCmdPara->dCmdAxisVel[5]);
 			 }
 
 	private: System::Void stopJoint(int axisnum)
 			 {
-				 hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
+				 this->mCfgPara->ePlanMode = hsc3::algo::Plan_Stop;
 				 this->mCfgPara->iAxisNum = axisnum;
-				 this->JointMoveTimer->Stop();
-				 this->mMotioncombine->execMotion(hsc3::algo::Plan_Stop, this->mCfgPara, this->mCmdPara, this->mFbPara);
-				 while(status != hsc3::algo::M_Done)
-				 {
-					 this->mCurrentTime = this->mCurrentTime + 1;
-					 status = (hsc3::algo::HS_MStatus)this->mMotioncombine->execMotion(hsc3::algo::Plan_None, this->mCfgPara, this->mCmdPara, this->mFbPara);
-					 this->setChart(axisnum, this->mCurrentTime, this->mCmdPara->dCmdAxisPos, this->mCmdPara->dCmdAxisVel, this->mCmdPara->dCmdAxisAcc, this->mCmdPara->dCmdSpacePos, this->mAllAxisShow, true);
-					 printf("stopJoint: %f %f %f %f %f %f \n",mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5]);
-				 }
+				 this->mMotioncombine->execPlan(this->mCfgPara);
+				 this->mStatus = hsc3::algo::M_UnInit;
 			 }
 
 	private: System::Void RobotForm_Load(System::Object^  sender, System::EventArgs^  e) {}
 
 	private: System::Void MoveToStart_Click(System::Object^  sender, System::EventArgs^  e) 
 			 {
-				hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
-				this->mCfgPara->iIntMode = hsc3::algo::Int_Auto;
 				try
 				{
 					this->mCfgPara->dPos[0] = Double::Parse(this->MoveToPos1->Text); this->mCfgPara->dPos[1] = Double::Parse(this->MoveToPos2->Text);
 					this->mCfgPara->dPos[2] = Double::Parse(this->MoveToPos3->Text); this->mCfgPara->dPos[4] = Double::Parse(this->MoveToPos4->Text); // 根据此模型五轴为末端轴
 					printf("MoveToStart_Click--Pos %f %f %f %f \n", this->mCfgPara->dPos[0], this->mCfgPara->dPos[1], this->mCfgPara->dPos[2], this->mCfgPara->dPos[4]);
-					this->mMotioncombine->execMotion(hsc3::algo::Int_Auto, this->mCfgPara, this->mCmdPara, this->mFbPara);
+					this->mCfgPara->ePlanMode = hsc3::algo::Plan_Auto;
+					this->mMotioncombine->execPlan(this->mCfgPara);
 					this->AutoMoveTimer->Start();
 				}
 				catch (FormatException^ ex)
@@ -943,26 +987,21 @@ namespace CleaningRobot {
 	private: System::Void AutoMoveTimer_Tick(System::Object^  sender, System::EventArgs^  e) 
 			{
 				//double dAngleChange = 3.1415926535898 / 180.0;
-				hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
 				if(this->mCfgPara->bIsJoint)
 				{
-					status = (hsc3::algo::HS_MStatus)this->mMotioncombine->execMotion(hsc3::algo::Plan_None, this->mCfgPara, this->mCmdPara, this->mFbPara);
 					this->setChart(0, this->mCurrentTime, this->mCmdPara->dCmdAxisPos, this->mCmdPara->dCmdAxisVel, this->mCmdPara->dCmdAxisAcc, this->mCmdPara->dCmdSpacePos, true, true);
-					printf("planJoint--status=%d, outPos: %f %f %f %f %f %f %f \n", status, mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5],mCmdPara->dCmdAxisPos[6]);
+					printf("planJoint--mStatus=%d, outPos: %f %f %f %f %f %f %f \n",mStatus, mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5],mCmdPara->dCmdAxisPos[6]);
 				}
 				else
 				{
-					status = (hsc3::algo::HS_MStatus)this->mMotioncombine->execMotion(hsc3::algo::Plan_None, this->mCfgPara, this->mCmdPara, this->mFbPara);
 					this->setChart(0, this->mCurrentTime, this->mCmdPara->dCmdAxisPos, this->mCmdPara->dCmdAxisVel, this->mCmdPara->dCmdAxisAcc, this->mCmdPara->dCmdSpacePos, true, false);
-					printf("planSpace--status=%d, outJPos: %f %f %f %f %f %f %f\n", status,mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5],mCmdPara->dCmdAxisPos[6]);
-					//printf("planSpace--status=%d, outJPos: %f %f %f %f %f %f %f\n", status,mCmdPara->dCmdAxisPos[0]*dAngleChange,mCmdPara->dCmdAxisPos[1]*dAngleChange,mCmdPara->dCmdAxisPos[2]*dAngleChange,mCmdPara->dCmdAxisPos[3]*dAngleChange,mCmdPara->dCmdAxisPos[4]*dAngleChange,mCmdPara->dCmdAxisPos[5]*dAngleChange,mCmdPara->dCmdAxisPos[6]*dAngleChange);
-					//printf("planSpace--status=%d, outSPos: %f %f %f %f %f %f %f\n", status,mCmdPara->dCmdSpacePos[0],mCmdPara->dCmdSpacePos[1],mCmdPara->dCmdSpacePos[2],mCmdPara->dCmdSpacePos[3],mCmdPara->dCmdSpacePos[4],mCmdPara->dCmdSpacePos[5],mCmdPara->dCmdSpacePos[6]);
-					//printf("planSpace--status=%d, outVelPos: %f %f %f %f %f %f %f\n", status,mCmdPara->dCmdAxisVel[0],mCmdPara->dCmdAxisVel[1],mCmdPara->dCmdAxisVel[2],mCmdPara->dCmdAxisVel[3],mCmdPara->dCmdAxisVel[4],mCmdPara->dCmdAxisVel[5],mCmdPara->dCmdAxisVel[6]);
-					//printf("planSpace--status=%d, outAccPos: %f %f %f %f %f %f %f\n", status,mCmdPara->dCmdAxisAcc[0],mCmdPara->dCmdAxisAcc[1],mCmdPara->dCmdAxisAcc[2],mCmdPara->dCmdAxisAcc[3],mCmdPara->dCmdAxisAcc[4],mCmdPara->dCmdAxisAcc[5],mCmdPara->dCmdAxisAcc[6]);
+					printf("planSpace--mStatus=%d, outJPos: %f %f %f %f %f %f %f\n",mStatus,mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5],mCmdPara->dCmdAxisPos[6]);
+					//printf("planSpace--mStatus=%d, outJPos: %f %f %f %f %f %f %f\n", mStatus,mCmdPara->dCmdAxisPos[0]*dAngleChange,mCmdPara->dCmdAxisPos[1]*dAngleChange,mCmdPara->dCmdAxisPos[2]*dAngleChange,mCmdPara->dCmdAxisPos[3]*dAngleChange,mCmdPara->dCmdAxisPos[4]*dAngleChange,mCmdPara->dCmdAxisPos[5]*dAngleChange,mCmdPara->dCmdAxisPos[6]*dAngleChange);
+					//printf("planSpace--mStatus=%d, outSPos: %f %f %f %f %f %f %f\n", mStatus,mCmdPara->dCmdSpacePos[0],mCmdPara->dCmdSpacePos[1],mCmdPara->dCmdSpacePos[2],mCmdPara->dCmdSpacePos[3],mCmdPara->dCmdSpacePos[4],mCmdPara->dCmdSpacePos[5],mCmdPara->dCmdSpacePos[6]);
+					//printf("planSpace--mStatus=%d, outVelPos: %f %f %f %f %f %f %f\n", mStatus,mCmdPara->dCmdAxisVel[0],mCmdPara->dCmdAxisVel[1],mCmdPara->dCmdAxisVel[2],mCmdPara->dCmdAxisVel[3],mCmdPara->dCmdAxisVel[4],mCmdPara->dCmdAxisVel[5],mCmdPara->dCmdAxisVel[6]);
+					//printf("planSpace--mStatus=%d, outAccPos: %f %f %f %f %f %f %f\n", mStatus,mCmdPara->dCmdAxisAcc[0],mCmdPara->dCmdAxisAcc[1],mCmdPara->dCmdAxisAcc[2],mCmdPara->dCmdAxisAcc[3],mCmdPara->dCmdAxisAcc[4],mCmdPara->dCmdAxisAcc[5],mCmdPara->dCmdAxisAcc[6]);
 				}
 				this->mCurrentTime = this->mCurrentTime + 1;
-				if((status == hsc3::algo::M_Done) || (status == hsc3::algo::M_Error))
-					this->AutoMoveTimer->Stop();
 			}
 
 	private: System::Void J1PosButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
@@ -1097,26 +1136,25 @@ namespace CleaningRobot {
 			 {
 				 this->mCurrentTime = 0;
 				 this->mCombineTestRun = true;
-				 this->CombineTimer->Start();
 			 }
 
 	private: System::Void CombineTimer_Tick(System::Object^  sender, System::EventArgs^  e) 
 			 {
-				 int iStatus = 1;
-				 double dOutPos[MaxAxisNum] = {0.0};
-				 double dBuffer[MaxAxisNum] = {0.0};
-				 iStatus = this->mMotioncombine->execMotion(this->mCombineTestRun);
-				 this->mMotioncombine->getResult(dOutPos);
-				 printf("CombineTimer Pos %f %f %f %f %f %f \n", dOutPos[0], dOutPos[1], dOutPos[2], dOutPos[3], dOutPos[4], dOutPos[5]);
-				 this->setChart(0, this->mCurrentTime, dOutPos, dBuffer, dBuffer, dBuffer, true, true);
-				 this->mCurrentTime = this->mCurrentTime + 1;
-				 this->mCombineTestRun = false;
-				 if(iStatus == 3)
-				 {
-					 this->CombineTimer->Stop();
-				 }
+
 			 }
 
+	private: System::Void SystemRunTimer_Tick(System::Object^  sender, System::EventArgs^  e) 
+			 {
+				 this->mStatus = (hsc3::algo::HS_MStatus)this->mMotioncombine->execMove(this->mCmdPara, this->mFbPara);
+				 memcpy(this->mFbPara->dFbAxisPos, this->mCmdPara->dCmdAxisPos, sizeof(double)*MaxAxisNum);
+				 if((this->mStatus == hsc3::algo::M_Done) || (this->mStatus == hsc3::algo::M_Error))
+				 {
+					this->mCfgPara->ePlanMode = hsc3::algo::Plan_None;
+					this->mMotioncombine->execPlan(this->mCfgPara);
+				 	this->AutoMoveTimer->Stop();
+					this->JointMoveTimer->Stop();
+				 }
+			 }
 };
 
 }

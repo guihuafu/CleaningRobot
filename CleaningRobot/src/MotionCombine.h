@@ -14,7 +14,6 @@ namespace hsc3
 		{
 		private:
 			void initPara();
-			hsc3::algo::HS_MStatus execInt(GroupConfigPara *config, GroupCommandPara *cmddata, GroupFeedbackPara *fbdata);
 			hsc3::algo::GroupMotionData dealElemt(bool firstmove, int linenum, double *startpos, double *endpos);
 			
 			void planJoint(double *endpos);
@@ -33,9 +32,9 @@ namespace hsc3
 			double getRatio();
 			void resetMotion();
 
-			int execMotion(int mode, GroupConfigPara *config, GroupCommandPara *cmddata, GroupFeedbackPara *fbdata);
-			int execMotion(bool isrun);
-			void getResult(double *pos);
+			int execPlan(GroupConfigPara *config);
+			int execMove(GroupCommandPara *cmddata, GroupFeedbackPara *fbdata);
+
 		public:
 			hsc3::algo::GroupStaticPara mGroupStaticPara[4];
 			
@@ -50,6 +49,8 @@ namespace hsc3
 			hsc3::algo::BaseManualMove *mBaseManualMove;
 			hsc3::algo::Calibrate *mCalibrate;
 			hsc3::algo::GroupTrajData *mGroupTrajout;
+			hsc3::algo::GroupConfigPara mGroupConfigPara;
+			hsc3::algo::GroupFeedbackPara mGroupFeedbackPara;
 		};
 	}
 }
