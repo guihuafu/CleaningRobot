@@ -14,8 +14,12 @@ extern "C" void* createInstance()
 
 extern "C" int execPlan(void* obj, struct GroupConfigPara *cfgpara)
 {
-	static_cast<hsc3::algo::MotionCombine*>(obj)->execPlan(cfgpara);
-	return 0;
+	return static_cast<hsc3::algo::MotionCombine*>(obj)->execPlan(cfgpara);
+}
+
+extern "C" int execMove(void* obj, struct GroupCommandPara *cmdpara, struct GroupFeedbackPara *fbpara)
+{
+	return static_cast<hsc3::algo::MotionCombine*>(obj)->execMove(cmdpara, fbpara);
 }
 
 extern "C" int setRatio(void* obj, double radio)
