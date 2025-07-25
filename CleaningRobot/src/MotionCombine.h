@@ -3,6 +3,7 @@
 #include "automove.h"
 #include "baseautomove.h"
 #include "basemanualmove.h"
+#include "MotionParaDef.h"
 
 #define CYCLE 0.004
 
@@ -49,8 +50,8 @@ namespace hsc3
 			hsc3::algo::BaseManualMove *mBaseManualMove;
 			hsc3::algo::Calibrate *mCalibrate;
 			hsc3::algo::GroupTrajData *mGroupTrajout;
-			hsc3::algo::GroupConfigPara mGroupConfigPara;
-			hsc3::algo::GroupFeedbackPara mGroupFeedbackPara;
+			GroupConfigPara mGroupConfigPara;
+			GroupFeedbackPara mGroupFeedbackPara;
 		};
 	}
 }

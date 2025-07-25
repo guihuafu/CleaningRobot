@@ -187,42 +187,6 @@ enum HS_MStatus
 	M_StopDone_F  = 5,			//小线段停止完成当前段运动
 };
 
-enum PlanMode
-{
-	Plan_None		= 0,
-	Plan_Manual		= 1,
-	Plan_Auto		= 2,
-	Plan_Stop		= 3,
-};
-
-struct GroupConfigPara
-{
-	PlanMode ePlanMode;
-	bool bIsJoint;
-	int iAxisNum;
-	bool  bDir;
-	double dPos[MaxAxisNum];
-};
-
-struct GroupCommandPara
-{
-	int iCmdWord;						// 命令字
-	int iCmdErr;						// 报警码
-	double dCmdAxisPos[MaxAxisNum];		// 指令关节位置
-	double dCmdAxisVel[MaxAxisNum];		// 指令关节速度
-	double dCmdAxisAcc[MaxAxisNum];		// 指令关节加速度
-	double dCmdSpacePos[MaxAxisNum];	// 指令空间位置
-};
-
-struct GroupFeedbackPara
-{
-	int iStatus;					// 伺服状态
-	int iServoErr;					// 伺服报警码
-	double dFbAxisPos[MaxAxisNum];  // 反馈关节位置
-	double dFbAxisVel[MaxAxisNum];  // 反馈关节速度
-	double dFbAxisAcc[MaxAxisNum];  // 反馈关节加速度
-};
-
 }
 }
 

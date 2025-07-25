@@ -29,10 +29,10 @@ namespace hsc3
 			this->mBaseManualMove = new hsc3::algo::BaseManualMove(mMotionPara, CYCLE);
 			this->mCalibrate = new hsc3::algo::Calibrate(mMotionPara, CYCLE, 0);
 			
-			this->mGroupConfigPara.ePlanMode = hsc3::algo::Plan_None;
+			this->mGroupConfigPara.ePlanMode = Plan_None;
 			this->mGroupConfigPara.iAxisNum = 0;
-			this->mGroupConfigPara.bIsJoint = true;
-			this->mGroupConfigPara.bDir = true;
+			this->mGroupConfigPara.iIsJoint = true;
+			this->mGroupConfigPara.iDir = true;
 			memset(this->mGroupConfigPara.dPos, 0.0, sizeof(double)*MaxAxisNum);
 
 			this->mGroupFeedbackPara.iStatus = 0;
@@ -413,24 +413,25 @@ namespace hsc3
 
 		int MotionCombine::execPlan(GroupConfigPara *config)
 		{
+			printf("/------------MotionCombine::execPlan-->ePlanMode=%d, iAxisNum=%d, iIsJoint=%d, iDir=%d \n", config->ePlanMode, config->iAxisNum, config->iIsJoint, config->iDir);
 			this->mGroupConfigPara.ePlanMode = config->ePlanMode;
 			this->mGroupConfigPara.iAxisNum = config->iAxisNum;
-			this->mGroupConfigPara.bIsJoint = config->bIsJoint;
-			this->mGroupConfigPara.bDir = config->bDir;
+			this->mGroupConfigPara.iIsJoint = config->iIsJoint;
+			this->mGroupConfigPara.iDir = config->iDir;
 			memcpy(this->mGroupConfigPara.dPos, config->dPos, sizeof(double)*MaxAxisNum);
 
 			switch(config->ePlanMode)
 			{
-			case hsc3::algo::Plan_Manual:
-				this->planManual(config->iAxisNum, config->bDir, config->bIsJoint, this->mGroupFeedbackPara.dFbAxisPos);
+			case Plan_Manual:
+				this->planManual(config->iAxisNum, (bool)config->iDir, (bool)config->iIsJoint, this->mGroupFeedbackPara.dFbAxisPos);
 				break;
-			case hsc3::algo::Plan_Auto:
-				if(config->bIsJoint)
+			case Plan_Auto:
+				if((bool)config->iIsJoint)
 					this->planJoint(config->dPos);
 				else
 					this->planSpace();
 				break;
-			case hsc3::algo::Plan_Stop:
+			case Plan_Stop:
 				this->stopPlanManual();
 				break;
 			default:
@@ -448,13 +449,13 @@ namespace hsc3
 			memcpy(this->mGroupFeedbackPara.dFbAxisVel, fbdata->dFbAxisVel, sizeof(double)*MaxAxisNum);
 			memcpy(this->mGroupFeedbackPara.dFbAxisAcc, fbdata->dFbAxisAcc, sizeof(double)*MaxAxisNum);
 
-			if(this->mGroupConfigPara.ePlanMode == hsc3::algo::Plan_Manual)
+			if(this->mGroupConfigPara.ePlanMode == Plan_Manual)
 			{
 				status = this->execManualIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
 			}
-			else if(this->mGroupConfigPara.ePlanMode == hsc3::algo::Plan_Auto)
+			else if(this->mGroupConfigPara.ePlanMode == Plan_Auto)
 			{
-				if(this->mGroupConfigPara.bIsJoint)
+				if((bool)this->mGroupConfigPara.iIsJoint)
 				{
 					status = this->execJointIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
 				}
@@ -463,7 +464,7 @@ namespace hsc3
 					status = this->execSpaceIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
 				}
 			}
-			else if(this->mGroupConfigPara.ePlanMode == hsc3::algo::Plan_Stop)
+			else if(this->mGroupConfigPara.ePlanMode == Plan_Stop)
 			{
 				status = this->execManualIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
 			}

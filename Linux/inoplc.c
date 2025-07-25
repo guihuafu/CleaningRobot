@@ -1,6 +1,7 @@
 
 #define __DEBUG__
 #include <libinoplc.h>
+#include "MotionParaDef.h"
 #include "classwrapper.h"
 
 __IOBLCOK_DEFINE MyIOBlock
@@ -32,37 +33,11 @@ __IOBLCOK_DEFINE motion_outputs
 
 __IOBLCOK_DEFINE motion_extra
 {
-	DWORD  interval;
-	WORD   errcode;
-	USINT  output1;
-};
-
-///< define the block of inputs
-__IOBLCOK_DEFINE etc20_inputs
-{
-	UINT   lbus_status;
-	UINT   fault_id;
-	UDINT  error_slot1;
-	UDINT  error_slot2;
-	USINT  digital_input1;
-	USINT  digital_input2;
-};
-
-///< define the block of outpus
-__IOBLCOK_DEFINE etc20_outputs
-{
-	UINT   device_control;
-	USINT  digital_output1;
-	USINT  digital_output2;
-	USINT  digital_output3;
-	USINT  digital_output4[9];
-};
-
-__IOBLCOK_DEFINE etc20_extra
-{
-	DWORD  interval;
-	WORD   errcode;
-	USINT  output1;
+	INT		iPlanMode;
+	BOOL   	bIsJoint;
+	INT  	iAxisNum;
+	BOOL   	bDir;
+	LREAL  	dPos[9];
 };
 
 /**
@@ -204,115 +179,41 @@ int ExampleRelease(int id, void *pdata)
 	return 0;
 }
 
-/**
- * @brief just one easy eample for IOBlockCall
- *
- * @param [in] id                calling id
- * @param [in/out] pinputs       input values block
- *
- * @return handle result
- *	@retval -1 = failed
- *	@retval  0 = success
- */
-int ExampleCall(int id, void *pdata)
+
+void* obj = NULL;
+struct MyIOBlock *piBlock;
+struct MyIOBlock *poBlock;
+struct GroupConfigPara strConfigPara = {0};
+
+int MotionPlan(int id, void *pdata)
 {
-	libinoplc_log("Example Call, id=%d", id);
+	if (pdata == NULL)
+		return -1;
+
+	static int bFirstStart = 1;
+	struct motion_extra *pext = (struct motion_extra*)pdata;
+
+	if(bFirstStart == 1)
+	{
+		obj = createInstance();
+		bFirstStart = 0;
+	}
+
+	strConfigPara.ePlanMode = pext->iPlanMode;
+	strConfigPara.iAxisNum = pext->iAxisNum;
+	strConfigPara.iIsJoint = pext->bIsJoint;
+	strConfigPara.iDir = pext->bDir;
+	printf("/------------MotionPlan-->strConfigPara ePlanMode=%d, iAxisNum=%d, iIsJoint=%d, iDir=%d \n", strConfigPara.ePlanMode, strConfigPara.iAxisNum, strConfigPara.iIsJoint, strConfigPara.iDir);
+	printf("/------------MotionPlan-->pext ePlanMode=%d, iAxisNum=%d, iIsJoint=%d, iDir=%d \n", pext->iPlanMode, pext->iAxisNum, pext->bIsJoint, pext->bDir);
+	execPlan(obj, &strConfigPara);
+
+	pext->dPos[0] = 111.1;
+	pext->dPos[1] = 122.2;
+	pext->dPos[2] = 133.3;
+	pext->dPos[3] = 144.4;
 	return 0;
 }
 
-/**
- * @brief example routine call in IEC code
- *
- * @param [in] id                calling id
- * @param [in/out] pinputs       input values block
- * @param [in/out] poutpus       outputs values block
- * @param [in/out] pextra        extra values block
- *
- * @return handle result
- *	@retval -1 = failed
- *	@retval  0 = success
- */
-void* obj = NULL;
-int Etc20Example(int id, void *pinputs, void *poutputs, void *pextra)
-{
-	int iStatus = 0;
-	// static int bFirstStart = 1;
-	// if(bFirstStart == 1)
-	// {
-	// 	obj = createInstance();
-	// 	bFirstStart = 0;
-	// }
-
-	// static int a = 0, b = 0;
-	// if (pinputs == NULL || poutputs == NULL)
-	// 	return -1;
-
-	// struct MyIOBlock *piBlock = pinputs;
-	// struct MyIOBlock *poBlock = poutputs;
-	// struct etc20_inputs *poin = (struct etc20_inputs*)piBlock->ptr;
-	// struct etc20_outputs *poout = (struct etc20_outputs*)poBlock->ptr;
-	// struct etc20_extra *pext = (struct etc20_extra*)pextra;
-	// double dPos[9] = {0.0};
-
-	// a = a + 1;
-	// b = b + 1;
-	
-	// if(b > 100)
-	// 	b = 0;
-	
-	// if(a > 200)
-	// 	a = 0;
-	
-	// if(poin->digital_input1 == 1)
-	// {
-	// 	poout->digital_output3 = 2;
-	// 	iStatus = execMotion(obj, 1);
-	// }
-	// else if(poin->digital_input1 == 2)
-	// {
-	// 	poout->digital_output3 = 3;
-	// 	iStatus = execMotion(obj, 0);
-	// 	getResult(obj, dPos);
-	// 	poout->digital_output4[0] = (int)dPos[0];
-	// 	poout->digital_output4[1] = (int)dPos[1];
-	// 	poout->digital_output4[2] = (int)dPos[2];
-	// 	poout->digital_output4[3] = (int)dPos[3];
-	// 	if(iStatus == 3)
-	// 		poout->digital_output1 = 3;
-	// }
-	// else
-	// {
-	// 	poout->digital_output3 = 1;
-	// }
-	
-	
-	// //poin->fault_id = 10;
-	// //poin->digital_input1 = 16;
-	// //poin->digital_input2 = 17;
-	
-	// //poout->digital_output1 = a;
-	// poout->digital_output2 = b;
-	// //poout->digital_output3 = 33.67;
-
-	// // poout->digital_output4[0] = a;
-	// // poout->digital_output4[1] = b;
-	// // poout->digital_output4[2] = 11;
-	// // poout->digital_output4[3] = 22;
-	
-	// //pext->interval = 55;
-	// //pext->errcode = 56;
-	// //pext->output1 = 66.67;
-	
-	// //setRatio(obj, 33.0);
-	// //double dRatio = getRatio(obj);
-	
-
-	return iStatus;
-}
-
-
-struct MyIOBlock *piBlock;
-struct MyIOBlock *poBlock;
 int MotionMove(int id, void *pinputs, void *poutputs, void *pextra)
 {
 	int iStatus = 0;
@@ -324,7 +225,7 @@ int MotionMove(int id, void *pinputs, void *poutputs, void *pextra)
 		bFirstStart = 0;
 	}
 
-	if (pinputs == NULL || poutputs == NULL)
+	if (pinputs == NULL || poutputs == NULL || pextra == NULL)
 		return -1;
 
 	a = a + 1;
@@ -338,29 +239,28 @@ int MotionMove(int id, void *pinputs, void *poutputs, void *pextra)
 	struct motion_extra *pext = (struct motion_extra*)pextra;
 	double dPos[9] = {0.0};
 
-	if(poin->iStatus == 1)
-	{
-		poout->iCmdErr = 2;
-		iStatus = execMotion(obj, 1);
-		printf("/---MotionMove--1 \n");
-	}
-	else if(poin->iStatus == 2)
-	{
-		poout->iCmdErr = 3;
-		iStatus = execMotion(obj, 0);
-		getResult(obj, dPos);
-		poout->dCmdPos[0] = dPos[0];
-		poout->dCmdPos[1] = dPos[1];
-		poout->dCmdPos[2] = dPos[2];
-		poout->dCmdPos[3] = dPos[3];
-		if(iStatus == 3)
-			poout->iCmdWord = 3;
-		printf("/---MotionMove--2 \n");
-	}
-	else
-	{
-		poout->iCmdErr = 1;
-	}
+	// if(poin->iStatus == 1)
+	// {
+	// 	poout->iCmdErr = 2;
+	// 	iStatus = execMotion(obj, 1);
+	// 	printf("/---MotionMove--1 \n");
+	// }
+	// else if(poin->iStatus == 2)
+	// {
+	// 	poout->iCmdErr = 3;
+	// 	iStatus = execMotion(obj, 0);
+	// 	poout->dCmdPos[0] = dPos[0];
+	// 	poout->dCmdPos[1] = dPos[1];
+	// 	poout->dCmdPos[2] = dPos[2];
+	// 	poout->dCmdPos[3] = dPos[3];
+	// 	if(iStatus == 3)
+	// 		poout->iCmdWord = 3;
+	// 	printf("/---MotionMove--2 \n");
+	// }
+	// else
+	// {
+	// 	poout->iCmdErr = 1;
+	// }
 
 	poout->dCmdVel[0] = 11.1;
 	poout->dCmdAcc[0] = a;
@@ -369,6 +269,15 @@ int MotionMove(int id, void *pinputs, void *poutputs, void *pextra)
 	poout->dCmdPos[6] = 57.7;
 	poout->dCmdPos[7] = 58.8;
 	poout->dCmdPos[8] = 59.9;
+
+	pext->iPlanMode = strConfigPara.ePlanMode;
+	pext->bIsJoint = strConfigPara.iIsJoint;
+	pext->iAxisNum = strConfigPara.iAxisNum;
+	pext->bDir = strConfigPara.iDir;
+	pext->dPos[0] = 11.1;
+	pext->dPos[1] = 22.2;
+	pext->dPos[2] = 33.3;
+	pext->dPos[3] = 44.4;
 
 	return iStatus;
 }

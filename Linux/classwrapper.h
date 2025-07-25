@@ -1,9 +1,12 @@
+#ifndef __CLASSWRAPPER_H__
+#define __CLASSWRAPPER_H__
+
 #ifdef __cplusplus 
 extern "C" {
 #endif 
 
   void* createInstance();  // 返回类实例指针 
-  int execMotion(void* obj, int en);
+  int execPlan(void* obj, struct GroupConfigPara *cfgpara);
   void setRatio(void* obj, double ratio);
   double getRatio(void* obj);
   void destroy_instance(void* obj);
@@ -11,3 +14,5 @@ extern "C" {
 #ifdef __cplusplus 
 }
 #endif 
+
+#endif /*__CLASSWRAPPER_H__*/

@@ -1,23 +1,27 @@
 #include "MotionCombine.h"
+#include <stdio.h>
 
 extern "C" void* createInstance()
 {
-	return new hsc3::algo::MotionCombine();
+	static hsc3::algo::MotionCombine* mInstance = NULL;
+	if(mInstance == NULL)
+	{
+		printf("/--------------createInstance-->MotionCombine-------------/\n");
+		mInstance = new hsc3::algo::MotionCombine();
+	}
+	return mInstance;
 }
 
-extern "C" int execMotion(void* obj, int en)
+extern "C" int execPlan(void* obj, struct GroupConfigPara *cfgpara)
 {
-	static_cast<hsc3::algo::MotionCombine*>(obj)->execMotion(en);
-}
-
-extern "C" void getResult(void* obj, double *pos)
-{
-	static_cast<hsc3::algo::MotionCombine*>(obj)->getResult(pos);
+	static_cast<hsc3::algo::MotionCombine*>(obj)->execPlan(cfgpara);
+	return 0;
 }
 
 extern "C" int setRatio(void* obj, double radio)
 {
 	static_cast<hsc3::algo::MotionCombine*>(obj)->setRatio(radio);
+	return 0;
 }
 
 extern "C" double getRatio(void* obj)
