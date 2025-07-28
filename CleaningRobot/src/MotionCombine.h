@@ -17,10 +17,10 @@ namespace hsc3
 			void initPara();
 			hsc3::algo::GroupMotionData dealElemt(bool firstmove, int linenum, double *startpos, double *endpos);
 			
-			void planJoint(double *endpos);
-			void planSpace();
-			void planManual(int axisnum, bool dir, bool isjoint, double *nowpos);			
-			void stopPlanManual();
+			int planJoint(double *endpos);
+			int planSpace();
+			int planManual(int axisnum, bool dir, bool isjoint, double *nowpos);			
+			int stopPlanManual();
 
 			hsc3::algo::HS_MStatus execJointIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos);
 			hsc3::algo::HS_MStatus execSpaceIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos);
@@ -31,6 +31,7 @@ namespace hsc3
 			~MotionCombine();
 			void setRatio(double ratio);
 			double getRatio();
+			void syncPos();
 			void resetMotion();
 
 			int execPlan(GroupConfigPara *config);
@@ -51,6 +52,7 @@ namespace hsc3
 			hsc3::algo::Calibrate *mCalibrate;
 			hsc3::algo::GroupTrajData *mGroupTrajout;
 			GroupConfigPara mGroupConfigPara;
+			GroupCommandPara mGroupCommandPara;
 			GroupFeedbackPara mGroupFeedbackPara;
 		};
 	}

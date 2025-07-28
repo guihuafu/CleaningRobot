@@ -203,13 +203,11 @@ int MotionPlan(int id, void *pdata)
 	strConfigPara.iAxisNum = pext->iAxisNum;
 	strConfigPara.iIsJoint = pext->bIsJoint;
 	strConfigPara.iDir = pext->bDir;
+	memcpy(strConfigPara.dPos, pext->dPos, sizeof(double)*9);
 	printf("/--MotionPlan-->strConfigPara ePlanMode=%d, iAxisNum=%d, iIsJoint=%d, iDir=%d \n", strConfigPara.ePlanMode, strConfigPara.iAxisNum, strConfigPara.iIsJoint, strConfigPara.iDir);
+	printf("/--MotionPlan-->strConfigPara dPos %f %f %f %f %f %f \n", strConfigPara.dPos[0], strConfigPara.dPos[1], strConfigPara.dPos[2], strConfigPara.dPos[3], strConfigPara.dPos[4], strConfigPara.dPos[5]);
 	execPlan(obj, &strConfigPara);
 
-	pext->dPos[0] = 111.1;
-	pext->dPos[1] = 122.2;
-	pext->dPos[2] = 133.3;
-	pext->dPos[3] = 144.4;
 	return 0;
 }
 
@@ -221,16 +219,24 @@ int MotionMove(int id, void *pinputs, void *poutputs, void *pextra)
 	{
 		obj = createInstance();
 		bFirstStart = 0;
+		memcpy(strCommandPara.dCmdAxisPos, strFeedbackPara.dFbAxisPos, sizeof(double)*9);
 	}
 
-	if (pinputs == NULL || poutputs == NULL || pextra == NULL)
+	if(pinputs == NULL || poutputs == NULL || pextra == NULL)
 		return -1;
-	
+
 	struct MyIOBlock *piBlock = pinputs;
 	struct MyIOBlock *poBlock = poutputs;
 	struct motion_inputs *poin = (struct motion_inputs*)piBlock->ptr;
 	struct motion_outputs *poout = (struct motion_outputs*)poBlock->ptr;
 	struct motion_extra *pext = (struct motion_extra*)pextra;
+
+	if(poin->iStatus == 1)
+	{
+		memcpy(strCommandPara.dCmdAxisPos, strFeedbackPara.dFbAxisPos, sizeof(double)*9);
+		printf("/--MotionMove-->dFbAxisPos %f %f %f %f %f %f \n",strFeedbackPara.dFbAxisPos[0],strFeedbackPara.dFbAxisPos[1],strFeedbackPara.dFbAxisPos[2]
+			,strFeedbackPara.dFbAxisPos[3],strFeedbackPara.dFbAxisPos[4],strFeedbackPara.dFbAxisPos[5]);
+	}
 
 	memcpy(strFeedbackPara.dFbAxisPos, poin->dFbPos, sizeof(double)*9);
 	memcpy(strFeedbackPara.dFbAxisVel, poin->dFbVel, sizeof(double)*9);
@@ -240,6 +246,7 @@ int MotionMove(int id, void *pinputs, void *poutputs, void *pextra)
 	memcpy(poout->dCmdVel, strCommandPara.dCmdAxisVel, sizeof(double)*9);
 	memcpy(poout->dCmdAcc, strCommandPara.dCmdAxisAcc, sizeof(double)*9);
 	memcpy(poout->dCmdSpace, strCommandPara.dCmdSpacePos, sizeof(double)*9);
+
 	poout->iRobStatus = iStatus;
 
 	if(strConfigPara.ePlanMode != 0)

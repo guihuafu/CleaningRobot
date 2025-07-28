@@ -35,6 +35,12 @@ namespace hsc3
 			this->mGroupConfigPara.iDir = true;
 			memset(this->mGroupConfigPara.dPos, 0.0, sizeof(double)*MaxAxisNum);
 
+			this->mGroupCommandPara.iCmdWord = 0;
+			this->mGroupCommandPara.iCmdErr = 0;
+			memset(this->mGroupCommandPara.dCmdAxisPos, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mGroupCommandPara.dCmdAxisVel, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mGroupCommandPara.dCmdAxisAcc, 0.0, sizeof(double)*MaxAxisNum);
+
 			this->mGroupFeedbackPara.iStatus = 0;
 			this->mGroupFeedbackPara.iServoErr = 0;
 			memset(this->mGroupFeedbackPara.dFbAxisPos, 0.0, sizeof(double)*MaxAxisNum);
@@ -104,7 +110,7 @@ namespace hsc3
 			}
 		}
 
-		void MotionCombine::planJoint(double *endpos)
+		int MotionCombine::planJoint(double *endpos)
 		{
 			int mMotionDataNum = 0;
 			hsc3::algo::GroupMotionData groupdata = {0};
@@ -126,17 +132,15 @@ namespace hsc3
 			groupdata.tBaseMoveData[0].sCurCoordinate.iCoordinate = hsc3::algo::JOINT_COORD_SYSTEM;
 			groupdata.tBaseMoveData[0].sCurCoordinate.iToolNum = -1;
 			groupdata.tBaseMoveData[0].sCurCoordinate.iWorkNum = -1;
-			groupdata.tBaseMoveData[0].sStartPos.dPos[0] = 0.0; groupdata.tBaseMoveData[0].sStartPos.dPos[1] = -90.0; groupdata.tBaseMoveData[0].sStartPos.dPos[2] = 180.0;
-			groupdata.tBaseMoveData[0].sStartPos.dPos[3] = 0.0; groupdata.tBaseMoveData[0].sStartPos.dPos[4] = 90.0; groupdata.tBaseMoveData[0].sStartPos.dPos[5] = 0.0;
-			groupdata.tBaseMoveData[0].sStartPos.dPos[6] = 0.0; groupdata.tBaseMoveData[0].sStartPos.dPos[7] = 0.0; groupdata.tBaseMoveData[0].sStartPos.dPos[8] = 0.0;
+			memcpy(groupdata.tBaseMoveData[0].sStartPos.dPos, this->mGroupCommandPara.dCmdAxisPos, sizeof(double) * MaxAxisNum);
 			groupdata.tBaseMoveData[0].sStartPos.iPose = 0;
 			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iCoordinate = hsc3::algo::JOINT_COORD_SYSTEM;
 			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iToolNum = -1;
 			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iWorkNum = -1;
 			memset(groupdata.tBaseMoveData[0].sMidPos.dPos, 0, sizeof(double) * 9);
 			groupdata.tBaseMoveData[0].sEndPos.dPos[0] = endpos[0]; groupdata.tBaseMoveData[0].sEndPos.dPos[1] = endpos[1]; groupdata.tBaseMoveData[0].sEndPos.dPos[2] = endpos[2];
-			groupdata.tBaseMoveData[0].sEndPos.dPos[3] = endpos[3]; groupdata.tBaseMoveData[0].sEndPos.dPos[4] = endpos[4]; groupdata.tBaseMoveData[0].sEndPos.dPos[5] = endpos[5];
-			groupdata.tBaseMoveData[0].sEndPos.dPos[6] = endpos[6]; groupdata.tBaseMoveData[0].sEndPos.dPos[7] = 0; groupdata.tBaseMoveData[0].sEndPos.dPos[8] = 0;
+			groupdata.tBaseMoveData[0].sEndPos.dPos[3] = 0.0; groupdata.tBaseMoveData[0].sEndPos.dPos[4] = endpos[3]; groupdata.tBaseMoveData[0].sEndPos.dPos[5] = 0.0;
+			groupdata.tBaseMoveData[0].sEndPos.dPos[6] = 0.0; groupdata.tBaseMoveData[0].sEndPos.dPos[7] = 0.0; groupdata.tBaseMoveData[0].sEndPos.dPos[8] = 0.0;
 			groupdata.tBaseMoveData[0].sEndPos.iPose = 0;
 			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iCoordinate = hsc3::algo::JOINT_COORD_SYSTEM;
 			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iToolNum = -1;
@@ -153,7 +157,7 @@ namespace hsc3
 			hsc3::algo::HS_GroupJPos groupjpos = {0};
 			memcpy(groupjpos.dJPos[0], groupdata.tBaseMoveData[0].sStartPos.dPos, sizeof(double) * MaxAxisNum);
 
-			this->mAutoMove->execPlanMove(this->mGroupTrajout, 0, this->mRatio, groupjpos);
+			return this->mAutoMove->execPlanMove(this->mGroupTrajout, 0, this->mRatio, groupjpos);
 		}
 
 		hsc3::algo::HS_MStatus MotionCombine::execJointIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos)
@@ -238,7 +242,7 @@ namespace hsc3
 			return groupdata;
 		}
 
-		void MotionCombine::planSpace()
+		int MotionCombine::planSpace()
 		{
 			memset(this->mLastJointPos, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mLastVel, 0.0, sizeof(double)*MaxAxisNum);
@@ -266,6 +270,7 @@ namespace hsc3
 			this->mDataNum = 3;
 			groupdata = this->dealElemt(false, this->mDataNum, dEndPos3, dEndPos4);
 			this->mAutoMove->execPrehandle(groupdata, this->mGroupTrajout, this->mDataNum);
+			return 0;
 		}
 
 		hsc3::algo::HS_MStatus MotionCombine::execSpaceIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos)
@@ -342,7 +347,7 @@ namespace hsc3
 			return status;
 		}
 
-		void MotionCombine::planManual(int axisnum, bool dir, bool isjoint, double *nowpos)
+		int MotionCombine::planManual(int axisnum, bool dir, bool isjoint, double *nowpos)
 		{
 			printf("planManual nowpos %f %f %f %f %f %f \n",nowpos[0],nowpos[1],nowpos[2],nowpos[3],nowpos[4],nowpos[5]);
 			//memset(this->mLastJointPos, 0.0, sizeof(double)*MaxAxisNum);
@@ -372,7 +377,7 @@ namespace hsc3
 			int iErrorId = 0;
 			hsc3::algo::HS_GroupJPos groupjpos = {0.0};
 			memcpy(groupjpos.dJPos[0], nowpos, sizeof(double)*MaxAxisNum);
-			this->mBaseManualMove->Plan(groupjpos, mManualPara);
+			return this->mBaseManualMove->Plan(groupjpos, mManualPara);
 		}
 
 		hsc3::algo::HS_MStatus MotionCombine::execManualIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos)
@@ -401,9 +406,9 @@ namespace hsc3
 			return status;
 		}
 
-		void MotionCombine::stopPlanManual()
+		int MotionCombine::stopPlanManual()
 		{
-			this->mBaseManualMove->StopPlan();
+			return this->mBaseManualMove->StopPlan();
 		}
 
 		void MotionCombine::resetMotion()
@@ -414,16 +419,27 @@ namespace hsc3
 		int MotionCombine::execPlan(GroupConfigPara *config)
 		{
 			printf("/------------MotionCombine::execPlan-->ePlanMode=%d, iAxisNum=%d, iIsJoint=%d, iDir=%d \n", config->ePlanMode, config->iAxisNum, config->iIsJoint, config->iDir);
+			int iErrorNum = 0;
 			this->mGroupConfigPara.ePlanMode = config->ePlanMode;
 			this->mGroupConfigPara.iAxisNum = config->iAxisNum;
-			this->mGroupConfigPara.iIsJoint = config->iIsJoint;
-			this->mGroupConfigPara.iDir = config->iDir;
+			this->mGroupConfigPara.iIsJoint =(bool) config->iIsJoint;
+			this->mGroupConfigPara.iDir = (bool)config->iDir;
 			memcpy(this->mGroupConfigPara.dPos, config->dPos, sizeof(double)*MaxAxisNum);
 
 			switch(config->ePlanMode)
 			{
 			case Plan_Manual:
-				this->planManual(config->iAxisNum, (bool)config->iDir, (bool)config->iIsJoint, this->mGroupFeedbackPara.dFbAxisPos);
+				if(config->iAxisNum > 3)
+				{
+					printf("MotionCombine-->execPlan-->AxisNum Out Limit!!! \n");
+					return 1;
+				}
+				if(config->iAxisNum == 3)
+				{
+					this->mGroupConfigPara.iAxisNum = 4;
+					this->mGroupConfigPara.iIsJoint = true;
+				}
+				iErrorNum = this->planManual(this->mGroupConfigPara.iAxisNum, this->mGroupConfigPara.iDir, this->mGroupConfigPara.iIsJoint, this->mGroupFeedbackPara.dFbAxisPos);
 				break;
 			case Plan_Auto:
 				if((bool)config->iIsJoint)
@@ -432,44 +448,83 @@ namespace hsc3
 					this->planSpace();
 				break;
 			case Plan_Stop:
-				this->stopPlanManual();
+				iErrorNum = this->stopPlanManual();
 				break;
 			default:
 				break;
 			}
 
-			return 0;
+			return iErrorNum;
 		}
 
 		int MotionCombine::execMove(GroupCommandPara *cmddata, GroupFeedbackPara *fbdata)
 		{
+			GroupCommandPara strCmdData = {0.0};
+			GroupFeedbackPara strFbData = {0.0};
 			hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
 
-			memcpy(this->mGroupFeedbackPara.dFbAxisPos, fbdata->dFbAxisPos, sizeof(double)*MaxAxisNum);
-			memcpy(this->mGroupFeedbackPara.dFbAxisVel, fbdata->dFbAxisVel, sizeof(double)*MaxAxisNum);
-			memcpy(this->mGroupFeedbackPara.dFbAxisAcc, fbdata->dFbAxisAcc, sizeof(double)*MaxAxisNum);
+			memset(this->mGroupFeedbackPara.dFbAxisPos, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mGroupFeedbackPara.dFbAxisVel, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mGroupFeedbackPara.dFbAxisAcc, 0.0, sizeof(double)*MaxAxisNum);
+			for(int i=0; i<3; i++)
+			{
+				this->mGroupFeedbackPara.dFbAxisPos[i] = fbdata->dFbAxisPos[i];
+				this->mGroupFeedbackPara.dFbAxisVel[i] = fbdata->dFbAxisVel[i];
+				this->mGroupFeedbackPara.dFbAxisAcc[i] = fbdata->dFbAxisAcc[i];
+			}
+			this->mGroupFeedbackPara.dFbAxisPos[4] = fbdata->dFbAxisPos[3];
+			this->mGroupFeedbackPara.dFbAxisVel[4] = fbdata->dFbAxisVel[3];
+			this->mGroupFeedbackPara.dFbAxisAcc[4] = fbdata->dFbAxisAcc[3];
 
 			if(this->mGroupConfigPara.ePlanMode == Plan_Manual)
 			{
-				status = this->execManualIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
+				status = this->execManualIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
 			}
 			else if(this->mGroupConfigPara.ePlanMode == Plan_Auto)
 			{
 				if((bool)this->mGroupConfigPara.iIsJoint)
 				{
-					status = this->execJointIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
+					status = this->execJointIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
 				}
 				else
 				{
-					status = this->execSpaceIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
+					status = this->execSpaceIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
 				}
 			}
 			else if(this->mGroupConfigPara.ePlanMode == Plan_Stop)
 			{
-				status = this->execManualIntMove(cmddata->dCmdAxisPos, cmddata->dCmdAxisVel, cmddata->dCmdAxisAcc, cmddata->dCmdSpacePos);
+				status = this->execManualIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
 			}
 
+			if(status != hsc3::algo::M_UnInit)
+			{
+				memset(cmddata->dCmdAxisPos, 0.0, sizeof(double)*MaxAxisNum);
+				memset(cmddata->dCmdAxisVel, 0.0, sizeof(double)*MaxAxisNum);
+				memset(cmddata->dCmdAxisAcc, 0.0, sizeof(double)*MaxAxisNum);
+				memcpy(cmddata->dCmdSpacePos, strCmdData.dCmdSpacePos, sizeof(double)*MaxAxisNum);
+				for(int i=0; i<3; i++)
+				{
+					cmddata->dCmdAxisPos[i] = strCmdData.dCmdAxisPos[i];
+					cmddata->dCmdAxisVel[i] = strCmdData.dCmdAxisVel[i];
+					cmddata->dCmdAxisAcc[i] = strCmdData.dCmdAxisAcc[i];
+				}
+				cmddata->dCmdAxisPos[3] = strCmdData.dCmdAxisPos[4];
+				cmddata->dCmdAxisVel[3] = strCmdData.dCmdAxisVel[4];
+				cmddata->dCmdAxisAcc[3] = strCmdData.dCmdAxisAcc[4];
+
+				memcpy(this->mGroupCommandPara.dCmdAxisPos, strCmdData.dCmdAxisPos, sizeof(double)*MaxAxisNum);
+				memcpy(this->mGroupCommandPara.dCmdAxisVel, strCmdData.dCmdAxisVel, sizeof(double)*MaxAxisNum);
+				memcpy(this->mGroupCommandPara.dCmdAxisAcc, strCmdData.dCmdAxisAcc, sizeof(double)*MaxAxisNum);
+				memcpy(this->mGroupCommandPara.dCmdSpacePos, strCmdData.dCmdSpacePos, sizeof(double)*MaxAxisNum);
+			}
 			return (int)status;
+		}
+
+		void MotionCombine::syncPos()
+		{
+			memcpy(this->mGroupCommandPara.dCmdAxisPos, this->mGroupFeedbackPara.dFbAxisPos, sizeof(double)*MaxAxisNum);
+			memcpy(this->mGroupCommandPara.dCmdAxisVel, this->mGroupFeedbackPara.dFbAxisVel, sizeof(double)*MaxAxisNum);
+			memcpy(this->mGroupCommandPara.dCmdAxisAcc, this->mGroupFeedbackPara.dFbAxisAcc, sizeof(double)*MaxAxisNum);
 		}
 	}
 }

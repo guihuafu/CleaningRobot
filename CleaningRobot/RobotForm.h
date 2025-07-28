@@ -24,7 +24,6 @@ namespace CleaningRobot {
 		// 构造函数代码
 		RobotForm(void)
 		{
-			this->mCombineTestRun = false;
 			this->mAllAxisShow = false;
 			this->mCurrentTime = 0;
 			this->mCfgPara = new GroupConfigPara;
@@ -40,9 +39,8 @@ namespace CleaningRobot {
 			memset(this->mCmdPara->dCmdAxisVel, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mCmdPara->dCmdAxisAcc, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mCmdPara->dCmdSpacePos, 0.0, sizeof(double)*MaxAxisNum);
-			this->mCmdPara->dCmdAxisPos[0] = 0.0; this->mCmdPara->dCmdAxisPos[1] = -90.0; this->mCmdPara->dCmdAxisPos[2] = 180.0;
-			this->mCmdPara->dCmdAxisPos[3] = 0.0; this->mCmdPara->dCmdAxisPos[4] = 90.0; this->mCmdPara->dCmdAxisPos[5] = 0.0;
-			this->mCmdPara->dCmdAxisPos[6] = 0.0; this->mCmdPara->dCmdAxisPos[7] = 0.0; this->mCmdPara->dCmdAxisPos[8] = 0.0;
+			this->mCmdPara->dCmdAxisPos[0] = 0.0; this->mCmdPara->dCmdAxisPos[1] = -90.0; this->mCmdPara->dCmdAxisPos[2] = 180.0; this->mCmdPara->dCmdAxisPos[3] = 90.0;
+			this->mFbPara->dFbAxisPos[0] = 0.0; this->mFbPara->dFbAxisPos[1] = -90.0; this->mFbPara->dFbAxisPos[2] = 180.0; this->mFbPara->dFbAxisPos[3] = 90.0;
 			this->mStatus = hsc3::algo::M_UnInit;
 
 			CreateConsole();		// 控制台窗口初始化
@@ -234,7 +232,6 @@ namespace CleaningRobot {
 	GroupCommandPara *mCmdPara;
 	GroupFeedbackPara *mFbPara;
 	hsc3::algo::HS_MStatus mStatus;
-	bool mCombineTestRun;
 	bool mAllAxisShow;
 	int mCurrentTime;
 
@@ -800,7 +797,7 @@ namespace CleaningRobot {
 			this->CombineTestButton->Name = L"CombineTestButton";
 			this->CombineTestButton->Size = System::Drawing::Size(122, 45);
 			this->CombineTestButton->TabIndex = 46;
-			this->CombineTestButton->Text = L"联合测试";
+			this->CombineTestButton->Text = L"位置同步";
 			this->CombineTestButton->UseVisualStyleBackColor = true;
 			this->CombineTestButton->Click += gcnew System::EventHandler(this, &RobotForm::CombineTestButton_Click);
 			// 
@@ -890,56 +887,55 @@ namespace CleaningRobot {
 
 	private: System::Void setChart(int axixnum, int count, double *jointpos, double *jointvel, double *jointacc, double *spacepos, bool allshow, bool isjoint)
 			{
-				int iShowSingleNum = (axixnum == 4) ? 3 : axixnum;
-				int iSpace4AxisNum = (isjoint) ? 4 : 6;
-
 				this->JointAngle1->Text = jointpos[0].ToString("0.#######"); this->JointAngle2->Text = jointpos[1].ToString("0.#######");
-				this->JointAngle3->Text = jointpos[2].ToString("0.#######"); this->JointAngle4->Text = jointpos[4].ToString("0.#######"); // 根据此模型五轴为末端轴
+				this->JointAngle3->Text = jointpos[2].ToString("0.#######"); this->JointAngle4->Text = jointpos[3].ToString("0.#######");
 				this->SpaceX->Text = spacepos[0].ToString("0.#######"); this->SpaceY->Text = spacepos[1].ToString("0.#######");
 				this->SpaceZ->Text = spacepos[2].ToString("0.#######"); this->SpaceA->Text = spacepos[3].ToString("0.#######");
 				this->SpaceB->Text = spacepos[4].ToString("0.#######"); this->SpaceC->Text = spacepos[5].ToString("0.#######");
 
 				if(!allshow)
 				{
-					this->JointChart->Series[iShowSingleNum]->Points->AddXY(count, jointpos[axixnum]);			// 添加关节数据点
-					this->JointVelChart->Series[iShowSingleNum]->Points->AddXY(count, jointvel[axixnum]);		// 添加关节速度数据点
-					this->JointAccChart->Series[iShowSingleNum]->Points->AddXY(count, jointacc[axixnum]);		// 添加关节速度数据点
-					this->SpaceChart->Series[iShowSingleNum]->Points->AddXY(count, spacepos[axixnum]);			// 添加空间数据点
+					this->JointChart->Series[axixnum]->Points->AddXY(count, jointpos[axixnum]);			// 添加关节数据点
+					this->JointVelChart->Series[axixnum]->Points->AddXY(count, jointvel[axixnum]);		// 添加关节速度数据点
+					this->JointAccChart->Series[axixnum]->Points->AddXY(count, jointacc[axixnum]);		// 添加关节速度数据点
+					this->SpaceChart->Series[axixnum]->Points->AddXY(count, spacepos[axixnum]);			// 添加空间数据点
 				}
 				else
 				{
-					this->JointChart->Series["关节1"]->Points->AddXY(count, jointpos[0]);						// 添加关节1数据点
-					this->JointChart->Series["关节2"]->Points->AddXY(count, jointpos[1]);						// 添加关节2数据点
-					this->JointChart->Series["关节3"]->Points->AddXY(count, jointpos[2]);						// 添加关节3数据点
-					if(isjoint)
-						this->JointChart->Series["关节4"]->Points->AddXY(count, jointpos[iSpace4AxisNum]);			// 添加关节4数据点
+					this->JointChart->Series["关节1"]->Points->AddXY(count, jointpos[0]);				// 添加关节1数据点
+					this->JointChart->Series["关节2"]->Points->AddXY(count, jointpos[1]);				// 添加关节2数据点
+					this->JointChart->Series["关节3"]->Points->AddXY(count, jointpos[2]);				// 添加关节3数据点
+					this->JointChart->Series["关节4"]->Points->AddXY(count, jointpos[3]);				// 添加关节4数据点
 
-					this->JointVelChart->Series["关节速度1"]->Points->AddXY(count, jointvel[0]);				// 添加关节速度1数据点
-					this->JointVelChart->Series["关节速度2"]->Points->AddXY(count, jointvel[1]);				// 添加关节速度2数据点
-					this->JointVelChart->Series["关节速度3"]->Points->AddXY(count, jointvel[2]);				// 添加关节速度3数据点
-					if(isjoint)
-						this->JointVelChart->Series["关节速度4"]->Points->AddXY(count, jointvel[iSpace4AxisNum]);	// 添加关节速度4数据点
+					this->JointVelChart->Series["关节速度1"]->Points->AddXY(count, jointvel[0]);		// 添加关节速度1数据点
+					this->JointVelChart->Series["关节速度2"]->Points->AddXY(count, jointvel[1]);		// 添加关节速度2数据点
+					this->JointVelChart->Series["关节速度3"]->Points->AddXY(count, jointvel[2]);		// 添加关节速度3数据点
+					this->JointVelChart->Series["关节速度4"]->Points->AddXY(count, jointvel[3]);		// 添加关节速度4数据点
 
-					this->JointAccChart->Series["关节加速度1"]->Points->AddXY(count, jointacc[0]);				// 添加关节加速度1数据点
-					this->JointAccChart->Series["关节加速度2"]->Points->AddXY(count, jointacc[1]);				// 添加关节加速度2数据点
-					this->JointAccChart->Series["关节加速度3"]->Points->AddXY(count, jointacc[2]);				// 添加关节加速度3数据点
-					if(isjoint)
-						this->JointAccChart->Series["关节加速度4"]->Points->AddXY(count, jointacc[iSpace4AxisNum]);	// 添加关节加速度4数据点
+					this->JointAccChart->Series["关节加速度1"]->Points->AddXY(count, jointacc[0]);		// 添加关节加速度1数据点
+					this->JointAccChart->Series["关节加速度2"]->Points->AddXY(count, jointacc[1]);		// 添加关节加速度2数据点
+					this->JointAccChart->Series["关节加速度3"]->Points->AddXY(count, jointacc[2]);		// 添加关节加速度3数据点
+					this->JointAccChart->Series["关节加速度4"]->Points->AddXY(count, jointacc[3]);		// 添加关节加速度4数据点
 
-					this->SpaceChart->Series["空间X轴"]->Points->AddXY(count, spacepos[0]);			// 添加空间X轴数据点
-					this->SpaceChart->Series["空间Y轴"]->Points->AddXY(count, spacepos[1]);			// 添加空间Y轴数据点
-					this->SpaceChart->Series["空间Z轴"]->Points->AddXY(count, spacepos[2]);			// 添加空间Z轴数据点
+					this->SpaceChart->Series["空间X轴"]->Points->AddXY(count, spacepos[0]);				// 添加空间X轴数据点
+					this->SpaceChart->Series["空间Y轴"]->Points->AddXY(count, spacepos[1]);				// 添加空间Y轴数据点
+					this->SpaceChart->Series["空间Z轴"]->Points->AddXY(count, spacepos[2]);				// 添加空间Z轴数据点
 				}
 			 }
 
 	private: System::Void planJoint(int axisnum, bool dir, bool isjoint, double *nowpos)
 			 {
+				 int iErrorNum = 0;
 				 this->mCfgPara->ePlanMode = Plan_Manual;
 				 this->mCfgPara->iAxisNum = axisnum;
 				 this->mCfgPara->iDir = dir;
-				 printf("planJoint %f %f %f %f %f %f\n", mFbPara->dFbAxisPos[0],mFbPara->dFbAxisPos[1],mFbPara->dFbAxisPos[2],mFbPara->dFbAxisPos[3],mFbPara->dFbAxisPos[4],mFbPara->dFbAxisPos[5]);
-				 this->mMotioncombine->execPlan(this->mCfgPara);
-				 this->JointMoveTimer->Start();
+				 printf("RobotForm-->planJoint-->AxisNum=%d, PlanMode=%d, Dir=%d \n", mCfgPara->iAxisNum, mCfgPara->ePlanMode, mCfgPara->iDir);
+				 printf("RobotForm-->planJoint-->dFbAxisPos %f %f %f %f %f %f \n", mFbPara->dFbAxisPos[0],mFbPara->dFbAxisPos[1],mFbPara->dFbAxisPos[2],mFbPara->dFbAxisPos[3],mFbPara->dFbAxisPos[4],mFbPara->dFbAxisPos[5]);
+				 iErrorNum = this->mMotioncombine->execPlan(this->mCfgPara);
+				 if(iErrorNum == 0)
+					this->JointMoveTimer->Start();
+				 else
+					 printf("RobotForm-->planJoint-->Error = %d, Plan Error!!! \n", iErrorNum);
 			 }
 
 	private: System::Void stayJoint(int axisnum)
@@ -954,6 +950,7 @@ namespace CleaningRobot {
 			 {
 				 this->mCfgPara->ePlanMode = Plan_Stop;
 				 this->mCfgPara->iAxisNum = axisnum;
+				 printf("RobotForm-->stopJoint-->AxisNum=%d, PlanMode=%d\n", mCfgPara->iAxisNum, mCfgPara->ePlanMode);
 				 this->mMotioncombine->execPlan(this->mCfgPara);
 				 this->mStatus = hsc3::algo::M_UnInit;
 			 }
@@ -965,8 +962,8 @@ namespace CleaningRobot {
 				try
 				{
 					this->mCfgPara->dPos[0] = Double::Parse(this->MoveToPos1->Text); this->mCfgPara->dPos[1] = Double::Parse(this->MoveToPos2->Text);
-					this->mCfgPara->dPos[2] = Double::Parse(this->MoveToPos3->Text); this->mCfgPara->dPos[4] = Double::Parse(this->MoveToPos4->Text); // 根据此模型五轴为末端轴
-					printf("MoveToStart_Click--Pos %f %f %f %f \n", this->mCfgPara->dPos[0], this->mCfgPara->dPos[1], this->mCfgPara->dPos[2], this->mCfgPara->dPos[4]);
+					this->mCfgPara->dPos[2] = Double::Parse(this->MoveToPos3->Text); this->mCfgPara->dPos[3] = Double::Parse(this->MoveToPos4->Text); // 根据此模型五轴为末端轴
+					printf("RobotForm-->MoveToStart-->Pos %f %f %f %f \n", this->mCfgPara->dPos[0], this->mCfgPara->dPos[1], this->mCfgPara->dPos[2], this->mCfgPara->dPos[3]);
 					this->mCfgPara->ePlanMode = Plan_Auto;
 					this->mMotioncombine->execPlan(this->mCfgPara);
 					this->AutoMoveTimer->Start();
@@ -974,7 +971,7 @@ namespace CleaningRobot {
 				catch (FormatException^ ex)
 				{
 					this->MessageBox->Text = "点位类型输入错误！！！";
-					printf("MoveToStart_Click Error\n");
+					printf("RobotForm-->MoveToStart-->Error\n");
 				}
 			 }
 
@@ -1054,23 +1051,23 @@ namespace CleaningRobot {
 	private: System::Void J4PosButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
 				bool bStatus = (bool)this->mCfgPara->iIsJoint;
 				this->mCfgPara->iIsJoint = true;			// 关节4只能走关节
-				this->planJoint(4, true, true, this->mCmdPara->dCmdAxisPos);
+				this->planJoint(3, true, this->mCfgPara->iIsJoint, this->mCmdPara->dCmdAxisPos);
 				this->mCfgPara->iIsJoint = bStatus;
 			 }
 
 	private: System::Void J4PosButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->stopJoint(4);
+				this->stopJoint(3);
 			 }
 
 	private: System::Void J4NegButton_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
 				 bool bStatus = this->mCfgPara->iIsJoint;
 				 this->mCfgPara->iIsJoint = true;			// 关节4只能走关节
-				 this->planJoint(4, false, true, this->mCmdPara->dCmdAxisPos);
+				 this->planJoint(3, false, this->mCfgPara->iIsJoint, this->mCmdPara->dCmdAxisPos);
 				 this->mCfgPara->iIsJoint = bStatus;
 			 }
 
 	private: System::Void J4NegButton_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
-				this->stopJoint(4);
+				this->stopJoint(3);
 			 }
 
 	private: System::Void ClearChart_Click(System::Object^  sender, System::EventArgs^  e) 
@@ -1139,8 +1136,7 @@ namespace CleaningRobot {
 
 	private: System::Void CombineTestButton_Click(System::Object^  sender, System::EventArgs^  e) 
 			 {
-				 this->mCurrentTime = 0;
-				 this->mCombineTestRun = true;
+				 this->mMotioncombine->syncPos();
 			 }
 
 	private: System::Void CombineTimer_Tick(System::Object^  sender, System::EventArgs^  e) 
