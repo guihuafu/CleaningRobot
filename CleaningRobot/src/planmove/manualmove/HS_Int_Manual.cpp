@@ -153,7 +153,7 @@ int HS_Int_Manual::Plan(HS_GroupJPos &tHS_GroupJPos, ManualPara tManualPara)
         iErrorId = StartPosWristQYCheck(dCurJPos);
         if(iErrorId != 0)
         {
-            LOG_ALGO("ErrorNum = %d",iErrorId);
+            LOG_ALGO("HS_Int_Manual-->ErrorNum = %d",iErrorId);
         }
     }
 

@@ -887,6 +887,7 @@ namespace CleaningRobot {
 
 	private: System::Void setChart(int axixnum, int count, double *jointpos, double *jointvel, double *jointacc, double *spacepos, bool allshow, bool isjoint)
 			{
+
 				this->JointAngle1->Text = jointpos[0].ToString("0.#######"); this->JointAngle2->Text = jointpos[1].ToString("0.#######");
 				this->JointAngle3->Text = jointpos[2].ToString("0.#######"); this->JointAngle4->Text = jointpos[3].ToString("0.#######");
 				this->SpaceX->Text = spacepos[0].ToString("0.#######"); this->SpaceY->Text = spacepos[1].ToString("0.#######");
@@ -935,7 +936,10 @@ namespace CleaningRobot {
 				 if(iErrorNum == 0)
 					this->JointMoveTimer->Start();
 				 else
+				 {
+					 this->MessageBox->Text = "关节点位规划失败，" + iErrorNum.ToString();
 					 printf("RobotForm-->planJoint-->Error = %d, Plan Error!!! \n", iErrorNum);
+				 }
 			 }
 
 	private: System::Void stayJoint(int axisnum)
@@ -1075,6 +1079,7 @@ namespace CleaningRobot {
 				this->MessageBox->Text = " ";
 				this->clearChart();
 				this->mMotioncombine->resetMotion();
+				this->mCmdPara->iCmdErr = 0;
 			 }
 
 	private: System::Void AllAxisShow_CheckedChanged(System::Object^  sender, System::EventArgs^  e) 
@@ -1154,6 +1159,8 @@ namespace CleaningRobot {
 					this->mMotioncombine->execPlan(this->mCfgPara);
 				 	this->AutoMoveTimer->Stop();
 					this->JointMoveTimer->Stop();
+					if(this->mCmdPara->iCmdErr != 0)
+						this->MessageBox->Text = "点位插补失败, 错误码:" + this->mCmdPara->iCmdErr.ToString();
 				 }
 			 }
 };

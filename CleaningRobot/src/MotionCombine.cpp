@@ -349,7 +349,8 @@ namespace hsc3
 
 		int MotionCombine::planManual(int axisnum, bool dir, bool isjoint, double *nowpos)
 		{
-			printf("planManual nowpos %f %f %f %f %f %f \n",nowpos[0],nowpos[1],nowpos[2],nowpos[3],nowpos[4],nowpos[5]);
+			int iErrorID = 0;
+			printf("MotionCombine-->planManual nowpos %f %f %f %f %f %f \n",nowpos[0],nowpos[1],nowpos[2],nowpos[3],nowpos[4],nowpos[5]);
 			//memset(this->mLastJointPos, 0.0, sizeof(double)*MaxAxisNum);
 			//memset(this->mLastVel, 0.0, sizeof(double)*MaxAxisNum);
 			hsc3::algo::ManualPara mManualPara;
@@ -377,10 +378,12 @@ namespace hsc3
 			int iErrorId = 0;
 			hsc3::algo::HS_GroupJPos groupjpos = {0.0};
 			memcpy(groupjpos.dJPos[0], nowpos, sizeof(double)*MaxAxisNum);
-			return this->mBaseManualMove->Plan(groupjpos, mManualPara);
+			iErrorId = this->mBaseManualMove->Plan(groupjpos, mManualPara);
+			printf("MotionCombine-->planManual iErrorId = %d \n",iErrorId);
+			return iErrorId;
 		}
 
-		hsc3::algo::HS_MStatus MotionCombine::execManualIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos)
+		hsc3::algo::HS_MStatus MotionCombine::execManualIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos, int &errid)
 		{
 			int iErrorId = 0;
 			hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
@@ -388,7 +391,11 @@ namespace hsc3
 			status = this->mBaseManualMove->Move(iErrorId, groupjpos);					// 获取周期关节插补点
 			memcpy(jointpos, groupjpos.dJPos[0], sizeof(double)*6);
 			this->mCalibrate->calcJPosToCPos(jointpos, -1, -1, spacepos);				// 获取空间位置
-
+			if(iErrorId != 0)
+			{
+				errid = iErrorId;
+				printf("MotionCombine::execManualIntMove %d \n", iErrorId);
+			}
 			for(int i=0; i<MaxAxisNum; i++)
 			{
 				jointvel[i] = (jointpos[i] - this->mLastJointPos[i]) / CYCLE;			// 获取关节速度
@@ -459,6 +466,7 @@ namespace hsc3
 
 		int MotionCombine::execMove(GroupCommandPara *cmddata, GroupFeedbackPara *fbdata)
 		{
+			int iErrorID = 0;
 			GroupCommandPara strCmdData = {0.0};
 			GroupFeedbackPara strFbData = {0.0};
 			hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
@@ -478,7 +486,7 @@ namespace hsc3
 
 			if(this->mGroupConfigPara.ePlanMode == Plan_Manual)
 			{
-				status = this->execManualIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
+				status = this->execManualIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos, iErrorID);
 			}
 			else if(this->mGroupConfigPara.ePlanMode == Plan_Auto)
 			{
@@ -493,11 +501,16 @@ namespace hsc3
 			}
 			else if(this->mGroupConfigPara.ePlanMode == Plan_Stop)
 			{
-				status = this->execManualIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
+				status = this->execManualIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos, iErrorID);
 			}
 
 			if(status != hsc3::algo::M_UnInit)
 			{
+				if(iErrorID != 0)
+				{
+					cmddata->iCmdErr = iErrorID;
+					printf("MotionCombine-->execMove-->status=%d, iErrorID=%d \n", status, iErrorID);
+				}
 				memset(cmddata->dCmdAxisPos, 0.0, sizeof(double)*MaxAxisNum);
 				memset(cmddata->dCmdAxisVel, 0.0, sizeof(double)*MaxAxisNum);
 				memset(cmddata->dCmdAxisAcc, 0.0, sizeof(double)*MaxAxisNum);
