@@ -46,6 +46,7 @@ namespace hsc3
 			memset(this->mGroupFeedbackPara.dFbAxisPos, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mGroupFeedbackPara.dFbAxisVel, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mGroupFeedbackPara.dFbAxisAcc, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mGroupFeedbackPara.dFbSpace, 0.0, sizeof(double)*MaxAxisNum);
 		}
 
 		MotionCombine::~MotionCombine()
@@ -154,6 +155,75 @@ namespace hsc3
 			groupdata.tBaseMoveData[0].tRevolve.iTurn = 0;
 
 			this->mAutoMove->execPrehandle(groupdata, this->mGroupTrajout, mMotionDataNum);
+			hsc3::algo::HS_GroupJPos groupjpos = {0};
+			memcpy(groupjpos.dJPos[0], groupdata.tBaseMoveData[0].sStartPos.dPos, sizeof(double) * MaxAxisNum);
+
+			return this->mAutoMove->execPlanMove(this->mGroupTrajout, 0, this->mRatio, groupjpos);
+		}
+
+		int MotionCombine::planMoveTo(double *endpos, bool isjoint)
+		{
+			int iErrorID = 0;
+			int mMotionDataNum = 0;
+			hsc3::algo::GroupMotionData groupdata = {0};
+			memset(this->mLastJointPos, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mLastVel, 0.0, sizeof(double)*MaxAxisNum);
+
+			groupdata.iLineNum = 0;
+			groupdata.tHS_GroupRel.eGroupRelType[0] = hsc3::algo::GRT_Independent;
+			groupdata.tHS_GroupRel.eGroupRelType[1] = hsc3::algo::GRT_NoUse;
+			groupdata.tHS_GroupRel.eGroupRelType[2] = hsc3::algo::GRT_NoUse;
+			groupdata.tHS_GroupRel.eGroupRelType[3] = hsc3::algo::GRT_NoUse;
+			groupdata.dCnt = 0.0;
+			groupdata.dCR = 0.0;
+			groupdata.iSmooth = 0;
+			groupdata.bStartMove = true;
+			groupdata.bWristQYFlag = false;
+			groupdata.tFilterControl.bFilterOpenFlag = false;
+			
+			groupdata.tBaseMoveData[0].sCurCoordinate.iToolNum = -1;
+			groupdata.tBaseMoveData[0].sCurCoordinate.iWorkNum = -1;
+			memcpy(groupdata.tBaseMoveData[0].sStartPos.dPos, this->mGroupCommandPara.dCmdAxisPos, sizeof(double) * MaxAxisNum);
+			groupdata.tBaseMoveData[0].sStartPos.iPose = 0;
+			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iCoordinate = hsc3::algo::JOINT_COORD_SYSTEM;
+			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iToolNum = -1;
+			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iWorkNum = -1;
+			memset(groupdata.tBaseMoveData[0].sMidPos.dPos, 0, sizeof(double) * 9);
+			groupdata.tBaseMoveData[0].sEndPos.iPose = 0;
+			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iToolNum = -1;
+			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iWorkNum = -1;
+			groupdata.tBaseMoveData[0].b2mid = false;
+			groupdata.tBaseMoveData[0].dVort = 100.0;
+			groupdata.tBaseMoveData[0].dAcc = 100.0;
+			groupdata.tBaseMoveData[0].dDec = 100.0;
+			groupdata.tBaseMoveData[0].iCntType = 0;
+			groupdata.tBaseMoveData[0].tRevolve.iTurn = 0;
+
+			if(isjoint)
+			{
+				groupdata.tBaseMoveData[0].eTrajType = hsc3::algo::MP_Joint;
+				groupdata.tBaseMoveData[0].sCurCoordinate.iCoordinate = hsc3::algo::JOINT_COORD_SYSTEM;
+				groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iCoordinate = hsc3::algo::JOINT_COORD_SYSTEM;
+				groupdata.tBaseMoveData[0].dVel = 100.0;
+				groupdata.tBaseMoveData[0].sEndPos.dPos[0] = endpos[0]; groupdata.tBaseMoveData[0].sEndPos.dPos[1] = endpos[1]; groupdata.tBaseMoveData[0].sEndPos.dPos[2] = endpos[2];
+				groupdata.tBaseMoveData[0].sEndPos.dPos[3] = 0.0; groupdata.tBaseMoveData[0].sEndPos.dPos[4] = endpos[3]; groupdata.tBaseMoveData[0].sEndPos.dPos[5] = 0.0;
+				groupdata.tBaseMoveData[0].sEndPos.dPos[6] = 0.0; groupdata.tBaseMoveData[0].sEndPos.dPos[7] = 0.0; groupdata.tBaseMoveData[0].sEndPos.dPos[8] = 0.0;
+			}
+			else
+			{
+				groupdata.tBaseMoveData[0].eTrajType = hsc3::algo::MP_Line;
+				groupdata.tBaseMoveData[0].sCurCoordinate.iCoordinate = hsc3::algo::BASE_COORD_SYSTEM;
+				groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iCoordinate = hsc3::algo::BASE_COORD_SYSTEM;
+				groupdata.tBaseMoveData[0].dVel = 1500.0;
+				groupdata.tBaseMoveData[0].sEndPos.dPos[0] = endpos[0]; groupdata.tBaseMoveData[0].sEndPos.dPos[1] = endpos[1]; groupdata.tBaseMoveData[0].sEndPos.dPos[2] = endpos[2];
+				groupdata.tBaseMoveData[0].sEndPos.dPos[3] = 180.0; groupdata.tBaseMoveData[0].sEndPos.dPos[4] = endpos[3]; groupdata.tBaseMoveData[0].sEndPos.dPos[5] = 180.0;
+				groupdata.tBaseMoveData[0].sEndPos.dPos[6] = 0.0; groupdata.tBaseMoveData[0].sEndPos.dPos[7] = 0.0; groupdata.tBaseMoveData[0].sEndPos.dPos[8] = 0.0;
+			}
+
+			iErrorID = this->mAutoMove->execPrehandle(groupdata, this->mGroupTrajout, mMotionDataNum);
+			if(iErrorID != 0)
+				return iErrorID;
+
 			hsc3::algo::HS_GroupJPos groupjpos = {0};
 			memcpy(groupjpos.dJPos[0], groupdata.tBaseMoveData[0].sStartPos.dPos, sizeof(double) * MaxAxisNum);
 
@@ -291,7 +361,7 @@ namespace hsc3
 						bCalcOut = true;
 						memcpy(groupjpos.dJPos[0], this->mJointPos, sizeof(double) * MaxAxisNum);
 						errorID = this->mAutoMove->execPlanMove(this->mGroupTrajout, iID, this->mRatio, groupjpos);
-						if((errorID != 0) && (errorID < Waring))
+						if((errorID != 0) && (errorID <= Waring))
 							status = hsc3::algo::M_Error;
 						printf("MotionCombine::execSpaceIntMove--M_UnInit--Plan Next Position\n");
 					}
@@ -308,7 +378,7 @@ namespace hsc3
 						memcpy(groupjpos.dJPos[0], intdata.tGJPos[0].dJPos[0], sizeof(double) * MaxAxisNum);
 						errorID = this->mAutoMove->execPlanMove(this->mGroupTrajout, iID, this->mRatio, groupjpos);
 						printf("MotionCombine::execSpaceIntMove--Plan Next Position--errorID=%d \n", errorID);
-						if((errorID != 0) && (errorID < Waring))
+						if((errorID != 0) && (errorID <= Waring))
 							status = hsc3::algo::M_Error;
 						status = hsc3::algo::M_UnInit;
 						memcpy(this->mJointPos, intdata.tGJPos[0].dJPos[0], sizeof(double)*MaxAxisNum);
@@ -425,7 +495,7 @@ namespace hsc3
 
 		int MotionCombine::execPlan(GroupConfigPara *config)
 		{
-			printf("/------------MotionCombine::execPlan-->ePlanMode=%d, iAxisNum=%d, iIsJoint=%d, iDir=%d \n", config->ePlanMode, config->iAxisNum, config->iIsJoint, config->iDir);
+			printf("MotionCombine-->execPlan-->ePlanMode=%d, iAxisNum=%d, iIsJoint=%d, iDir=%d \n", config->ePlanMode, config->iAxisNum, config->iIsJoint, config->iDir);
 			int iErrorNum = 0;
 			this->mGroupConfigPara.ePlanMode = config->ePlanMode;
 			this->mGroupConfigPara.iAxisNum = config->iAxisNum;
@@ -449,13 +519,13 @@ namespace hsc3
 				iErrorNum = this->planManual(this->mGroupConfigPara.iAxisNum, this->mGroupConfigPara.iDir, this->mGroupConfigPara.iIsJoint, this->mGroupFeedbackPara.dFbAxisPos);
 				break;
 			case Plan_Auto:
-				if((bool)config->iIsJoint)
-					this->planJoint(config->dPos);
-				else
-					this->planSpace();
+				this->planSpace();
 				break;
 			case Plan_Stop:
 				iErrorNum = this->stopPlanManual();
+				break;
+			case Plan_MoveTo:
+				iErrorNum = this->planMoveTo(config->dPos, (bool)config->iIsJoint);
 				break;
 			default:
 				break;
@@ -474,6 +544,7 @@ namespace hsc3
 			memset(this->mGroupFeedbackPara.dFbAxisPos, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mGroupFeedbackPara.dFbAxisVel, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mGroupFeedbackPara.dFbAxisAcc, 0.0, sizeof(double)*MaxAxisNum);
+
 			for(int i=0; i<3; i++)
 			{
 				this->mGroupFeedbackPara.dFbAxisPos[i] = fbdata->dFbAxisPos[i];
@@ -484,24 +555,37 @@ namespace hsc3
 			this->mGroupFeedbackPara.dFbAxisVel[4] = fbdata->dFbAxisVel[3];
 			this->mGroupFeedbackPara.dFbAxisAcc[4] = fbdata->dFbAxisAcc[3];
 
+			this->mCalibrate->calcJPosToCPos(this->mGroupFeedbackPara.dFbAxisPos, -1, -1, fbdata->dFbSpace);				// 更新反馈空间位置
+
 			if(this->mGroupConfigPara.ePlanMode == Plan_Manual)
 			{
 				status = this->execManualIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos, iErrorID);
 			}
 			else if(this->mGroupConfigPara.ePlanMode == Plan_Auto)
 			{
-				if((bool)this->mGroupConfigPara.iIsJoint)
-				{
-					status = this->execJointIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
-				}
-				else
-				{
+				//if((bool)this->mGroupConfigPara.iIsJoint)
+				//{
+				//	status = this->execJointIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
+				//}
+				//else
+				//{
 					status = this->execSpaceIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
-				}
+				//}
 			}
 			else if(this->mGroupConfigPara.ePlanMode == Plan_Stop)
 			{
 				status = this->execManualIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos, iErrorID);
+			}
+			else if(this->mGroupConfigPara.ePlanMode == Plan_MoveTo)
+			{
+				//if((bool)this->mGroupConfigPara.iIsJoint)
+				//{
+					status = this->execJointIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
+				//}
+				//else
+				//{
+				//	status = this->execSpaceIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
+				//}
 			}
 
 			if(status != hsc3::algo::M_UnInit)

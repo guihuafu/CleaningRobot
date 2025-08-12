@@ -19,6 +19,7 @@ __IOBLCOK_DEFINE motion_inputs
 	LREAL	dFbPos[9];
 	LREAL	dFbVel[9];
 	LREAL	dFbAcc[9];
+	LREAL	dFbSpace[9];
 };
 
 ///< define the block of outpus
@@ -234,7 +235,7 @@ int MotionMove(int id, void *pinputs, void *poutputs, void *pextra)
 	if(poin->iStatus == 1)
 	{
 		memcpy(strCommandPara.dCmdAxisPos, strFeedbackPara.dFbAxisPos, sizeof(double)*9);
-		printf("/--MotionMove-->dFbAxisPos %f %f %f %f %f %f \n",strFeedbackPara.dFbAxisPos[0],strFeedbackPara.dFbAxisPos[1],strFeedbackPara.dFbAxisPos[2]
+		printf("MotionMove-->dFbAxisPos %f %f %f %f %f %f \n",strFeedbackPara.dFbAxisPos[0],strFeedbackPara.dFbAxisPos[1],strFeedbackPara.dFbAxisPos[2]
 			,strFeedbackPara.dFbAxisPos[3],strFeedbackPara.dFbAxisPos[4],strFeedbackPara.dFbAxisPos[5]);
 	}
 
@@ -246,13 +247,12 @@ int MotionMove(int id, void *pinputs, void *poutputs, void *pextra)
 	memcpy(poout->dCmdVel, strCommandPara.dCmdAxisVel, sizeof(double)*9);
 	memcpy(poout->dCmdAcc, strCommandPara.dCmdAxisAcc, sizeof(double)*9);
 	memcpy(poout->dCmdSpace, strCommandPara.dCmdSpacePos, sizeof(double)*9);
-
+	memcpy(poin->dFbSpace, strFeedbackPara.dFbSpace, sizeof(double)*9);
 	poout->iRobStatus = iStatus;
 
 	if(strConfigPara.ePlanMode != 0)
-		printf("/--MotionMove-->dCmdAxisPos %f %f %f %f %f %f \n",strCommandPara.dCmdAxisPos[0],strCommandPara.dCmdAxisPos[1],strCommandPara.dCmdAxisPos[2]
+		printf("MotionMove-->iStatus=%d, dCmdAxisPos %f %f %f %f %f %f \n",iStatus, strCommandPara.dCmdAxisPos[0],strCommandPara.dCmdAxisPos[1],strCommandPara.dCmdAxisPos[2]
 			,strCommandPara.dCmdAxisPos[3],strCommandPara.dCmdAxisPos[4],strCommandPara.dCmdAxisPos[5]);
-	double dPos[9] = {0.0};
 
 	pext->iPlanMode = strConfigPara.ePlanMode;
 	pext->bIsJoint = strConfigPara.iIsJoint;

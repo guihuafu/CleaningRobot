@@ -170,14 +170,10 @@ namespace CleaningRobot {
 				delete components;
 			}
 		}
-	private: System::Windows::Forms::Button^  MoveStartButton;
+
+	private: System::Windows::Forms::Button^  RunTrajButton;
 	private: System::Windows::Forms::DataVisualization::Charting::Chart^  JointChart;
 	private: System::ComponentModel::IContainer^  components;
-	protected: 
-
-	private:
-	// 私有变量定义
-
 	private: System::Windows::Forms::DataVisualization::Charting::Chart^  SpaceChart;
 	private: System::Windows::Forms::DataVisualization::Charting::Chart^  JointVelChart;
 	private: System::Windows::Forms::DataVisualization::Charting::Chart^  JointAccChart;
@@ -224,7 +220,7 @@ namespace CleaningRobot {
 	private: System::Windows::Forms::Button^  TestPosButton;
 	private: System::Windows::Forms::TextBox^  RatioBox;
 	private: System::Windows::Forms::Label^  RatioLabel;
-
+	private: System::Windows::Forms::Button^  MoveToButton;
 	private: System::Windows::Forms::Button^  CombineTestButton;
 	private: System::Windows::Forms::Timer^  SystemRunTimer;
 	hsc3::algo::MotionCombine *mMotioncombine;
@@ -246,15 +242,15 @@ namespace CleaningRobot {
 		void InitializeComponent(void)
 		{
 			this->components = (gcnew System::ComponentModel::Container());
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea1 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^  legend1 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea2 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^  legend2 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea3 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^  legend3 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea4 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^  legend4 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
-			this->MoveStartButton = (gcnew System::Windows::Forms::Button());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea5 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^  legend5 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea6 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^  legend6 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea7 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^  legend7 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea8 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^  legend8 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			this->RunTrajButton = (gcnew System::Windows::Forms::Button());
 			this->JointChart = (gcnew System::Windows::Forms::DataVisualization::Charting::Chart());
 			this->SpaceChart = (gcnew System::Windows::Forms::DataVisualization::Charting::Chart());
 			this->JointVelChart = (gcnew System::Windows::Forms::DataVisualization::Charting::Chart());
@@ -304,29 +300,30 @@ namespace CleaningRobot {
 			this->AutoMoveTimer = (gcnew System::Windows::Forms::Timer(this->components));
 			this->CombineTestButton = (gcnew System::Windows::Forms::Button());
 			this->SystemRunTimer = (gcnew System::Windows::Forms::Timer(this->components));
+			this->MoveToButton = (gcnew System::Windows::Forms::Button());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->JointChart))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->SpaceChart))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->JointVelChart))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->JointAccChart))->BeginInit();
 			this->SuspendLayout();
 			// 
-			// MoveStartButton
+			// RunTrajButton
 			// 
-			this->MoveStartButton->Location = System::Drawing::Point(1782, 11);
-			this->MoveStartButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
-			this->MoveStartButton->Name = L"MoveStartButton";
-			this->MoveStartButton->Size = System::Drawing::Size(128, 72);
-			this->MoveStartButton->TabIndex = 0;
-			this->MoveStartButton->Text = L"开始运动";
-			this->MoveStartButton->UseVisualStyleBackColor = true;
-			this->MoveStartButton->Click += gcnew System::EventHandler(this, &RobotForm::MoveToStart_Click);
+			this->RunTrajButton->Location = System::Drawing::Point(1789, 24);
+			this->RunTrajButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
+			this->RunTrajButton->Name = L"RunTrajButton";
+			this->RunTrajButton->Size = System::Drawing::Size(128, 59);
+			this->RunTrajButton->TabIndex = 0;
+			this->RunTrajButton->Text = L"运行轨迹";
+			this->RunTrajButton->UseVisualStyleBackColor = true;
+			this->RunTrajButton->Click += gcnew System::EventHandler(this, &RobotForm::RunTrajButton_Click);
 			// 
 			// JointChart
 			// 
-			chartArea1->Name = L"ChartArea1";
-			this->JointChart->ChartAreas->Add(chartArea1);
-			legend1->Name = L"Legend1";
-			this->JointChart->Legends->Add(legend1);
+			chartArea5->Name = L"ChartArea1";
+			this->JointChart->ChartAreas->Add(chartArea5);
+			legend5->Name = L"Legend1";
+			this->JointChart->Legends->Add(legend5);
 			this->JointChart->Location = System::Drawing::Point(237, 173);
 			this->JointChart->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->JointChart->Name = L"JointChart";
@@ -336,10 +333,10 @@ namespace CleaningRobot {
 			// 
 			// SpaceChart
 			// 
-			chartArea2->Name = L"ChartArea1";
-			this->SpaceChart->ChartAreas->Add(chartArea2);
-			legend2->Name = L"Legend1";
-			this->SpaceChart->Legends->Add(legend2);
+			chartArea6->Name = L"ChartArea1";
+			this->SpaceChart->ChartAreas->Add(chartArea6);
+			legend6->Name = L"Legend1";
+			this->SpaceChart->Legends->Add(legend6);
 			this->SpaceChart->Location = System::Drawing::Point(237, 645);
 			this->SpaceChart->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->SpaceChart->Name = L"SpaceChart";
@@ -349,10 +346,10 @@ namespace CleaningRobot {
 			// 
 			// JointVelChart
 			// 
-			chartArea3->Name = L"ChartArea1";
-			this->JointVelChart->ChartAreas->Add(chartArea3);
-			legend3->Name = L"Legend1";
-			this->JointVelChart->Legends->Add(legend3);
+			chartArea7->Name = L"ChartArea1";
+			this->JointVelChart->ChartAreas->Add(chartArea7);
+			legend7->Name = L"Legend1";
+			this->JointVelChart->Legends->Add(legend7);
 			this->JointVelChart->Location = System::Drawing::Point(1226, 173);
 			this->JointVelChart->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->JointVelChart->Name = L"JointVelChart";
@@ -464,7 +461,7 @@ namespace CleaningRobot {
 			// 
 			// ClearChart
 			// 
-			this->ClearChart->Location = System::Drawing::Point(1782, 91);
+			this->ClearChart->Location = System::Drawing::Point(1965, 78);
 			this->ClearChart->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->ClearChart->Name = L"ClearChart";
 			this->ClearChart->Size = System::Drawing::Size(128, 72);
@@ -487,10 +484,10 @@ namespace CleaningRobot {
 			// 
 			// JointAccChart
 			// 
-			chartArea4->Name = L"ChartArea1";
-			this->JointAccChart->ChartAreas->Add(chartArea4);
-			legend4->Name = L"Legend1";
-			this->JointAccChart->Legends->Add(legend4);
+			chartArea8->Name = L"ChartArea1";
+			this->JointAccChart->ChartAreas->Add(chartArea8);
+			legend8->Name = L"Legend1";
+			this->JointAccChart->Legends->Add(legend8);
 			this->JointAccChart->Location = System::Drawing::Point(1226, 645);
 			this->JointAccChart->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->JointAccChart->Name = L"JointAccChart";
@@ -709,7 +706,7 @@ namespace CleaningRobot {
 			// 
 			// HomePosButton
 			// 
-			this->HomePosButton->Location = System::Drawing::Point(1965, 37);
+			this->HomePosButton->Location = System::Drawing::Point(1965, 24);
 			this->HomePosButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->HomePosButton->Name = L"HomePosButton";
 			this->HomePosButton->Size = System::Drawing::Size(128, 42);
@@ -720,7 +717,7 @@ namespace CleaningRobot {
 			// 
 			// TestPosButton
 			// 
-			this->TestPosButton->Location = System::Drawing::Point(1965, 98);
+			this->TestPosButton->Location = System::Drawing::Point(2105, 92);
 			this->TestPosButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->TestPosButton->Name = L"TestPosButton";
 			this->TestPosButton->Size = System::Drawing::Size(128, 42);
@@ -792,7 +789,7 @@ namespace CleaningRobot {
 			// 
 			// CombineTestButton
 			// 
-			this->CombineTestButton->Location = System::Drawing::Point(2102, 35);
+			this->CombineTestButton->Location = System::Drawing::Point(2105, 22);
 			this->CombineTestButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->CombineTestButton->Name = L"CombineTestButton";
 			this->CombineTestButton->Size = System::Drawing::Size(122, 45);
@@ -806,11 +803,23 @@ namespace CleaningRobot {
 			this->SystemRunTimer->Interval = 1;
 			this->SystemRunTimer->Tick += gcnew System::EventHandler(this, &RobotForm::SystemRunTimer_Tick);
 			// 
+			// MoveToButton
+			// 
+			this->MoveToButton->Location = System::Drawing::Point(1789, 95);
+			this->MoveToButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
+			this->MoveToButton->Name = L"MoveToButton";
+			this->MoveToButton->Size = System::Drawing::Size(128, 55);
+			this->MoveToButton->TabIndex = 47;
+			this->MoveToButton->Text = L"运动到点";
+			this->MoveToButton->UseVisualStyleBackColor = true;
+			this->MoveToButton->Click += gcnew System::EventHandler(this, &RobotForm::MoveToButton_Click);
+			// 
 			// RobotForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(12, 24);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(2276, 1130);
+			this->Controls->Add(this->MoveToButton);
 			this->Controls->Add(this->CombineTestButton);
 			this->Controls->Add(this->C);
 			this->Controls->Add(this->B);
@@ -857,7 +866,7 @@ namespace CleaningRobot {
 			this->Controls->Add(this->JointVelChart);
 			this->Controls->Add(this->SpaceChart);
 			this->Controls->Add(this->JointChart);
-			this->Controls->Add(this->MoveStartButton);
+			this->Controls->Add(this->RunTrajButton);
 			this->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->Name = L"RobotForm";
 			this->Text = L"CleaningRobot";
@@ -961,13 +970,13 @@ namespace CleaningRobot {
 
 	private: System::Void RobotForm_Load(System::Object^  sender, System::EventArgs^  e) {}
 
-	private: System::Void MoveToStart_Click(System::Object^  sender, System::EventArgs^  e) 
+	private: System::Void RunTrajButton_Click(System::Object^  sender, System::EventArgs^  e) 
 			 {
 				try
 				{
 					this->mCfgPara->dPos[0] = Double::Parse(this->MoveToPos1->Text); this->mCfgPara->dPos[1] = Double::Parse(this->MoveToPos2->Text);
 					this->mCfgPara->dPos[2] = Double::Parse(this->MoveToPos3->Text); this->mCfgPara->dPos[3] = Double::Parse(this->MoveToPos4->Text); // 根据此模型五轴为末端轴
-					printf("RobotForm-->MoveToStart-->Pos %f %f %f %f \n", this->mCfgPara->dPos[0], this->mCfgPara->dPos[1], this->mCfgPara->dPos[2], this->mCfgPara->dPos[3]);
+					printf("RobotForm-->RunTrajButton-->Pos %f %f %f %f \n", this->mCfgPara->dPos[0], this->mCfgPara->dPos[1], this->mCfgPara->dPos[2], this->mCfgPara->dPos[3]);
 					this->mCfgPara->ePlanMode = Plan_Auto;
 					this->mMotioncombine->execPlan(this->mCfgPara);
 					this->AutoMoveTimer->Start();
@@ -977,6 +986,30 @@ namespace CleaningRobot {
 					this->MessageBox->Text = "点位类型输入错误！！！";
 					printf("RobotForm-->MoveToStart-->Error\n");
 				}
+			 }
+
+	private: System::Void MoveToButton_Click(System::Object^  sender, System::EventArgs^  e) 
+			 {
+				 int iErrorID = 0;
+				 try
+				 {
+					 this->mCfgPara->dPos[0] = Double::Parse(this->MoveToPos1->Text); this->mCfgPara->dPos[1] = Double::Parse(this->MoveToPos2->Text);
+					 this->mCfgPara->dPos[2] = Double::Parse(this->MoveToPos3->Text); this->mCfgPara->dPos[3] = Double::Parse(this->MoveToPos4->Text); // 根据此模型五轴为末端轴
+					 printf("RobotForm-->MoveToStart-->Pos %f %f %f %f \n", this->mCfgPara->dPos[0], this->mCfgPara->dPos[1], this->mCfgPara->dPos[2], this->mCfgPara->dPos[3]);
+					 this->mCfgPara->ePlanMode = Plan_MoveTo;
+					 iErrorID = this->mMotioncombine->execPlan(this->mCfgPara);
+					 if(iErrorID != 0)
+					 {
+						printf("RobotForm-->MoveToStart-->execPlan Error %d \n", iErrorID);
+						return;
+					 }
+					this->AutoMoveTimer->Start();
+				 }
+				 catch (FormatException^ ex)
+				 {
+					 this->MessageBox->Text = "点位类型输入错误！！！";
+					 printf("RobotForm-->MoveToStart-->Error\n");
+				 }
 			 }
 
 	private: System::Void JointMoveTimer_Tick(System::Object^  sender, System::EventArgs^  e) 
@@ -1099,6 +1132,8 @@ namespace CleaningRobot {
 					 this->J2PosButton->Text = "J2+"; this->J2NegButton->Text = "J2-";
 					 this->J3PosButton->Text = "J3+"; this->J3NegButton->Text = "J3-";
 					 this->J4PosButton->Text = "J4+"; this->J4NegButton->Text = "J4-";
+					 this->MoveToPos1->Text = "0.0";   this->MoveToPos2->Text = "-90.0";
+					 this->MoveToPos3->Text = "180.0"; this->MoveToPos4->Text = "90.0";
 				 }
 				 else
 				 {
@@ -1108,20 +1143,38 @@ namespace CleaningRobot {
 					 this->J2PosButton->Text = "Y+"; this->J2NegButton->Text = "Y-";
 					 this->J3PosButton->Text = "Z+"; this->J3NegButton->Text = "Z-";
 					 this->J4PosButton->Text = "E+"; this->J4NegButton->Text = "E-";
+					 this->MoveToPos1->Text = "1700.0";   this->MoveToPos2->Text = "0.0";
+					 this->MoveToPos3->Text = "1560.0"; this->MoveToPos4->Text = "0.0";
 				 }
 				 printf("Coordinate_SelectedIndexChanged--%s, index=%d \n", this->Coordinate->SelectedItem->ToString(), this->Coordinate->SelectedIndex);
 			 }
 
 	private: System::Void HomePosButton_Click(System::Object^  sender, System::EventArgs^  e) 
 			 {
-				 this->MoveToPos1->Text = "0.0";   this->MoveToPos2->Text = "-90.0";
-				 this->MoveToPos3->Text = "180.0"; this->MoveToPos4->Text = "90.0";
+				 if(this->mCfgPara->iIsJoint)
+				 {
+					 this->MoveToPos1->Text = "0.0";   this->MoveToPos2->Text = "-90.0";
+					 this->MoveToPos3->Text = "180.0"; this->MoveToPos4->Text = "90.0";
+				 }
+				 else
+				 {
+					 this->MoveToPos1->Text = "1700.0";   this->MoveToPos2->Text = "0.0";
+					 this->MoveToPos3->Text = "1560.0"; this->MoveToPos4->Text = "0.0";
+				 }
 			 }
 
 	private: System::Void TestPosButton_Click(System::Object^  sender, System::EventArgs^  e) 
 			 {
-				 this->MoveToPos1->Text = "60.0";   this->MoveToPos2->Text = "-20.0";
-				 this->MoveToPos3->Text = "100.0"; this->MoveToPos4->Text = "30.0";
+				 if(this->mCfgPara->iIsJoint)
+				 {
+					 this->MoveToPos1->Text = "60.0";   this->MoveToPos2->Text = "-20.0";
+					 this->MoveToPos3->Text = "100.0"; this->MoveToPos4->Text = "30.0";
+				 }
+				 else
+				 {
+					 this->MoveToPos1->Text = "2400.0";   this->MoveToPos2->Text = "1000.0";
+					 this->MoveToPos3->Text = "1060.0"; this->MoveToPos4->Text = "0.0";
+				 }
 			 }
 
 	private: System::Void RatioBox_TextChanged(System::Object^  sender, System::EventArgs^  e) 

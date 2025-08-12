@@ -19,6 +19,7 @@ namespace hsc3
 			
 			int planJoint(double *endpos);
 			int planSpace();
+			int planMoveTo(double *endpos, bool isjoint);
 			int planManual(int axisnum, bool dir, bool isjoint, double *nowpos);			
 			int stopPlanManual();
 

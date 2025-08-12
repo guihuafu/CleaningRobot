@@ -7,6 +7,7 @@ enum PlanMode
 	Plan_Manual		= 1,
 	Plan_Auto		= 2,
 	Plan_Stop		= 3,
+	Plan_MoveTo		= 4,
 };
 
 typedef struct GroupConfigPara
@@ -35,6 +36,7 @@ typedef struct GroupFeedbackPara
 	double dFbAxisPos[9];  	// 反馈关节位置
 	double dFbAxisVel[9];  	// 反馈关节速度
 	double dFbAxisAcc[9];  	// 反馈关节加速度
+	double dFbSpace[9];  	// 反馈空间位置
 }GroupFeedbackPara;
 
 #endif /*__MOTIONPARA_H__*/
