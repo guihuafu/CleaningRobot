@@ -205,8 +205,8 @@ int MotionPlan(int id, void *pdata)
 	strConfigPara.iIsJoint = pext->bIsJoint;
 	strConfigPara.iDir = pext->bDir;
 	memcpy(strConfigPara.dPos, pext->dPos, sizeof(double)*9);
-	printf("/--MotionPlan-->strConfigPara ePlanMode=%d, iAxisNum=%d, iIsJoint=%d, iDir=%d \n", strConfigPara.ePlanMode, strConfigPara.iAxisNum, strConfigPara.iIsJoint, strConfigPara.iDir);
-	printf("/--MotionPlan-->strConfigPara dPos %f %f %f %f %f %f \n", strConfigPara.dPos[0], strConfigPara.dPos[1], strConfigPara.dPos[2], strConfigPara.dPos[3], strConfigPara.dPos[4], strConfigPara.dPos[5]);
+	printf("InoPlc-->MotionPlan-->strConfigPara ePlanMode=%d, iAxisNum=%d, iIsJoint=%d, iDir=%d \n", strConfigPara.ePlanMode, strConfigPara.iAxisNum, strConfigPara.iIsJoint, strConfigPara.iDir);
+	printf("InoPlc-->MotionPlan-->strConfigPara dPos %f %f %f %f %f %f \n", strConfigPara.dPos[0], strConfigPara.dPos[1], strConfigPara.dPos[2], strConfigPara.dPos[3], strConfigPara.dPos[4], strConfigPara.dPos[5]);
 	execPlan(obj, &strConfigPara);
 
 	return 0;
@@ -235,7 +235,7 @@ int MotionMove(int id, void *pinputs, void *poutputs, void *pextra)
 	if(poin->iStatus == 1)
 	{
 		memcpy(strCommandPara.dCmdAxisPos, strFeedbackPara.dFbAxisPos, sizeof(double)*9);
-		printf("MotionMove-->dFbAxisPos %f %f %f %f %f %f \n",strFeedbackPara.dFbAxisPos[0],strFeedbackPara.dFbAxisPos[1],strFeedbackPara.dFbAxisPos[2]
+		printf("InoPlc-->MotionMove-->dFbAxisPos %f %f %f %f %f %f \n",strFeedbackPara.dFbAxisPos[0],strFeedbackPara.dFbAxisPos[1],strFeedbackPara.dFbAxisPos[2]
 			,strFeedbackPara.dFbAxisPos[3],strFeedbackPara.dFbAxisPos[4],strFeedbackPara.dFbAxisPos[5]);
 	}
 
@@ -251,17 +251,13 @@ int MotionMove(int id, void *pinputs, void *poutputs, void *pextra)
 	poout->iRobStatus = iStatus;
 
 	if(strConfigPara.ePlanMode != 0)
-		printf("MotionMove-->iStatus=%d, dCmdAxisPos %f %f %f %f %f %f \n",iStatus, strCommandPara.dCmdAxisPos[0],strCommandPara.dCmdAxisPos[1],strCommandPara.dCmdAxisPos[2]
+		printf("InoPlc-->MotionMove-->iStatus=%d, dCmdAxisPos %f %f %f %f %f %f \n",iStatus, strCommandPara.dCmdAxisPos[0],strCommandPara.dCmdAxisPos[1],strCommandPara.dCmdAxisPos[2]
 			,strCommandPara.dCmdAxisPos[3],strCommandPara.dCmdAxisPos[4],strCommandPara.dCmdAxisPos[5]);
 
 	pext->iPlanMode = strConfigPara.ePlanMode;
 	pext->bIsJoint = strConfigPara.iIsJoint;
 	pext->iAxisNum = strConfigPara.iAxisNum;
 	pext->bDir = strConfigPara.iDir;
-	pext->dPos[0] = 11.1;
-	pext->dPos[1] = 22.2;
-	pext->dPos[2] = 33.3;
-	pext->dPos[3] = 44.4;
 
 	return 0;
 }

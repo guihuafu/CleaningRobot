@@ -36,6 +36,7 @@ namespace CleaningRobot {
 			memset(this->mFbPara->dFbAxisPos, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mFbPara->dFbAxisVel, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mFbPara->dFbAxisAcc, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mCmdPara->dCmdAxisPos, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mCmdPara->dCmdAxisVel, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mCmdPara->dCmdAxisAcc, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mCmdPara->dCmdSpacePos, 0.0, sizeof(double)*MaxAxisNum);
@@ -1023,16 +1024,16 @@ namespace CleaningRobot {
 				if(this->mCfgPara->iIsJoint)
 				{
 					this->setChart(0, this->mCurrentTime, this->mCmdPara->dCmdAxisPos, this->mCmdPara->dCmdAxisVel, this->mCmdPara->dCmdAxisAcc, this->mCmdPara->dCmdSpacePos, true, true);
-					printf("planJoint--mStatus=%d, outPos: %f %f %f %f %f %f %f \n",mStatus, mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5],mCmdPara->dCmdAxisPos[6]);
+					printf("planJoint--mStatus=%d, outPos: %f %f %f %f %f %f %f \n",mStatus,mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5],mCmdPara->dCmdAxisPos[6]);
 				}
 				else
 				{
 					this->setChart(0, this->mCurrentTime, this->mCmdPara->dCmdAxisPos, this->mCmdPara->dCmdAxisVel, this->mCmdPara->dCmdAxisAcc, this->mCmdPara->dCmdSpacePos, true, false);
-					printf("planSpace--mStatus=%d, outJPos: %f %f %f %f %f %f %f\n",mStatus,mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5],mCmdPara->dCmdAxisPos[6]);
-					//printf("planSpace--mStatus=%d, outJPos: %f %f %f %f %f %f %f\n", mStatus,mCmdPara->dCmdAxisPos[0]*dAngleChange,mCmdPara->dCmdAxisPos[1]*dAngleChange,mCmdPara->dCmdAxisPos[2]*dAngleChange,mCmdPara->dCmdAxisPos[3]*dAngleChange,mCmdPara->dCmdAxisPos[4]*dAngleChange,mCmdPara->dCmdAxisPos[5]*dAngleChange,mCmdPara->dCmdAxisPos[6]*dAngleChange);
-					//printf("planSpace--mStatus=%d, outSPos: %f %f %f %f %f %f %f\n", mStatus,mCmdPara->dCmdSpacePos[0],mCmdPara->dCmdSpacePos[1],mCmdPara->dCmdSpacePos[2],mCmdPara->dCmdSpacePos[3],mCmdPara->dCmdSpacePos[4],mCmdPara->dCmdSpacePos[5],mCmdPara->dCmdSpacePos[6]);
-					//printf("planSpace--mStatus=%d, outVelPos: %f %f %f %f %f %f %f\n", mStatus,mCmdPara->dCmdAxisVel[0],mCmdPara->dCmdAxisVel[1],mCmdPara->dCmdAxisVel[2],mCmdPara->dCmdAxisVel[3],mCmdPara->dCmdAxisVel[4],mCmdPara->dCmdAxisVel[5],mCmdPara->dCmdAxisVel[6]);
-					//printf("planSpace--mStatus=%d, outAccPos: %f %f %f %f %f %f %f\n", mStatus,mCmdPara->dCmdAxisAcc[0],mCmdPara->dCmdAxisAcc[1],mCmdPara->dCmdAxisAcc[2],mCmdPara->dCmdAxisAcc[3],mCmdPara->dCmdAxisAcc[4],mCmdPara->dCmdAxisAcc[5],mCmdPara->dCmdAxisAcc[6]);
+					printf("AutoMove--mStatus=%d, outJPos: %f %f %f %f %f %f %f\n",mStatus,mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5],mCmdPara->dCmdAxisPos[6]);
+					//printf("AutoMove--mStatus=%d, outJPos: %f %f %f %f %f %f %f\n", mStatus,mCmdPara->dCmdAxisPos[0]*dAngleChange,mCmdPara->dCmdAxisPos[1]*dAngleChange,mCmdPara->dCmdAxisPos[2]*dAngleChange,mCmdPara->dCmdAxisPos[3]*dAngleChange,mCmdPara->dCmdAxisPos[4]*dAngleChange,mCmdPara->dCmdAxisPos[5]*dAngleChange,mCmdPara->dCmdAxisPos[6]*dAngleChange);
+					//printf("AutoMove--mStatus=%d, outSPos: %f %f %f %f %f %f %f\n", mStatus,mCmdPara->dCmdSpacePos[0],mCmdPara->dCmdSpacePos[1],mCmdPara->dCmdSpacePos[2],mCmdPara->dCmdSpacePos[3],mCmdPara->dCmdSpacePos[4],mCmdPara->dCmdSpacePos[5],mCmdPara->dCmdSpacePos[6]);
+					//printf("AutoMove--mStatus=%d, outVelPos: %f %f %f %f %f %f %f\n", mStatus,mCmdPara->dCmdAxisVel[0],mCmdPara->dCmdAxisVel[1],mCmdPara->dCmdAxisVel[2],mCmdPara->dCmdAxisVel[3],mCmdPara->dCmdAxisVel[4],mCmdPara->dCmdAxisVel[5],mCmdPara->dCmdAxisVel[6]);
+					//printf("AutoMove--mStatus=%d, outAccPos: %f %f %f %f %f %f %f\n", mStatus,mCmdPara->dCmdAxisAcc[0],mCmdPara->dCmdAxisAcc[1],mCmdPara->dCmdAxisAcc[2],mCmdPara->dCmdAxisAcc[3],mCmdPara->dCmdAxisAcc[4],mCmdPara->dCmdAxisAcc[5],mCmdPara->dCmdAxisAcc[6]);
 				}
 				this->mCurrentTime = this->mCurrentTime + 1;
 			}

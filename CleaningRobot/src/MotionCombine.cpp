@@ -11,7 +11,7 @@ namespace hsc3
 		MotionCombine::MotionCombine()
 		{
 			this->mDataNum = 0;
-			this->mRatio = 0.3;
+			this->mRatio = 0.4;
 			this->mJointPos = new double[MaxAxisNum];
 			this->mLastJointPos = new double[MaxAxisNum];
 			this->mLastVel = new double[MaxAxisNum];
@@ -54,6 +54,11 @@ namespace hsc3
 			delete []mJointPos;
 			delete []mLastJointPos;
 			delete []mLastVel;
+			delete []mGroupTrajout;
+			delete mMotionPara;
+			delete mAutoMove;
+			delete mBaseManualMove;
+			delete mCalibrate;
 		}
 
 		void MotionCombine::setRatio(double ratio)
@@ -111,56 +116,6 @@ namespace hsc3
 			}
 		}
 
-		int MotionCombine::planJoint(double *endpos)
-		{
-			int mMotionDataNum = 0;
-			hsc3::algo::GroupMotionData groupdata = {0};
-			memset(this->mLastJointPos, 0.0, sizeof(double)*MaxAxisNum);
-			memset(this->mLastVel, 0.0, sizeof(double)*MaxAxisNum);
-
-			groupdata.iLineNum = 0;
-			groupdata.tHS_GroupRel.eGroupRelType[0] = hsc3::algo::GRT_Independent;
-			groupdata.tHS_GroupRel.eGroupRelType[1] = hsc3::algo::GRT_NoUse;
-			groupdata.tHS_GroupRel.eGroupRelType[2] = hsc3::algo::GRT_NoUse;
-			groupdata.tHS_GroupRel.eGroupRelType[3] = hsc3::algo::GRT_NoUse;
-			groupdata.dCnt = 0.0;
-			groupdata.dCR = 0.0;
-			groupdata.iSmooth = 0;
-			groupdata.bStartMove = true;
-			groupdata.bWristQYFlag = false;
-			groupdata.tFilterControl.bFilterOpenFlag = false;
-			groupdata.tBaseMoveData[0].eTrajType = hsc3::algo::MP_Joint;
-			groupdata.tBaseMoveData[0].sCurCoordinate.iCoordinate = hsc3::algo::JOINT_COORD_SYSTEM;
-			groupdata.tBaseMoveData[0].sCurCoordinate.iToolNum = -1;
-			groupdata.tBaseMoveData[0].sCurCoordinate.iWorkNum = -1;
-			memcpy(groupdata.tBaseMoveData[0].sStartPos.dPos, this->mGroupCommandPara.dCmdAxisPos, sizeof(double) * MaxAxisNum);
-			groupdata.tBaseMoveData[0].sStartPos.iPose = 0;
-			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iCoordinate = hsc3::algo::JOINT_COORD_SYSTEM;
-			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iToolNum = -1;
-			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iWorkNum = -1;
-			memset(groupdata.tBaseMoveData[0].sMidPos.dPos, 0, sizeof(double) * 9);
-			groupdata.tBaseMoveData[0].sEndPos.dPos[0] = endpos[0]; groupdata.tBaseMoveData[0].sEndPos.dPos[1] = endpos[1]; groupdata.tBaseMoveData[0].sEndPos.dPos[2] = endpos[2];
-			groupdata.tBaseMoveData[0].sEndPos.dPos[3] = 0.0; groupdata.tBaseMoveData[0].sEndPos.dPos[4] = endpos[3]; groupdata.tBaseMoveData[0].sEndPos.dPos[5] = 0.0;
-			groupdata.tBaseMoveData[0].sEndPos.dPos[6] = 0.0; groupdata.tBaseMoveData[0].sEndPos.dPos[7] = 0.0; groupdata.tBaseMoveData[0].sEndPos.dPos[8] = 0.0;
-			groupdata.tBaseMoveData[0].sEndPos.iPose = 0;
-			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iCoordinate = hsc3::algo::JOINT_COORD_SYSTEM;
-			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iToolNum = -1;
-			groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iWorkNum = -1;
-			groupdata.tBaseMoveData[0].b2mid = false;
-			groupdata.tBaseMoveData[0].dVel = 100.0;
-			groupdata.tBaseMoveData[0].dVort = 100.0;
-			groupdata.tBaseMoveData[0].dAcc = 100.0;
-			groupdata.tBaseMoveData[0].dDec = 100.0;
-			groupdata.tBaseMoveData[0].iCntType = 0;
-			groupdata.tBaseMoveData[0].tRevolve.iTurn = 0;
-
-			this->mAutoMove->execPrehandle(groupdata, this->mGroupTrajout, mMotionDataNum);
-			hsc3::algo::HS_GroupJPos groupjpos = {0};
-			memcpy(groupjpos.dJPos[0], groupdata.tBaseMoveData[0].sStartPos.dPos, sizeof(double) * MaxAxisNum);
-
-			return this->mAutoMove->execPlanMove(this->mGroupTrajout, 0, this->mRatio, groupjpos);
-		}
-
 		int MotionCombine::planMoveTo(double *endpos, bool isjoint)
 		{
 			int iErrorID = 0;
@@ -183,7 +138,7 @@ namespace hsc3
 			
 			groupdata.tBaseMoveData[0].sCurCoordinate.iToolNum = -1;
 			groupdata.tBaseMoveData[0].sCurCoordinate.iWorkNum = -1;
-			memcpy(groupdata.tBaseMoveData[0].sStartPos.dPos, this->mGroupCommandPara.dCmdAxisPos, sizeof(double) * MaxAxisNum);
+			memcpy(groupdata.tBaseMoveData[0].sStartPos.dPos, this->mGroupCommandPara.dCmdAxisPos, sizeof(double) * MaxAxisNum);	// 六轴点位
 			groupdata.tBaseMoveData[0].sStartPos.iPose = 0;
 			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iCoordinate = hsc3::algo::JOINT_COORD_SYSTEM;
 			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iToolNum = -1;
@@ -230,7 +185,7 @@ namespace hsc3
 			return this->mAutoMove->execPlanMove(this->mGroupTrajout, 0, this->mRatio, groupjpos);
 		}
 
-		hsc3::algo::HS_MStatus MotionCombine::execJointIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos)
+		hsc3::algo::HS_MStatus MotionCombine::execMoveToIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos)
 		{
 			int errorID = 0;
 			hsc3::algo::IntData intdata = {0.0};
@@ -281,9 +236,7 @@ namespace hsc3
 			if(firstmove)
 			{
 				groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iCoordinate = hsc3::algo::JOINT_COORD_SYSTEM;
-				groupdata.tBaseMoveData[0].sStartPos.dPos[0] = 0.0; groupdata.tBaseMoveData[0].sStartPos.dPos[1] = -90.0; groupdata.tBaseMoveData[0].sStartPos.dPos[2] = 180.0;
-				groupdata.tBaseMoveData[0].sStartPos.dPos[3] = 0.0; groupdata.tBaseMoveData[0].sStartPos.dPos[4] = 90.0; groupdata.tBaseMoveData[0].sStartPos.dPos[5] = 0.0;
-				groupdata.tBaseMoveData[0].sStartPos.dPos[6] = 0; groupdata.tBaseMoveData[0].sStartPos.dPos[7] = 0; groupdata.tBaseMoveData[0].sStartPos.dPos[8] = 0;
+				memcpy(groupdata.tBaseMoveData[0].sStartPos.dPos, this->mGroupCommandPara.dCmdAxisPos, sizeof(double) * MaxAxisNum);	// 六轴点位
 			}
 			else
 			{
@@ -312,18 +265,22 @@ namespace hsc3
 			return groupdata;
 		}
 
-		int MotionCombine::planSpace()
+		int MotionCombine::planAutoRun()
 		{
 			memset(this->mLastJointPos, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mLastVel, 0.0, sizeof(double)*MaxAxisNum);
 			hsc3::algo::GroupMotionData groupdata = {0};
 			double dStartPos1[MaxAxisNum] = {0.0, -90.0, 180.0, 0.0, 90.0, 0.0, 0.0, 0.0, 0.0};
-			double dEndPos1[MaxAxisNum] = {1700.0, 0.0, 1400.0, 180.0, 0.0, 180.0, 60.0, 0.0, 0.0};
-			double dEndPos2[MaxAxisNum] = {1700.0, 100.0, 1400.0, 180.0, 0.0, 180.0, -30.0, 0.0, 0.0};
-			double dEndPos3[MaxAxisNum] = {1500, 100.0, 1400.0, 180.0, 0.0, 180.0, 60.0, 0.0, 0.0};
-			double dEndPos4[MaxAxisNum] = {1500, 0.0, 1400.0, 180.0, 0.0, 180.0, 30.0, 0.0, 0.0};
+			double dEndPos1[MaxAxisNum] = {1200.0, 500.0, 1300.0, 180.0, 0.0, 180.0, 60.0, 0.0, 0.0};
+			double dEndPos2[MaxAxisNum] = {1500.0, 1500.0, 1100.0, 180.0, 0.0, 180.0, -30.0, 0.0, 0.0};
+			double dEndPos3[MaxAxisNum] = {1100, -1200.0, 1700.0, 180.0, 0.0, 180.0, 60.0, 0.0, 0.0};
+			double dEndPos4[MaxAxisNum] = {1700, 0.0, 1560.0, 180.0, 0.0, 180.0, 30.0, 0.0, 0.0};
+			//double dEndPos1[MaxAxisNum] = {1700.0, 0.0, 1400.0, 180.0, 0.0, 180.0, 60.0, 0.0, 0.0};
+			//double dEndPos2[MaxAxisNum] = {1700.0, 100.0, 1400.0, 180.0, 0.0, 180.0, -30.0, 0.0, 0.0};
+			//double dEndPos3[MaxAxisNum] = {1500, 100.0, 1400.0, 180.0, 0.0, 180.0, 60.0, 0.0, 0.0};
+			//double dEndPos4[MaxAxisNum] = {1500, 0.0, 1400.0, 180.0, 0.0, 180.0, 30.0, 0.0, 0.0};
 
-			memcpy(this->mJointPos, dStartPos1, sizeof(double)*MaxAxisNum);
+			memcpy(this->mJointPos, this->mGroupCommandPara.dCmdAxisPos, sizeof(double)*MaxAxisNum);
 
 			this->mDataNum = 0;
 			groupdata = this->dealElemt(true, this->mDataNum, dStartPos1, dEndPos1);
@@ -343,7 +300,7 @@ namespace hsc3
 			return 0;
 		}
 
-		hsc3::algo::HS_MStatus MotionCombine::execSpaceIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos)
+		hsc3::algo::HS_MStatus MotionCombine::execAutoRunIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos)
 		{
 			int errorID = 0;
 			static int iID = 0;
@@ -352,7 +309,7 @@ namespace hsc3
 			hsc3::algo::HS_GroupJPos groupjpos = {0.0};
 			hsc3::algo::HS_MStatus status = hsc3::algo::M_UnInit;
 			status = this->mAutoMove->execIntMove(intdata, errorID);					// 获取周期关节插补点
-
+			
 			switch(status)
 			{
 				case hsc3::algo::M_UnInit:
@@ -361,9 +318,9 @@ namespace hsc3
 						bCalcOut = true;
 						memcpy(groupjpos.dJPos[0], this->mJointPos, sizeof(double) * MaxAxisNum);
 						errorID = this->mAutoMove->execPlanMove(this->mGroupTrajout, iID, this->mRatio, groupjpos);
-						if((errorID != 0) && (errorID <= Waring))
+						if((errorID != 0) && (errorID < Waring))
 							status = hsc3::algo::M_Error;
-						printf("MotionCombine::execSpaceIntMove--M_UnInit--Plan Next Position\n");
+						printf("MotionCombine::execAutoRunIntMove--M_UnInit--Plan Next Position\n");
 					}
 					break;
 				case hsc3::algo::M_Busy:
@@ -371,25 +328,27 @@ namespace hsc3
 					memcpy(this->mJointPos, intdata.tGJPos[0].dJPos[0], sizeof(double)*MaxAxisNum);
 					break;
 				case hsc3::algo::M_Done:
+					iID = iID + 1;		// 已在M_UnInit做首次规划
 					if(iID <= this->mDataNum)
 					{
 						bCalcOut = true;
-						iID = iID + 1;
 						memcpy(groupjpos.dJPos[0], intdata.tGJPos[0].dJPos[0], sizeof(double) * MaxAxisNum);
 						errorID = this->mAutoMove->execPlanMove(this->mGroupTrajout, iID, this->mRatio, groupjpos);
-						printf("MotionCombine::execSpaceIntMove--Plan Next Position--errorID=%d \n", errorID);
-						if((errorID != 0) && (errorID <= Waring))
+						
+						printf("MotionCombine::execAutoRunIntMove--Plan Next Position--DataNum=%d, errorID=%d \n", iID, errorID);
+						if((errorID != 0) && (errorID < Waring))
 							status = hsc3::algo::M_Error;
 						status = hsc3::algo::M_UnInit;
 						memcpy(this->mJointPos, intdata.tGJPos[0].dJPos[0], sizeof(double)*MaxAxisNum);
+						
 						goto outres;
 					}
 					iID = 0;
-					printf("MotionCombine::execSpaceIntMove--Plan Finish M_Done\n");
+					printf("MotionCombine::execAutoRunIntMove--Plan Finish M_Done\n");
 					return hsc3::algo::M_Done;
 					break;
 				case hsc3::algo::M_Error:
-					printf("MotionCombine::execSpaceIntMove--IntMove Error\n");
+					printf("MotionCombine::execAutoRunIntMove--IntMove Error\n");
 					status = hsc3::algo::M_Error;
 					break;
 			}
@@ -421,8 +380,6 @@ namespace hsc3
 		{
 			int iErrorID = 0;
 			printf("MotionCombine-->planManual nowpos %f %f %f %f %f %f \n",nowpos[0],nowpos[1],nowpos[2],nowpos[3],nowpos[4],nowpos[5]);
-			//memset(this->mLastJointPos, 0.0, sizeof(double)*MaxAxisNum);
-			//memset(this->mLastVel, 0.0, sizeof(double)*MaxAxisNum);
 			hsc3::algo::ManualPara mManualPara;
 			mManualPara.iAxisNum = axisnum;
 			mManualPara.iGroupNum = 0;
@@ -519,7 +476,7 @@ namespace hsc3
 				iErrorNum = this->planManual(this->mGroupConfigPara.iAxisNum, this->mGroupConfigPara.iDir, this->mGroupConfigPara.iIsJoint, this->mGroupFeedbackPara.dFbAxisPos);
 				break;
 			case Plan_Auto:
-				this->planSpace();
+				this->planAutoRun();
 				break;
 			case Plan_Stop:
 				iErrorNum = this->stopPlanManual();
@@ -557,38 +514,23 @@ namespace hsc3
 
 			this->mCalibrate->calcJPosToCPos(this->mGroupFeedbackPara.dFbAxisPos, -1, -1, fbdata->dFbSpace);				// 更新反馈空间位置
 
-			if(this->mGroupConfigPara.ePlanMode == Plan_Manual)
+			switch(this->mGroupConfigPara.ePlanMode)
 			{
+			case Plan_Manual:
 				status = this->execManualIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos, iErrorID);
-			}
-			else if(this->mGroupConfigPara.ePlanMode == Plan_Auto)
-			{
-				//if((bool)this->mGroupConfigPara.iIsJoint)
-				//{
-				//	status = this->execJointIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
-				//}
-				//else
-				//{
-					status = this->execSpaceIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
-				//}
-			}
-			else if(this->mGroupConfigPara.ePlanMode == Plan_Stop)
-			{
+				break;
+			case Plan_MoveTo:
+				status = this->execMoveToIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
+				break;
+			case Plan_Auto:
+				status = this->execAutoRunIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
+				break;
+			case Plan_Stop:
 				status = this->execManualIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos, iErrorID);
-			}
-			else if(this->mGroupConfigPara.ePlanMode == Plan_MoveTo)
-			{
-				//if((bool)this->mGroupConfigPara.iIsJoint)
-				//{
-					status = this->execJointIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
-				//}
-				//else
-				//{
-				//	status = this->execSpaceIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
-				//}
+				break;
 			}
 
-			if(status != hsc3::algo::M_UnInit)
+			if((status != hsc3::algo::M_UnInit) && (status != hsc3::algo::M_Done))
 			{
 				if(iErrorID != 0)
 				{
@@ -609,7 +551,7 @@ namespace hsc3
 				cmddata->dCmdAxisVel[3] = strCmdData.dCmdAxisVel[4];
 				cmddata->dCmdAxisAcc[3] = strCmdData.dCmdAxisAcc[4];
 
-				memcpy(this->mGroupCommandPara.dCmdAxisPos, strCmdData.dCmdAxisPos, sizeof(double)*MaxAxisNum);
+				memcpy(this->mGroupCommandPara.dCmdAxisPos, strCmdData.dCmdAxisPos, sizeof(double)*MaxAxisNum); // 缓存六轴位置
 				memcpy(this->mGroupCommandPara.dCmdAxisVel, strCmdData.dCmdAxisVel, sizeof(double)*MaxAxisNum);
 				memcpy(this->mGroupCommandPara.dCmdAxisAcc, strCmdData.dCmdAxisAcc, sizeof(double)*MaxAxisNum);
 				memcpy(this->mGroupCommandPara.dCmdSpacePos, strCmdData.dCmdSpacePos, sizeof(double)*MaxAxisNum);
