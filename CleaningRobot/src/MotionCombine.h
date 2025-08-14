@@ -15,7 +15,7 @@ namespace hsc3
 		{
 		private:
 			void initPara();
-			hsc3::algo::GroupMotionData dealElemt(bool firstmove, int linenum, double *startpos, double *endpos);
+			hsc3::algo::GroupMotionData dealElemt(bool firstmove, int linenum, bool isjoint, double *startpos, double *endpos);
 			
 			int planAutoRun();
 			int planMoveTo(double *endpos, bool isjoint);
@@ -54,6 +54,7 @@ namespace hsc3
 			GroupConfigPara mGroupConfigPara;
 			GroupCommandPara mGroupCommandPara;	// ¡˘÷·µ„Œª
 			GroupFeedbackPara mGroupFeedbackPara;
+			hsc3::algo::GroupMotionData *mGroupMotionData;
 		};
 	}
 }
