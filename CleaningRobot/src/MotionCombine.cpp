@@ -35,6 +35,7 @@ namespace hsc3
 			this->mGroupConfigPara.iAxisNum = 0;
 			this->mGroupConfigPara.iIsJoint = true;
 			this->mGroupConfigPara.iDir = true;
+			this->mGroupConfigPara.dRatio = 30;
 			memset(this->mGroupConfigPara.dPos, 0.0, sizeof(double)*MaxAxisNum);
 
 			this->mGroupCommandPara.iCmdWord = 0;
@@ -475,12 +476,14 @@ namespace hsc3
 
 		int MotionCombine::execPlan(GroupConfigPara *config)
 		{
-			printf("MotionCombine-->execPlan-->ePlanMode=%d, iAxisNum=%d, iIsJoint=%d, iDir=%d \n", config->ePlanMode, config->iAxisNum, config->iIsJoint, config->iDir);
+			printf("MotionCombine-->execPlan-->ePlanMode=%d, iAxisNum=%d, iIsJoint=%d, dRatio=%f, iDir=%d \n", config->ePlanMode, config->iAxisNum, config->iIsJoint, config->dRatio,config->iDir);
 			int iErrorNum = 0;
 			this->mGroupConfigPara.ePlanMode = config->ePlanMode;
 			this->mGroupConfigPara.iAxisNum = config->iAxisNum;
 			this->mGroupConfigPara.iIsJoint =(bool) config->iIsJoint;
 			this->mGroupConfigPara.iDir = (bool)config->iDir;
+			this->mGroupConfigPara.dRatio = config->dRatio;
+			this->setRatio(config->dRatio);
 			memcpy(this->mGroupConfigPara.dPos, config->dPos, sizeof(double)*MaxAxisNum);
 
 			switch(config->ePlanMode)

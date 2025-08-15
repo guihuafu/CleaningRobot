@@ -16,6 +16,7 @@ typedef struct GroupConfigPara
 	int iIsJoint;
 	int iAxisNum;
 	int iDir;
+	double dRatio;
 	double dPos[9];
 }GroupConfigPara;
 

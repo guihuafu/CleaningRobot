@@ -39,6 +39,7 @@ __IOBLCOK_DEFINE motion_extra
 	BOOL   	bIsJoint;
 	INT  	iAxisNum;
 	BOOL   	bDir;
+	LREAL   dRatio;
 	LREAL  	dPos[9];
 };
 
@@ -204,8 +205,10 @@ int MotionPlan(int id, void *pdata)
 	strConfigPara.iAxisNum = pext->iAxisNum;
 	strConfigPara.iIsJoint = pext->bIsJoint;
 	strConfigPara.iDir = pext->bDir;
+	strConfigPara.dRatio = pext->dRatio;
 	memcpy(strConfigPara.dPos, pext->dPos, sizeof(double)*9);
-	printf("InoPlc-->MotionPlan-->strConfigPara ePlanMode=%d, iAxisNum=%d, iIsJoint=%d, iDir=%d \n", strConfigPara.ePlanMode, strConfigPara.iAxisNum, strConfigPara.iIsJoint, strConfigPara.iDir);
+
+	printf("InoPlc-->MotionPlan-->strConfigPara ePlanMode=%d, iAxisNum=%d, iIsJoint=%d, dRatio=%f, iDir=%d \n", strConfigPara.ePlanMode, strConfigPara.iAxisNum, strConfigPara.iIsJoint, strConfigPara.dRatio, strConfigPara.iDir);
 	printf("InoPlc-->MotionPlan-->strConfigPara dPos %f %f %f %f %f %f \n", strConfigPara.dPos[0], strConfigPara.dPos[1], strConfigPara.dPos[2], strConfigPara.dPos[3], strConfigPara.dPos[4], strConfigPara.dPos[5]);
 	execPlan(obj, &strConfigPara);
 
