@@ -56,11 +56,11 @@ namespace hsc3
 			delete []mJointPos;
 			delete []mLastJointPos;
 			delete []mLastVel;
-			//delete []mGroupTrajout;
-			//delete mMotionPara;
-			//delete mAutoMove;
-			//delete mBaseManualMove;
-			//delete mCalibrate;
+			// delete []mGroupTrajout;
+			// delete mMotionPara;
+			// delete mAutoMove;
+			// delete mBaseManualMove;
+			// delete mCalibrate;
 		}
 
 		void MotionCombine::setRatio(double ratio)
@@ -140,7 +140,7 @@ namespace hsc3
 			
 			groupdata.tBaseMoveData[0].sCurCoordinate.iToolNum = -1;
 			groupdata.tBaseMoveData[0].sCurCoordinate.iWorkNum = -1;
-			memcpy(groupdata.tBaseMoveData[0].sStartPos.dPos, this->mGroupCommandPara.dCmdAxisPos, sizeof(double) * MaxAxisNum);	// 六轴点位
+			memcpy(groupdata.tBaseMoveData[0].sStartPos.dPos, this->mGroupFeedbackPara.dFbAxisPos /*this->mGroupCommandPara.dCmdAxisPos*/, sizeof(double) * MaxAxisNum);	// 六轴点位
 			groupdata.tBaseMoveData[0].sStartPos.iPose = 0;
 			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iCoordinate = hsc3::algo::JOINT_COORD_SYSTEM;
 			groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iToolNum = -1;
