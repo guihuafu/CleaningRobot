@@ -32,6 +32,7 @@ namespace CleaningRobot {
 			this->mCfgPara->iAxisNum = 0;
 			this->mCfgPara->iDir = true;
 			this->mCfgPara->iIsJoint = true;
+			this->mCfgPara->dRatio = 30;
 			memset(this->mCfgPara->dPos, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mFbPara->dFbAxisPos, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mFbPara->dFbAxisVel, 0.0, sizeof(double)*MaxAxisNum);
@@ -1184,7 +1185,7 @@ namespace CleaningRobot {
 				 try
 				 {
 					 dRatio = Double::Parse(this->RatioBox->Text);
-					 this->mMotioncombine->setRatio(dRatio);
+					 this->mCfgPara->dRatio = dRatio;
 				 }
 				 catch (FormatException^ ex)
 				 {
