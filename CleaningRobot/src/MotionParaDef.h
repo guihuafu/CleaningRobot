@@ -8,6 +8,7 @@ enum PlanMode
 	Plan_Auto		= 2,
 	Plan_Stop		= 3,
 	Plan_MoveTo		= 4,
+	Plan_StopAuto   = 5,
 };
 
 typedef struct GroupConfigPara

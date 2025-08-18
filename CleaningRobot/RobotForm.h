@@ -43,6 +43,8 @@ namespace CleaningRobot {
 			memset(this->mCmdPara->dCmdSpacePos, 0.0, sizeof(double)*MaxAxisNum);
 			this->mCmdPara->dCmdAxisPos[0] = 0.0; this->mCmdPara->dCmdAxisPos[1] = -90.0; this->mCmdPara->dCmdAxisPos[2] = 180.0; this->mCmdPara->dCmdAxisPos[3] = 90.0;
 			this->mFbPara->dFbAxisPos[0] = 0.0; this->mFbPara->dFbAxisPos[1] = -90.0; this->mFbPara->dFbAxisPos[2] = 180.0; this->mFbPara->dFbAxisPos[3] = 90.0;
+			this->mCmdPara->iCmdErr = 0;
+			this->mCmdPara->iCmdWord = 0;
 			this->mStatus = hsc3::algo::M_UnInit;
 
 			CreateConsole();		// 控制台窗口初始化
@@ -223,7 +225,8 @@ namespace CleaningRobot {
 	private: System::Windows::Forms::TextBox^  RatioBox;
 	private: System::Windows::Forms::Label^  RatioLabel;
 	private: System::Windows::Forms::Button^  MoveToButton;
-	private: System::Windows::Forms::Button^  CombineTestButton;
+	private: System::Windows::Forms::Button^  StopMoveButton;
+
 	private: System::Windows::Forms::Timer^  SystemRunTimer;
 	hsc3::algo::MotionCombine *mMotioncombine;
 	GroupConfigPara *mCfgPara;
@@ -300,7 +303,7 @@ namespace CleaningRobot {
 			this->B = (gcnew System::Windows::Forms::Label());
 			this->C = (gcnew System::Windows::Forms::Label());
 			this->AutoMoveTimer = (gcnew System::Windows::Forms::Timer(this->components));
-			this->CombineTestButton = (gcnew System::Windows::Forms::Button());
+			this->StopMoveButton = (gcnew System::Windows::Forms::Button());
 			this->SystemRunTimer = (gcnew System::Windows::Forms::Timer(this->components));
 			this->MoveToButton = (gcnew System::Windows::Forms::Button());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->JointChart))->BeginInit();
@@ -311,7 +314,7 @@ namespace CleaningRobot {
 			// 
 			// RunTrajButton
 			// 
-			this->RunTrajButton->Location = System::Drawing::Point(1789, 24);
+			this->RunTrajButton->Location = System::Drawing::Point(1787, 24);
 			this->RunTrajButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->RunTrajButton->Name = L"RunTrajButton";
 			this->RunTrajButton->Size = System::Drawing::Size(128, 59);
@@ -463,7 +466,7 @@ namespace CleaningRobot {
 			// 
 			// ClearChart
 			// 
-			this->ClearChart->Location = System::Drawing::Point(1965, 78);
+			this->ClearChart->Location = System::Drawing::Point(2076, 76);
 			this->ClearChart->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->ClearChart->Name = L"ClearChart";
 			this->ClearChart->Size = System::Drawing::Size(128, 72);
@@ -708,7 +711,7 @@ namespace CleaningRobot {
 			// 
 			// HomePosButton
 			// 
-			this->HomePosButton->Location = System::Drawing::Point(1965, 24);
+			this->HomePosButton->Location = System::Drawing::Point(1940, 24);
 			this->HomePosButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->HomePosButton->Name = L"HomePosButton";
 			this->HomePosButton->Size = System::Drawing::Size(128, 42);
@@ -719,7 +722,7 @@ namespace CleaningRobot {
 			// 
 			// TestPosButton
 			// 
-			this->TestPosButton->Location = System::Drawing::Point(2105, 92);
+			this->TestPosButton->Location = System::Drawing::Point(2076, 24);
 			this->TestPosButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->TestPosButton->Name = L"TestPosButton";
 			this->TestPosButton->Size = System::Drawing::Size(128, 42);
@@ -789,16 +792,16 @@ namespace CleaningRobot {
 			this->AutoMoveTimer->Interval = 1;
 			this->AutoMoveTimer->Tick += gcnew System::EventHandler(this, &RobotForm::AutoMoveTimer_Tick);
 			// 
-			// CombineTestButton
+			// StopMoveButton
 			// 
-			this->CombineTestButton->Location = System::Drawing::Point(2105, 22);
-			this->CombineTestButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
-			this->CombineTestButton->Name = L"CombineTestButton";
-			this->CombineTestButton->Size = System::Drawing::Size(122, 45);
-			this->CombineTestButton->TabIndex = 46;
-			this->CombineTestButton->Text = L"位置同步";
-			this->CombineTestButton->UseVisualStyleBackColor = true;
-			this->CombineTestButton->Click += gcnew System::EventHandler(this, &RobotForm::CombineTestButton_Click);
+			this->StopMoveButton->Location = System::Drawing::Point(1940, 78);
+			this->StopMoveButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
+			this->StopMoveButton->Name = L"StopMoveButton";
+			this->StopMoveButton->Size = System::Drawing::Size(128, 72);
+			this->StopMoveButton->TabIndex = 46;
+			this->StopMoveButton->Text = L"停止运动";
+			this->StopMoveButton->UseVisualStyleBackColor = true;
+			this->StopMoveButton->Click += gcnew System::EventHandler(this, &RobotForm::StopMoveButton_Click);
 			// 
 			// SystemRunTimer
 			// 
@@ -807,7 +810,7 @@ namespace CleaningRobot {
 			// 
 			// MoveToButton
 			// 
-			this->MoveToButton->Location = System::Drawing::Point(1789, 95);
+			this->MoveToButton->Location = System::Drawing::Point(1787, 95);
 			this->MoveToButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->MoveToButton->Name = L"MoveToButton";
 			this->MoveToButton->Size = System::Drawing::Size(128, 55);
@@ -820,9 +823,9 @@ namespace CleaningRobot {
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(12, 24);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(2276, 1130);
+			this->ClientSize = System::Drawing::Size(2276, 1179);
 			this->Controls->Add(this->MoveToButton);
-			this->Controls->Add(this->CombineTestButton);
+			this->Controls->Add(this->StopMoveButton);
 			this->Controls->Add(this->C);
 			this->Controls->Add(this->B);
 			this->Controls->Add(this->SpaceC);
@@ -974,20 +977,17 @@ namespace CleaningRobot {
 
 	private: System::Void RunTrajButton_Click(System::Object^  sender, System::EventArgs^  e) 
 			 {
-				try
-				{
-					this->mCfgPara->dPos[0] = Double::Parse(this->MoveToPos1->Text); this->mCfgPara->dPos[1] = Double::Parse(this->MoveToPos2->Text);
-					this->mCfgPara->dPos[2] = Double::Parse(this->MoveToPos3->Text); this->mCfgPara->dPos[3] = Double::Parse(this->MoveToPos4->Text); // 根据此模型五轴为末端轴
-					printf("RobotForm-->RunTrajButton-->Pos %f %f %f %f \n", this->mCfgPara->dPos[0], this->mCfgPara->dPos[1], this->mCfgPara->dPos[2], this->mCfgPara->dPos[3]);
-					this->mCfgPara->ePlanMode = Plan_Auto;
-					this->mMotioncombine->execPlan(this->mCfgPara);
-					this->AutoMoveTimer->Start();
-				}
-				catch (FormatException^ ex)
-				{
-					this->MessageBox->Text = "点位类型输入错误！！！";
-					printf("RobotForm-->MoveToStart-->Error\n");
-				}
+				 int iErrorID = 0;
+				 printf("RobotForm-->RunTrajButton-->Pos %f %f %f %f \n", this->mCfgPara->dPos[0], this->mCfgPara->dPos[1], this->mCfgPara->dPos[2], this->mCfgPara->dPos[3]);
+				 this->mCfgPara->ePlanMode = Plan_Auto;
+				 iErrorID = this->mMotioncombine->execPlan(this->mCfgPara);
+				 if(iErrorID != 0)
+				 {
+					 printf("RobotForm-->RunTrajButton-->execPlan Error %d \n", iErrorID);
+					 this->MessageBox->Text = "点位规划失败, 错误码:" + iErrorID;
+					 return;
+				 }
+				 this->AutoMoveTimer->Start();
 			 }
 
 	private: System::Void MoveToButton_Click(System::Object^  sender, System::EventArgs^  e) 
@@ -1003,6 +1003,7 @@ namespace CleaningRobot {
 					 if(iErrorID != 0)
 					 {
 						printf("RobotForm-->MoveToStart-->execPlan Error %d \n", iErrorID);
+						this->MessageBox->Text = "点位规划失败, 错误码:" + iErrorID;
 						return;
 					 }
 					this->AutoMoveTimer->Start();
@@ -1194,9 +1195,10 @@ namespace CleaningRobot {
 				 }
 			 }
 
-	private: System::Void CombineTestButton_Click(System::Object^  sender, System::EventArgs^  e) 
+	private: System::Void StopMoveButton_Click(System::Object^  sender, System::EventArgs^  e) 
 			 {
-				 this->mMotioncombine->syncPos();
+				 this->mCfgPara->ePlanMode = Plan_StopAuto;
+				 this->mMotioncombine->execPlan(this->mCfgPara);
 			 }
 
 	private: System::Void CombineTimer_Tick(System::Object^  sender, System::EventArgs^  e) 
@@ -1208,7 +1210,7 @@ namespace CleaningRobot {
 			 {
 				 this->mStatus = (hsc3::algo::HS_MStatus)this->mMotioncombine->execMove(this->mCmdPara, this->mFbPara);
 				 memcpy(this->mFbPara->dFbAxisPos, this->mCmdPara->dCmdAxisPos, sizeof(double)*MaxAxisNum);
-				 if((this->mStatus == hsc3::algo::M_Done) || (this->mStatus == hsc3::algo::M_Error))
+				 if((this->mStatus == hsc3::algo::M_Done) || (this->mStatus == hsc3::algo::M_StopDone) || (this->mStatus == hsc3::algo::M_Error))
 				 {
 					this->mCfgPara->ePlanMode = Plan_None;
 					this->mMotioncombine->execPlan(this->mCfgPara);

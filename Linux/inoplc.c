@@ -192,6 +192,7 @@ int MotionPlan(int id, void *pdata)
 	if (pdata == NULL)
 		return -1;
 
+	int iErrorID = 0;
 	static int bFirstStart = 1;
 	struct motion_extra *pext = (struct motion_extra*)pdata;
 
@@ -210,9 +211,9 @@ int MotionPlan(int id, void *pdata)
 
 	printf("InoPlc-->MotionPlan-->strConfigPara ePlanMode=%d, iAxisNum=%d, iIsJoint=%d, dRatio=%f, iDir=%d \n", strConfigPara.ePlanMode, strConfigPara.iAxisNum, strConfigPara.iIsJoint, strConfigPara.dRatio, strConfigPara.iDir);
 	printf("InoPlc-->MotionPlan-->strConfigPara dPos %f %f %f %f %f %f \n", strConfigPara.dPos[0], strConfigPara.dPos[1], strConfigPara.dPos[2], strConfigPara.dPos[3], strConfigPara.dPos[4], strConfigPara.dPos[5]);
-	execPlan(obj, &strConfigPara);
+	iErrorID = execPlan(obj, &strConfigPara);
 
-	return 0;
+	return iErrorID;
 }
 
 int MotionMove(int id, void *pinputs, void *poutputs, void *pextra)
@@ -252,10 +253,11 @@ int MotionMove(int id, void *pinputs, void *poutputs, void *pextra)
 	memcpy(poout->dCmdSpace, strCommandPara.dCmdSpacePos, sizeof(double)*9);
 	memcpy(poin->dFbSpace, strFeedbackPara.dFbSpace, sizeof(double)*9);
 	poout->iRobStatus = iStatus;
+	poout->iErrorNum = strCommandPara.iCmdErr;
 
-	if(strConfigPara.ePlanMode != 0)
-		printf("InoPlc-->MotionMove-->iStatus=%d, dCmdAxisPos %f %f %f %f %f %f \n",iStatus, strCommandPara.dCmdAxisPos[0],strCommandPara.dCmdAxisPos[1],strCommandPara.dCmdAxisPos[2]
-			,strCommandPara.dCmdAxisPos[3],strCommandPara.dCmdAxisPos[4],strCommandPara.dCmdAxisPos[5]);
+	// if(strConfigPara.ePlanMode != 0)
+	// 	printf("InoPlc-->MotionMove-->iStatus=%d, dCmdAxisPos %f %f %f %f %f %f \n",iStatus, strCommandPara.dCmdAxisPos[0],strCommandPara.dCmdAxisPos[1],strCommandPara.dCmdAxisPos[2]
+	// 		,strCommandPara.dCmdAxisPos[3],strCommandPara.dCmdAxisPos[4],strCommandPara.dCmdAxisPos[5]);
 
 	pext->iPlanMode = strConfigPara.ePlanMode;
 	pext->bIsJoint = strConfigPara.iIsJoint;

@@ -19,7 +19,8 @@ namespace hsc3
 			
 			int planAutoRun();
 			int planMoveTo(double *endpos, bool isjoint);
-			int planManual(int axisnum, bool dir, bool isjoint, double *nowpos);			
+			int planManual(int axisnum, bool dir, bool isjoint, double *nowpos);
+			int stopPlanAuto();
 			int stopPlanManual();
 
 			hsc3::algo::HS_MStatus execMoveToIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos);
@@ -42,6 +43,7 @@ namespace hsc3
 			
 		private:
 			int mDataNum;
+			int mRunDataNum;
 			double mRatio;
 			double *mJointPos;
 			double *mLastJointPos;
