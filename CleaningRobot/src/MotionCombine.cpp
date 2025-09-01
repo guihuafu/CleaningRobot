@@ -13,15 +13,15 @@ namespace hsc3
 			this->mDataNum = 0;
 			this->mRunDataNum = 0;
 			this->mRatio = 0.4;
+			this->mAxisDir = new int[MaxAxisNum];
 			this->mJointPos = new double[MaxAxisNum];
 			this->mLastJointPos = new double[MaxAxisNum];
 			this->mLastVel = new double[MaxAxisNum];
 			this->mGroupMotionData = new hsc3::algo::GroupMotionData[6];
 			memset(this->mGroupMotionData, 0.0, sizeof(double)*6);
-			mJointPos[0] = 0.0; mJointPos[1] = -90.0; mJointPos[2] = 180.0;
-			mJointPos[3] = 0.0; mJointPos[4] = 90.0; mJointPos[5] = 0.0;
-			mJointPos[6] = 0.0; mJointPos[7] = 0.0; mJointPos[8] = 0.0;
 			this->mGroupTrajout = new hsc3::algo::GroupTrajData[40];
+			memset(this->mAxisDir, 0.0, sizeof(int)*MaxAxisNum);
+			memset(this->mJointPos, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mLastJointPos, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mLastVel, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mGroupTrajout, 0, sizeof(hsc3::algo::GroupTrajData) * 40);
@@ -44,6 +44,7 @@ namespace hsc3
 			memset(this->mGroupCommandPara.dCmdAxisPos, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mGroupCommandPara.dCmdAxisVel, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mGroupCommandPara.dCmdAxisAcc, 0.0, sizeof(double)*MaxAxisNum);
+			memset(this->mGroupCommandPara.dCmdSpacePos, 0.0, sizeof(double)*MaxAxisNum);
 
 			this->mGroupFeedbackPara.iStatus = 0;
 			this->mGroupFeedbackPara.iServoErr = 0;
@@ -55,6 +56,7 @@ namespace hsc3
 
 		MotionCombine::~MotionCombine()
 		{
+			delete []mAxisDir;
 			delete []mJointPos;
 			delete []mLastJointPos;
 			delete []mLastVel;
@@ -79,10 +81,10 @@ namespace hsc3
 		void MotionCombine::initPara()
 		{
 			mGroupStaticPara[0].tGroupModelPara.eRobtype = hsc3::algo::HSROB_PUMA;
-			mGroupStaticPara[0].tGroupVelocityPara.dVtran = 1700.0;
-			mGroupStaticPara[0].tGroupVelocityPara.dVrot = 50.0;
-			mGroupStaticPara[0].tGroupVelocityPara.dVtranacc = 100.0;
-			mGroupStaticPara[0].tGroupVelocityPara.dVrotacc = 100.0;
+			mGroupStaticPara[0].tGroupVelocityPara.dVtran = 170.0;
+			mGroupStaticPara[0].tGroupVelocityPara.dVrot = 10.0;
+			mGroupStaticPara[0].tGroupVelocityPara.dVtranacc = 5.0;
+			mGroupStaticPara[0].tGroupVelocityPara.dVrotacc = 5.0;
 			mGroupStaticPara[0].tGroupVelocityPara.dJerkrat = 9.0;
 			mGroupStaticPara[0].tGroupVelocityPara.dTFreMin = 0.05;
 			mGroupStaticPara[0].tGroupVelocityPara.dTFreMax = 0.4;
@@ -96,6 +98,9 @@ namespace hsc3
 
 			memset(mGroupStaticPara[0].dWorldCoord, 0, sizeof(double) * 6);
 
+			this->mAxisDir[0] = 1; this->mAxisDir[1] = 1;
+			this->mAxisDir[2] = 1; this->mAxisDir[3] = 1;
+
 			for(int i=0; i<MAXCOORDNUM; i++)
 			{
 				memset(mGroupStaticPara[0].dToolCoord[i], 0, sizeof(double) * 6);
@@ -104,10 +109,10 @@ namespace hsc3
 
 			for(int i=0; i<MaxAxisNum; i++)
 			{
-				mGroupStaticPara[0].tAxisVelocityPara.dVmax[i] = 250.0;
-				mGroupStaticPara[0].tAxisVelocityPara.dVcruise[i] = 200.0;
-				mGroupStaticPara[0].tAxisVelocityPara.dAccelerate[i] = 2000.0;
-				mGroupStaticPara[0].tAxisVelocityPara.dJerkrat[i] = 400.0;
+				mGroupStaticPara[0].tAxisVelocityPara.dVmax[i] = 25.0;
+				mGroupStaticPara[0].tAxisVelocityPara.dVcruise[i] = 20.0;
+				mGroupStaticPara[0].tAxisVelocityPara.dAccelerate[i] = 200.0;
+				mGroupStaticPara[0].tAxisVelocityPara.dJerkrat[i] = 40.0;
 				mGroupStaticPara[0].tLimitPara.dPmax[i] = 360.0;
 				mGroupStaticPara[0].tLimitPara.dPmin[i] = -360.0;
 				mGroupStaticPara[0].tLimitPara.bOpen[i] = true;
@@ -280,11 +285,11 @@ namespace hsc3
 			memset(this->mLastVel, 0.0, sizeof(double)*MaxAxisNum);
 			hsc3::algo::GroupMotionData groupdata = {0};
 
-			bJoint = false;
-			double dEndPos1[MaxAxisNum] = {1200.0, 500.0, 1300.0, 180.0, 0.0, 180.0, 60.0, 0.0, 0.0};
-			double dEndPos2[MaxAxisNum] = {1500.0, 1500.0, 1100.0, 180.0, 0.0, 180.0, -30.0, 0.0, 0.0};
-			double dEndPos3[MaxAxisNum] = {1100, -1200.0, 1700.0, 180.0, 0.0, 180.0, 60.0, 0.0, 0.0};
-			double dEndPos4[MaxAxisNum] = {1700, 0.0, 1560.0, 180.0, 0.0, 180.0, 30.0, 0.0, 0.0};
+			//bJoint = false;
+			//double dEndPos1[MaxAxisNum] = {1200.0, 500.0, 1300.0, 180.0, 0.0, 180.0, 60.0, 0.0, 0.0};
+			//double dEndPos2[MaxAxisNum] = {1500.0, 1500.0, 1100.0, 180.0, 0.0, 180.0, -30.0, 0.0, 0.0};
+			//double dEndPos3[MaxAxisNum] = {1100, -1200.0, 1700.0, 180.0, 0.0, 180.0, 60.0, 0.0, 0.0};
+			//double dEndPos4[MaxAxisNum] = {1700, 0.0, 1560.0, 180.0, 0.0, 180.0, 30.0, 0.0, 0.0};
 
 			//bJoint = false;
 			//double dEndPos1[MaxAxisNum] = {1700.0, 0.0, 1400.0, 180.0, 0.0, 180.0, 60.0, 0.0, 0.0};
@@ -292,28 +297,25 @@ namespace hsc3
 			//double dEndPos3[MaxAxisNum] = {1500, 100.0, 1400.0, 180.0, 0.0, 180.0, 60.0, 0.0, 0.0};
 			//double dEndPos4[MaxAxisNum] = {1500, 0.0, 1400.0, 180.0, 0.0, 180.0, 30.0, 0.0, 0.0};
 
-			//double dEndPos1[MaxAxisNum] = {0.0, -90.0, 180.0, 0.0, 90.0, 0.0, 0.0, 0.0, 0.0};
-			//double dEndPos2[MaxAxisNum] = {60.0, -20.0, 220.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-			//double dEndPos3[MaxAxisNum] = {-20.0, 130.0, 110.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0};
-			//double dEndPos4[MaxAxisNum] = {90.0, -90.0, 180.0, 0.0, -60.0, 0.0, 0.0, 0.0, 0.0};
+			bJoint = true;
+			double dEndPos1[MaxAxisNum] = {90.0, -145.0, 210.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+			double dEndPos2[MaxAxisNum] = {60.0, -90.0, 160.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0};
+			double dEndPos3[MaxAxisNum] = {-40.0, -60.0, 200.0, 0.0, -30.0, 0.0, 0.0, 0.0, 0.0};
+			double dEndPos4[MaxAxisNum] = {0.0, -90.0, 180.0, 0.0, -90.0, 0.0, 0.0, 0.0, 0.0};
 
 			memcpy(this->mJointPos, this->mGroupCommandPara.dCmdAxisPos, sizeof(double)*MaxAxisNum);
 
 			this->mDataNum = 0;
 			this->mGroupMotionData[0] = this->dealElemt(true, this->mDataNum, bJoint, dEndPos1, dEndPos1); // 首次启动起点为当前点
-			////this->mAutoMove->execPrehandle(this->mGroupMotionData[0], this->mGroupTrajout, this->mDataNum);
 
 			this->mDataNum = 1;
 			this->mGroupMotionData[1] = this->dealElemt(false, this->mDataNum, bJoint, dEndPos1, dEndPos2);
-			////this->mAutoMove->execPrehandle(this->mGroupMotionData[1], this->mGroupTrajout, this->mDataNum);
 
 			this->mDataNum = 2;
 			this->mGroupMotionData[2] = this->dealElemt(false, this->mDataNum, bJoint, dEndPos2, dEndPos3);
-			////this->mAutoMove->execPrehandle(this->mGroupMotionData[2], this->mGroupTrajout, this->mDataNum);
 
 			this->mDataNum = 3;
 			this->mGroupMotionData[3] = this->dealElemt(false, this->mDataNum, bJoint, dEndPos3, dEndPos4);
-			////this->mAutoMove->execPrehandle(this->mGroupMotionData[3], this->mGroupTrajout, this->mDataNum);
 			return 0;
 		}
 
@@ -441,6 +443,7 @@ namespace hsc3
 				errid = iErrorId;
 				printf("MotionCombine::execManualIntMove %d \n", iErrorId);
 			}
+
 			for(int i=0; i<MaxAxisNum; i++)
 			{
 				jointvel[i] = (jointpos[i] - this->mLastJointPos[i]) / CYCLE;			// 获取关节速度
@@ -535,15 +538,16 @@ namespace hsc3
 			memset(this->mGroupFeedbackPara.dFbAxisVel, 0.0, sizeof(double)*MaxAxisNum);
 			memset(this->mGroupFeedbackPara.dFbAxisAcc, 0.0, sizeof(double)*MaxAxisNum);
 
+			// 转换为六轴点位
 			for(int i=0; i<3; i++)
 			{
-				this->mGroupFeedbackPara.dFbAxisPos[i] = fbdata->dFbAxisPos[i];
-				this->mGroupFeedbackPara.dFbAxisVel[i] = fbdata->dFbAxisVel[i];
-				this->mGroupFeedbackPara.dFbAxisAcc[i] = fbdata->dFbAxisAcc[i];
+				this->mGroupFeedbackPara.dFbAxisPos[i] = fbdata->dFbAxisPos[i] * this->mAxisDir[i];
+				this->mGroupFeedbackPara.dFbAxisVel[i] = fbdata->dFbAxisVel[i] * this->mAxisDir[i];
+				this->mGroupFeedbackPara.dFbAxisAcc[i] = fbdata->dFbAxisAcc[i] * this->mAxisDir[i];
 			}
-			this->mGroupFeedbackPara.dFbAxisPos[4] = fbdata->dFbAxisPos[3];
-			this->mGroupFeedbackPara.dFbAxisVel[4] = fbdata->dFbAxisVel[3];
-			this->mGroupFeedbackPara.dFbAxisAcc[4] = fbdata->dFbAxisAcc[3];
+			this->mGroupFeedbackPara.dFbAxisPos[4] = fbdata->dFbAxisPos[3] * this->mAxisDir[3];
+			this->mGroupFeedbackPara.dFbAxisVel[4] = fbdata->dFbAxisVel[3] * this->mAxisDir[3];
+			this->mGroupFeedbackPara.dFbAxisAcc[4] = fbdata->dFbAxisAcc[3] * this->mAxisDir[3];
 
 			this->mCalibrate->calcJPosToCPos(this->mGroupFeedbackPara.dFbAxisPos, -1, -1, fbdata->dFbSpace);				// 更新反馈空间位置
 
@@ -578,20 +582,20 @@ namespace hsc3
 				memcpy(cmddata->dCmdSpacePos, strCmdData.dCmdSpacePos, sizeof(double)*MaxAxisNum);
 				for(int i=0; i<3; i++)
 				{
-					cmddata->dCmdAxisPos[i] = strCmdData.dCmdAxisPos[i];
-					cmddata->dCmdAxisVel[i] = strCmdData.dCmdAxisVel[i];
-					cmddata->dCmdAxisAcc[i] = strCmdData.dCmdAxisAcc[i];
+					cmddata->dCmdAxisPos[i] = strCmdData.dCmdAxisPos[i] * this->mAxisDir[i];
+					cmddata->dCmdAxisVel[i] = strCmdData.dCmdAxisVel[i] * this->mAxisDir[i];
+					cmddata->dCmdAxisAcc[i] = strCmdData.dCmdAxisAcc[i] * this->mAxisDir[i];
 				}
-				cmddata->dCmdAxisPos[3] = strCmdData.dCmdAxisPos[4];
-				cmddata->dCmdAxisVel[3] = strCmdData.dCmdAxisVel[4];
-				cmddata->dCmdAxisAcc[3] = strCmdData.dCmdAxisAcc[4];
+				cmddata->dCmdAxisPos[3] = strCmdData.dCmdAxisPos[4] * this->mAxisDir[3];
+				cmddata->dCmdAxisVel[3] = strCmdData.dCmdAxisVel[4] * this->mAxisDir[3];
+				cmddata->dCmdAxisAcc[3] = strCmdData.dCmdAxisAcc[4] * this->mAxisDir[3];
 
 				memcpy(this->mGroupCommandPara.dCmdAxisPos, strCmdData.dCmdAxisPos, sizeof(double)*MaxAxisNum); // 缓存六轴位置
 				memcpy(this->mGroupCommandPara.dCmdAxisVel, strCmdData.dCmdAxisVel, sizeof(double)*MaxAxisNum);
 				memcpy(this->mGroupCommandPara.dCmdAxisAcc, strCmdData.dCmdAxisAcc, sizeof(double)*MaxAxisNum);
 				memcpy(this->mGroupCommandPara.dCmdSpacePos, strCmdData.dCmdSpacePos, sizeof(double)*MaxAxisNum);
 			}
-
+			// 触发运动停止完成
 			if(status == M_StopDone)
 			{
 				this->resetMotion();

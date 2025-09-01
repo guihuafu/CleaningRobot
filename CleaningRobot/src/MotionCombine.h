@@ -44,6 +44,7 @@ namespace hsc3
 		private:
 			int mDataNum;
 			int mRunDataNum;
+			int *mAxisDir;
 			double mRatio;
 			double *mJointPos;
 			double *mLastJointPos;

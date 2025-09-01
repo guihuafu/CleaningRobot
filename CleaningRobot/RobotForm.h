@@ -466,7 +466,7 @@ namespace CleaningRobot {
 			// 
 			// ClearChart
 			// 
-			this->ClearChart->Location = System::Drawing::Point(2076, 76);
+			this->ClearChart->Location = System::Drawing::Point(2076, 78);
 			this->ClearChart->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->ClearChart->Name = L"ClearChart";
 			this->ClearChart->Size = System::Drawing::Size(128, 72);
@@ -711,7 +711,7 @@ namespace CleaningRobot {
 			// 
 			// HomePosButton
 			// 
-			this->HomePosButton->Location = System::Drawing::Point(1940, 24);
+			this->HomePosButton->Location = System::Drawing::Point(1940, 26);
 			this->HomePosButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->HomePosButton->Name = L"HomePosButton";
 			this->HomePosButton->Size = System::Drawing::Size(128, 42);
@@ -722,7 +722,7 @@ namespace CleaningRobot {
 			// 
 			// TestPosButton
 			// 
-			this->TestPosButton->Location = System::Drawing::Point(2076, 24);
+			this->TestPosButton->Location = System::Drawing::Point(2076, 26);
 			this->TestPosButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->TestPosButton->Name = L"TestPosButton";
 			this->TestPosButton->Size = System::Drawing::Size(128, 42);
@@ -794,7 +794,7 @@ namespace CleaningRobot {
 			// 
 			// StopMoveButton
 			// 
-			this->StopMoveButton->Location = System::Drawing::Point(1940, 78);
+			this->StopMoveButton->Location = System::Drawing::Point(1940, 80);
 			this->StopMoveButton->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->StopMoveButton->Name = L"StopMoveButton";
 			this->StopMoveButton->Size = System::Drawing::Size(128, 72);
@@ -1199,11 +1199,6 @@ namespace CleaningRobot {
 			 {
 				 this->mCfgPara->ePlanMode = Plan_StopAuto;
 				 this->mMotioncombine->execPlan(this->mCfgPara);
-			 }
-
-	private: System::Void CombineTimer_Tick(System::Object^  sender, System::EventArgs^  e) 
-			 {
-
 			 }
 
 	private: System::Void SystemRunTimer_Tick(System::Object^  sender, System::EventArgs^  e) 
