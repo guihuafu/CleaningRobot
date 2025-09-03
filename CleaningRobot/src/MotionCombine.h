@@ -45,6 +45,7 @@ namespace hsc3
 			int mDataNum;
 			int mRunDataNum;
 			int *mAxisDir;
+			double mAxis2DiffPos;
 			double mRatio;
 			double *mJointPos;
 			double *mLastJointPos;

@@ -1026,7 +1026,7 @@ namespace CleaningRobot {
 				if(this->mCfgPara->iIsJoint)
 				{
 					this->setChart(0, this->mCurrentTime, this->mCmdPara->dCmdAxisPos, this->mCmdPara->dCmdAxisVel, this->mCmdPara->dCmdAxisAcc, this->mCmdPara->dCmdSpacePos, true, true);
-					printf("planJoint--mStatus=%d, outPos: %f %f %f %f %f %f %f \n",mStatus,mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5],mCmdPara->dCmdAxisPos[6]);
+					//printf("planJoint--mStatus=%d, outPos: %f %f %f %f %f %f %f \n",mStatus,mCmdPara->dCmdAxisPos[0],mCmdPara->dCmdAxisPos[1],mCmdPara->dCmdAxisPos[2],mCmdPara->dCmdAxisPos[3],mCmdPara->dCmdAxisPos[4],mCmdPara->dCmdAxisPos[5],mCmdPara->dCmdAxisPos[6]);
 				}
 				else
 				{
