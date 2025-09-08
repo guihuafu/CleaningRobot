@@ -187,20 +187,38 @@ struct GroupConfigPara strConfigPara = {0};
 struct GroupCommandPara strCommandPara = {0};
 struct GroupFeedbackPara strFeedbackPara = {0};
 
+int MotionSetting(int id, void *pinputs, void *poutputs, void *pextra)
+{
+	if(pinputs == NULL || poutputs == NULL || pextra == NULL)
+		return -1;
+	
+	if(obj == NULL)
+		obj = createInstance();
+	
+	struct MyIOBlock *piBlock = pinputs;
+	struct MyIOBlock *poBlock = poutputs;
+	struct motion_inputs *poin = (struct motion_inputs*)piBlock->ptr;
+	struct motion_outputs *poout = (struct motion_outputs*)poBlock->ptr;
+	struct motion_extra *pext = (struct motion_extra*)pextra;
+
+	if(id == 1001)
+	{
+		printf("InoPlc-->MotionPlan-->MotionSetting, ID=%d \n", id);
+		memcpy(strCommandPara.dCmdAxisPos, poin->dFbPos, sizeof(double)*9);
+		syncPos(obj, &strCommandPara, &strFeedbackPara);
+	}
+}
+
 int MotionPlan(int id, void *pdata)
 {
 	if (pdata == NULL)
 		return -1;
 
 	int iErrorID = 0;
-	static int bFirstStart = 1;
 	struct motion_extra *pext = (struct motion_extra*)pdata;
 
-	if(bFirstStart == 1)
-	{
+	if(obj == NULL)
 		obj = createInstance();
-		bFirstStart = 0;
-	}
 
 	strConfigPara.ePlanMode = pext->iPlanMode;
 	strConfigPara.iAxisNum = pext->iAxisNum;
@@ -219,13 +237,8 @@ int MotionPlan(int id, void *pdata)
 int MotionMove(int id, void *pinputs, void *poutputs, void *pextra)
 {
 	int iStatus = 0;
-	static int bFirstStart = 1;
-	if(bFirstStart == 1)
-	{
+	if(obj == NULL)
 		obj = createInstance();
-		bFirstStart = 0;
-		memcpy(strCommandPara.dCmdAxisPos, strFeedbackPara.dFbAxisPos, sizeof(double)*9);
-	}
 
 	if(pinputs == NULL || poutputs == NULL || pextra == NULL)
 		return -1;
@@ -235,14 +248,7 @@ int MotionMove(int id, void *pinputs, void *poutputs, void *pextra)
 	struct motion_inputs *poin = (struct motion_inputs*)piBlock->ptr;
 	struct motion_outputs *poout = (struct motion_outputs*)poBlock->ptr;
 	struct motion_extra *pext = (struct motion_extra*)pextra;
-
-	if(poin->iStatus == 1)
-	{
-		memcpy(strCommandPara.dCmdAxisPos, strFeedbackPara.dFbAxisPos, sizeof(double)*9);
-		printf("InoPlc-->MotionMove-->dFbAxisPos %f %f %f %f %f %f \n",strFeedbackPara.dFbAxisPos[0],strFeedbackPara.dFbAxisPos[1],strFeedbackPara.dFbAxisPos[2]
-			,strFeedbackPara.dFbAxisPos[3],strFeedbackPara.dFbAxisPos[4],strFeedbackPara.dFbAxisPos[5]);
-	}
-
+	
 	memcpy(strFeedbackPara.dFbAxisPos, poin->dFbPos, sizeof(double)*9);
 	memcpy(strFeedbackPara.dFbAxisVel, poin->dFbVel, sizeof(double)*9);
 	memcpy(strFeedbackPara.dFbAxisAcc, poin->dFbAcc, sizeof(double)*9);
@@ -254,7 +260,7 @@ int MotionMove(int id, void *pinputs, void *poutputs, void *pextra)
 	memcpy(poin->dFbSpace, strFeedbackPara.dFbSpace, sizeof(double)*9);
 	poout->iRobStatus = iStatus;
 	poout->iErrorNum = strCommandPara.iCmdErr;
-
+	
 	// if(strConfigPara.ePlanMode != 0)
 	// 	printf("InoPlc-->MotionMove-->iStatus=%d, dCmdAxisPos %f %f %f %f %f %f \n",iStatus, strCommandPara.dCmdAxisPos[0],strCommandPara.dCmdAxisPos[1],strCommandPara.dCmdAxisPos[2]
 	// 		,strCommandPara.dCmdAxisPos[3],strCommandPara.dCmdAxisPos[4],strCommandPara.dCmdAxisPos[5]);

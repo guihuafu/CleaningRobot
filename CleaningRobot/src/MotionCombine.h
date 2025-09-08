@@ -32,7 +32,7 @@ namespace hsc3
 			~MotionCombine();
 			void setRatio(double ratio);
 			double getRatio();
-			void syncPos();
+			int syncPos(GroupCommandPara *cmddata, GroupFeedbackPara *fbdata);
 			void resetMotion();
 
 			int execPlan(GroupConfigPara *config);
@@ -42,9 +42,10 @@ namespace hsc3
 			hsc3::algo::GroupStaticPara mGroupStaticPara[4];
 			
 		private:
+			bool mIsMoving;
+			bool mFirstMove;
 			int mDataNum;
 			int mRunDataNum;
-			int *mAxisDir;
 			double mAxis2DiffPos;
 			double mRatio;
 			double *mJointPos;

@@ -17,6 +17,11 @@ extern "C" int execPlan(void* obj, struct GroupConfigPara *cfgpara)
 	return static_cast<hsc3::algo::MotionCombine*>(obj)->execPlan(cfgpara);
 }
 
+extern "C" int syncPos(void* obj, struct GroupCommandPara *cmdpara, struct GroupFeedbackPara *fbpara)
+{
+	return static_cast<hsc3::algo::MotionCombine*>(obj)->syncPos(cmdpara, fbpara);
+}
+
 extern "C" int execMove(void* obj, struct GroupCommandPara *cmdpara, struct GroupFeedbackPara *fbpara)
 {
 	return static_cast<hsc3::algo::MotionCombine*>(obj)->execMove(cmdpara, fbpara);
