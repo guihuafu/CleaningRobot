@@ -252,6 +252,7 @@ namespace hsc3
 			{
 				printf("MotionCombine-->dealElemt-->FirstPlan \n");
 				groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iCoordinate = hsc3::algo::JOINT_COORD_SYSTEM;
+				this->mGroupCommandPara.dCmdAxisPos[2] = this->mGroupCommandPara.dCmdAxisPos[2] + this->mAxis2DiffPos; // 自动运行首次起点为指令位置，用反馈位置会导致位置偏差，使得连续运动起点位置卡顿
 				memcpy(groupdata.tBaseMoveData[0].sStartPos.dPos, this->mGroupCommandPara.dCmdAxisPos, sizeof(double) * MaxAxisNum);	// 六轴点位
 			}
 			else
@@ -338,6 +339,7 @@ namespace hsc3
 					if(this->mRunDataNum <= this->mDataNum)
 					{
 						bCalcOut = true;
+						this->mJointPos[2] = this->mJointPos[2] + this->mAxis2DiffPos;	// 运动起点为指令位置，需要重新计算三轴
 						memcpy(groupjpos.dJPos[0], this->mJointPos, sizeof(double) * MaxAxisNum);
 						this->mAutoMove->execPrehandle(this->mGroupMotionData[this->mRunDataNum], this->mGroupTrajout, this->mRunDataNum);
 						errorID = this->mAutoMove->execPlanMove(this->mGroupTrajout, this->mRunDataNum, this->mRatio, groupjpos);
@@ -625,7 +627,7 @@ namespace hsc3
 			{
 				this->mIsMoving = false;
 				this->resetMotion();
-				printf("MotionCombine-->execMove-->M_StopDone \n");
+				printf("MotionCombine-->execMove-->M_StopDone, diffPos=%f \n",this->mAxis2DiffPos);
 			}
 
 			memcpy(this->mLastJointPos, cmddata->dCmdAxisPos, sizeof(double)*MaxAxisNum);
