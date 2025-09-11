@@ -252,8 +252,9 @@ namespace hsc3
 			{
 				printf("MotionCombine-->dealElemt-->FirstPlan \n");
 				groupdata.tBaseMoveData[0].sStartPos.hs_coordinate.iCoordinate = hsc3::algo::JOINT_COORD_SYSTEM;
-				this->mGroupCommandPara.dCmdAxisPos[2] = this->mGroupCommandPara.dCmdAxisPos[2] + this->mAxis2DiffPos; // 自动运行首次起点为指令位置，用反馈位置会导致位置偏差，使得连续运动起点位置卡顿
-				memcpy(groupdata.tBaseMoveData[0].sStartPos.dPos, this->mGroupCommandPara.dCmdAxisPos, sizeof(double) * MaxAxisNum);	// 六轴点位
+				this->mGroupCommandPara.dCmdAxisPos[2] = this->mGroupCommandPara.dCmdAxisPos[2] + this->mAxis2DiffPos; // 实际下发会叠加二轴位置，因此规划前需解耦
+				memcpy(groupdata.tBaseMoveData[0].sStartPos.dPos, this->mGroupCommandPara.dCmdAxisPos, sizeof(double) * MaxAxisNum);	// 六轴点位，自动运行首次起点为指令位置，用反馈位置会导致位置偏差，使得连续运动起点位置卡顿
+				printf("MotionCombine-->dealElemt-->sStartPos %f %f %f, Diff=%f \n",groupdata.tBaseMoveData[0].sStartPos.dPos[0],groupdata.tBaseMoveData[0].sStartPos.dPos[1],groupdata.tBaseMoveData[0].sStartPos.dPos[2],this->mAxis2DiffPos);
 			}
 			else
 			{
@@ -301,8 +302,6 @@ namespace hsc3
 			//double dEndPos3[MaxAxisNum] = {30.0, -74.0, 182.0, 0.0, -40.0, 0.0, 0.0, 0.0, 0.0};
 			//double dEndPos4[MaxAxisNum] = {0.0, -90.0, 180.0, 0.0, -90.0, 0.0, 0.0, 0.0, 0.0};
 
-			memcpy(this->mJointPos, this->mGroupCommandPara.dCmdAxisPos, sizeof(double)*MaxAxisNum);
-
 			this->mDataNum = 0;
 			this->mGroupMotionData[0] = this->dealElemt(true, this->mDataNum, bJoint, dEndPos1, dEndPos1); // 首次启动起点为当前点
 
@@ -321,6 +320,7 @@ namespace hsc3
 			this->mDataNum = 5;
 			this->mGroupMotionData[5] = this->dealElemt(false, this->mDataNum, bJoint, dEndPos5, dEndPos6);
 
+			memcpy(this->mJointPos, this->mGroupCommandPara.dCmdAxisPos, sizeof(double)*MaxAxisNum);
 			return 0;
 		}
 
@@ -339,7 +339,6 @@ namespace hsc3
 					if(this->mRunDataNum <= this->mDataNum)
 					{
 						bCalcOut = true;
-						this->mJointPos[2] = this->mJointPos[2] + this->mAxis2DiffPos;	// 运动起点为指令位置，需要重新计算三轴
 						memcpy(groupjpos.dJPos[0], this->mJointPos, sizeof(double) * MaxAxisNum);
 						this->mAutoMove->execPrehandle(this->mGroupMotionData[this->mRunDataNum], this->mGroupTrajout, this->mRunDataNum);
 						errorID = this->mAutoMove->execPlanMove(this->mGroupTrajout, this->mRunDataNum, this->mRatio, groupjpos);
@@ -472,13 +471,15 @@ namespace hsc3
 			return this->mAutoMove->execStopPlan();
 		}
 
-		void MotionCombine::resetMotion()
+		int MotionCombine::resetMotion()
 		{
 			printf("MotionCombine-->resetMotion\n");
+			this->mDataNum = 0;
 			this->mRunDataNum = 0;
 			this->mAutoMove->execReset();
 			memset(this->mGroupMotionData, 0.0, sizeof(double)*6);
 			memset(this->mGroupTrajout, 0.0, sizeof(hsc3::algo::GroupTrajData) * 40);
+			return 0;
 		}
 
 		int MotionCombine::execPlan(GroupConfigPara *config)
@@ -544,7 +545,6 @@ namespace hsc3
 
 			if(this->mFirstMove == true)
 				this->mAxis2DiffPos = -90 - fbdata->dFbAxisPos[1];
-			fbdata->dFbAxisPos[2] = fbdata->dFbAxisPos[2] + this->mAxis2DiffPos;
 
 			// 转换为六轴点位
 			for(int i=0; i<3; i++)
@@ -556,6 +556,8 @@ namespace hsc3
 			this->mGroupFeedbackPara.dFbAxisPos[4] = fbdata->dFbAxisPos[3];
 			this->mGroupFeedbackPara.dFbAxisVel[4] = fbdata->dFbAxisVel[3];
 			this->mGroupFeedbackPara.dFbAxisAcc[4] = fbdata->dFbAxisAcc[3];
+
+			this->mGroupFeedbackPara.dFbAxisPos[2] = this->mGroupFeedbackPara.dFbAxisPos[2] + this->mAxis2DiffPos;
 
 			this->mCalibrate->calcJPosToCPos(this->mGroupFeedbackPara.dFbAxisPos, -1, -1, fbdata->dFbSpace);				// 更新反馈空间位置
 
@@ -638,7 +640,11 @@ namespace hsc3
 		int MotionCombine::syncPos(GroupCommandPara *cmddata, GroupFeedbackPara *fbdata)
 		{
 			printf("MotionCombine-->syncPos \n");
-			memcpy(this->mGroupCommandPara.dCmdAxisPos, this->mGroupFeedbackPara.dFbAxisPos, sizeof(double)*MaxAxisNum);
+			// 转换为六轴点位
+			for(int i=0; i<3; i++)
+				this->mGroupCommandPara.dCmdAxisPos[i] = fbdata->dFbAxisPos[i];
+			this->mGroupCommandPara.dCmdAxisPos[4] = fbdata->dFbAxisPos[3];
+			printf("MotionCombine-->syncPos-->dCmdAxisPos %f %f %f %f %f %f, Diff=%f \n",mGroupCommandPara.dCmdAxisPos[0],mGroupCommandPara.dCmdAxisPos[1],mGroupCommandPara.dCmdAxisPos[2],mGroupCommandPara.dCmdAxisPos[3],mGroupCommandPara.dCmdAxisPos[4],mGroupCommandPara.dCmdAxisPos[5],this->mAxis2DiffPos);
 			return 0;
 		}
 	}

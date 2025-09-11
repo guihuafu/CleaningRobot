@@ -33,7 +33,7 @@ namespace hsc3
 			void setRatio(double ratio);
 			double getRatio();
 			int syncPos(GroupCommandPara *cmddata, GroupFeedbackPara *fbdata);
-			void resetMotion();
+			int resetMotion();
 
 			int execPlan(GroupConfigPara *config);
 			int execMove(GroupCommandPara *cmddata, GroupFeedbackPara *fbdata);

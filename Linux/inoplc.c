@@ -200,12 +200,16 @@ int MotionSetting(int id, void *pinputs, void *poutputs, void *pextra)
 	struct motion_inputs *poin = (struct motion_inputs*)piBlock->ptr;
 	struct motion_outputs *poout = (struct motion_outputs*)poBlock->ptr;
 	struct motion_extra *pext = (struct motion_extra*)pextra;
-
+	printf("InoPlc-->MotionPlan-->MotionSetting, ID=%d \n", id);
 	if(id == 1001)
 	{
-		printf("InoPlc-->MotionPlan-->MotionSetting, ID=%d \n", id);
 		memcpy(strCommandPara.dCmdAxisPos, poin->dFbPos, sizeof(double)*9);
 		syncPos(obj, &strCommandPara, &strFeedbackPara);
+	}
+	else if(id == 1002)
+	{
+		resetMotion(obj);
+		strCommandPara.iCmdErr = 0;
 	}
 }
 
@@ -260,7 +264,7 @@ int MotionMove(int id, void *pinputs, void *poutputs, void *pextra)
 	memcpy(poin->dFbSpace, strFeedbackPara.dFbSpace, sizeof(double)*9);
 	poout->iRobStatus = iStatus;
 	poout->iErrorNum = strCommandPara.iCmdErr;
-	
+
 	// if(strConfigPara.ePlanMode != 0)
 	// 	printf("InoPlc-->MotionMove-->iStatus=%d, dCmdAxisPos %f %f %f %f %f %f \n",iStatus, strCommandPara.dCmdAxisPos[0],strCommandPara.dCmdAxisPos[1],strCommandPara.dCmdAxisPos[2]
 	// 		,strCommandPara.dCmdAxisPos[3],strCommandPara.dCmdAxisPos[4],strCommandPara.dCmdAxisPos[5]);

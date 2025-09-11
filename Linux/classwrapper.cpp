@@ -17,14 +17,19 @@ extern "C" int execPlan(void* obj, struct GroupConfigPara *cfgpara)
 	return static_cast<hsc3::algo::MotionCombine*>(obj)->execPlan(cfgpara);
 }
 
+extern "C" int execMove(void* obj, struct GroupCommandPara *cmdpara, struct GroupFeedbackPara *fbpara)
+{
+	return static_cast<hsc3::algo::MotionCombine*>(obj)->execMove(cmdpara, fbpara);
+}
+
 extern "C" int syncPos(void* obj, struct GroupCommandPara *cmdpara, struct GroupFeedbackPara *fbpara)
 {
 	return static_cast<hsc3::algo::MotionCombine*>(obj)->syncPos(cmdpara, fbpara);
 }
 
-extern "C" int execMove(void* obj, struct GroupCommandPara *cmdpara, struct GroupFeedbackPara *fbpara)
+extern "C" int resetMotion(void* obj)
 {
-	return static_cast<hsc3::algo::MotionCombine*>(obj)->execMove(cmdpara, fbpara);
+	return static_cast<hsc3::algo::MotionCombine*>(obj)->resetMotion();
 }
 
 extern "C" int setRatio(void* obj, double radio)
