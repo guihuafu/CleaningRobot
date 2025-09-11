@@ -115,6 +115,11 @@ namespace hsc3
 				mGroupStaticPara[0].tLimitPara.dPmin[i] = -360.0;
 				mGroupStaticPara[0].tLimitPara.bOpen[i] = true;
 			}
+
+			mGroupStaticPara[0].tLimitPara.dPmax[0] = 100.0;	mGroupStaticPara[0].tLimitPara.dPmin[0] = -100.0;
+			mGroupStaticPara[0].tLimitPara.dPmax[1] = -45.0;	mGroupStaticPara[0].tLimitPara.dPmin[1] = -120.0;
+			mGroupStaticPara[0].tLimitPara.dPmax[2] = 240.0;	mGroupStaticPara[0].tLimitPara.dPmin[2] = 160.0;
+			mGroupStaticPara[0].tLimitPara.dPmax[4] = 100.0;	mGroupStaticPara[0].tLimitPara.dPmin[4] = -90.0;
 		}
 
 		int MotionCombine::planMoveTo(double *endpos, bool isjoint)
@@ -184,7 +189,7 @@ namespace hsc3
 			return this->mAutoMove->execPlanMove(this->mGroupTrajout, 0, this->mRatio, groupjpos);
 		}
 
-		hsc3::algo::HS_MStatus MotionCombine::execMoveToIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos)
+		hsc3::algo::HS_MStatus MotionCombine::execMoveToIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos, int &errid)
 		{
 			int errorID = 0;
 			hsc3::algo::IntData intdata = {0.0};
@@ -324,7 +329,7 @@ namespace hsc3
 			return 0;
 		}
 
-		hsc3::algo::HS_MStatus MotionCombine::execAutoRunIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos)
+		hsc3::algo::HS_MStatus MotionCombine::execAutoRunIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos, int &errid)
 		{
 			int errorID = 0;
 			bool bCalcOut = false;
@@ -343,7 +348,10 @@ namespace hsc3
 						this->mAutoMove->execPrehandle(this->mGroupMotionData[this->mRunDataNum], this->mGroupTrajout, this->mRunDataNum);
 						errorID = this->mAutoMove->execPlanMove(this->mGroupTrajout, this->mRunDataNum, this->mRatio, groupjpos);
 						if((errorID != 0) && (errorID < Waring))
+						{
+							errid = errorID;
 							status = hsc3::algo::M_Error;
+						}
 						printf("MotionCombine-->execAutoRunIntMove-->M_UnInit-->Plan Next Position\n");
 					}
 					break;
@@ -362,7 +370,10 @@ namespace hsc3
 						
 						printf("MotionCombine-->execAutoRunIntMove-->Plan Next Position-->DataNum=%d, errorID=%d \n", this->mRunDataNum, errorID);
 						if((errorID != 0) && (errorID < Waring))
+						{
+							errid = errorID;
 							status = hsc3::algo::M_Error;
+						}
 						status = hsc3::algo::M_UnInit;
 						memcpy(this->mJointPos, intdata.tGJPos[0].dJPos[0], sizeof(double)*MaxAxisNum);
 						
@@ -567,16 +578,16 @@ namespace hsc3
 				status = this->execManualIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos, iErrorID);
 				break;
 			case Plan_MoveTo:
-				status = this->execMoveToIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
+				status = this->execMoveToIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos, iErrorID);
 				break;
 			case Plan_Auto:
-				status = this->execAutoRunIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
+				status = this->execAutoRunIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos, iErrorID);
 				break;
 			case Plan_Stop:
 				status = this->execManualIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos, iErrorID);
 				break;
 			case Plan_StopAuto:
-				status = this->execMoveToIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos);
+				status = this->execMoveToIntMove(strCmdData.dCmdAxisPos, strCmdData.dCmdAxisVel, strCmdData.dCmdAxisAcc, strCmdData.dCmdSpacePos, iErrorID);
 				break;
 			}
 

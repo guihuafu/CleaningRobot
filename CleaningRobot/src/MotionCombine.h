@@ -23,8 +23,8 @@ namespace hsc3
 			int stopPlanAuto();
 			int stopPlanManual();
 
-			hsc3::algo::HS_MStatus execMoveToIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos);
-			hsc3::algo::HS_MStatus execAutoRunIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos);
+			hsc3::algo::HS_MStatus execMoveToIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos, int &errid);
+			hsc3::algo::HS_MStatus execAutoRunIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos, int &errid);
 			hsc3::algo::HS_MStatus execManualIntMove(double *jointpos, double *jointvel, double *jointacc, double *spacepos, int &errid);
 			
 		public:
