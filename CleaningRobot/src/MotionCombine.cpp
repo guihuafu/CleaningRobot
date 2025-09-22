@@ -118,7 +118,7 @@ namespace hsc3
 
 			mGroupStaticPara[0].tLimitPara.dPmax[0] = 100.0;	mGroupStaticPara[0].tLimitPara.dPmin[0] = -100.0;
 			mGroupStaticPara[0].tLimitPara.dPmax[1] = -45.0;	mGroupStaticPara[0].tLimitPara.dPmin[1] = -120.0;
-			mGroupStaticPara[0].tLimitPara.dPmax[2] = 240.0;	mGroupStaticPara[0].tLimitPara.dPmin[2] = 160.0;
+			mGroupStaticPara[0].tLimitPara.dPmax[2] = 360.0;	mGroupStaticPara[0].tLimitPara.dPmin[2] = -360.0;
 			mGroupStaticPara[0].tLimitPara.dPmax[4] = 100.0;	mGroupStaticPara[0].tLimitPara.dPmin[4] = -90.0;
 		}
 
@@ -294,12 +294,12 @@ namespace hsc3
 			//double dEndPos4[MaxAxisNum] = {1700, 0.0, 1560.0, 180.0, 0.0, 180.0, 30.0, 0.0, 0.0};
 
 			bJoint = false;
-			double dEndPos1[MaxAxisNum] = {2100.0, 0.0, 1560.0, 180.0, 0.0, 180.0, 90.0, 0.0, 0.0};
-			double dEndPos2[MaxAxisNum] = {2100.0, 0.0, 600.0, 180.0, 0.0, 180.0, 90.0, 0.0, 0.0};
-			double dEndPos3[MaxAxisNum] = {1700.0, 0.0, 600.0, 180.0, 0.0, 180.0, 90.0, 0.0, 0.0};
-			double dEndPos4[MaxAxisNum] = {1700.0, 0.0, 1560.0, 180.0, 0.0, 180.0, 90.0, 0.0, 0.0};
-			double dEndPos5[MaxAxisNum] = {1700.0, 1000.0, 1560.0, 180.0, 0.0, 180.0, 90.0, 0.0, 0.0};
-			double dEndPos6[MaxAxisNum] = {1700.0, 0.0, 1560.0, 180.0, 0.0, 180.0, 90.0, 0.0, 0.0};
+			double dEndPos1[MaxAxisNum] = {2100.0, 0.0, 1560.0, 180.0, 30.0, 180.0, 60.0, 0.0, 0.0};
+			double dEndPos2[MaxAxisNum] = {2100.0, 0.0, 1400.0, 180.0, 30.0, 180.0, 60.0, 0.0, 0.0};
+			double dEndPos3[MaxAxisNum] = {1700.0, 0.0, 1400.0, 180.0, 30.0, 180.0, 60.0, 0.0, 0.0};
+			double dEndPos4[MaxAxisNum] = {1700.0, 0.0, 1560.0, 180.0, 30.0, 180.0, 60.0, 0.0, 0.0};
+			double dEndPos5[MaxAxisNum] = {1700.0, 300.0, 1560.0, 180.0, 30.0, 180.0, 60.0, 0.0, 0.0};
+			double dEndPos6[MaxAxisNum] = {1700.0, 0.0, 1560.0, 180.0, 30.0, 180.0, 60.0, 0.0, 0.0};
 
 			//bJoint = true;
 			//double dEndPos1[MaxAxisNum] = {-30.0, -104.0, 195.0, 0.0, 60.0, 0.0, 0.0, 0.0, 0.0};
@@ -644,7 +644,17 @@ namespace hsc3
 			}
 
 			memcpy(this->mLastJointPos, cmddata->dCmdAxisPos, sizeof(double)*MaxAxisNum);
-			memcpy(this->mLastVel, cmddata->dCmdAxisPos, sizeof(double)*MaxAxisNum);
+			memcpy(this->mLastVel, cmddata->dCmdAxisVel, sizeof(double)*MaxAxisNum);
+
+			// 转换为六轴点位
+			for(int i=0; i<3; i++)
+			{
+				this->mLastJointPos[i] = cmddata->dCmdAxisPos[i];
+				this->mLastVel[i] = cmddata->dCmdAxisVel[i];
+			}
+			this->mLastJointPos[4] = cmddata->dCmdAxisPos[3];
+			this->mLastVel[4] = cmddata->dCmdAxisVel[3];
+
 			return (int)status;
 		}
 

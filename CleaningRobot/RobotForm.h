@@ -247,14 +247,14 @@ namespace CleaningRobot {
 		void InitializeComponent(void)
 		{
 			this->components = (gcnew System::ComponentModel::Container());
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea5 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^  legend5 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea6 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^  legend6 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea7 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^  legend7 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea8 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^  legend8 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea1 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^  legend1 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea2 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^  legend2 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea3 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^  legend3 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea4 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^  legend4 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
 			this->RunTrajButton = (gcnew System::Windows::Forms::Button());
 			this->JointChart = (gcnew System::Windows::Forms::DataVisualization::Charting::Chart());
 			this->SpaceChart = (gcnew System::Windows::Forms::DataVisualization::Charting::Chart());
@@ -325,10 +325,10 @@ namespace CleaningRobot {
 			// 
 			// JointChart
 			// 
-			chartArea5->Name = L"ChartArea1";
-			this->JointChart->ChartAreas->Add(chartArea5);
-			legend5->Name = L"Legend1";
-			this->JointChart->Legends->Add(legend5);
+			chartArea1->Name = L"ChartArea1";
+			this->JointChart->ChartAreas->Add(chartArea1);
+			legend1->Name = L"Legend1";
+			this->JointChart->Legends->Add(legend1);
 			this->JointChart->Location = System::Drawing::Point(237, 173);
 			this->JointChart->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->JointChart->Name = L"JointChart";
@@ -338,10 +338,10 @@ namespace CleaningRobot {
 			// 
 			// SpaceChart
 			// 
-			chartArea6->Name = L"ChartArea1";
-			this->SpaceChart->ChartAreas->Add(chartArea6);
-			legend6->Name = L"Legend1";
-			this->SpaceChart->Legends->Add(legend6);
+			chartArea2->Name = L"ChartArea1";
+			this->SpaceChart->ChartAreas->Add(chartArea2);
+			legend2->Name = L"Legend1";
+			this->SpaceChart->Legends->Add(legend2);
 			this->SpaceChart->Location = System::Drawing::Point(237, 645);
 			this->SpaceChart->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->SpaceChart->Name = L"SpaceChart";
@@ -351,10 +351,10 @@ namespace CleaningRobot {
 			// 
 			// JointVelChart
 			// 
-			chartArea7->Name = L"ChartArea1";
-			this->JointVelChart->ChartAreas->Add(chartArea7);
-			legend7->Name = L"Legend1";
-			this->JointVelChart->Legends->Add(legend7);
+			chartArea3->Name = L"ChartArea1";
+			this->JointVelChart->ChartAreas->Add(chartArea3);
+			legend3->Name = L"Legend1";
+			this->JointVelChart->Legends->Add(legend3);
 			this->JointVelChart->Location = System::Drawing::Point(1226, 173);
 			this->JointVelChart->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->JointVelChart->Name = L"JointVelChart";
@@ -489,10 +489,10 @@ namespace CleaningRobot {
 			// 
 			// JointAccChart
 			// 
-			chartArea8->Name = L"ChartArea1";
-			this->JointAccChart->ChartAreas->Add(chartArea8);
-			legend8->Name = L"Legend1";
-			this->JointAccChart->Legends->Add(legend8);
+			chartArea4->Name = L"ChartArea1";
+			this->JointAccChart->ChartAreas->Add(chartArea4);
+			legend4->Name = L"Legend1";
+			this->JointAccChart->Legends->Add(legend4);
 			this->JointAccChart->Location = System::Drawing::Point(1226, 645);
 			this->JointAccChart->Margin = System::Windows::Forms::Padding(4, 5, 4, 5);
 			this->JointAccChart->Name = L"JointAccChart";
@@ -738,7 +738,7 @@ namespace CleaningRobot {
 			this->RatioBox->Name = L"RatioBox";
 			this->RatioBox->Size = System::Drawing::Size(68, 35);
 			this->RatioBox->TabIndex = 40;
-			this->RatioBox->Text = L"30";
+			this->RatioBox->Text = L"100";
 			this->RatioBox->TextChanged += gcnew System::EventHandler(this, &RobotForm::RatioBox_TextChanged);
 			// 
 			// RatioLabel
