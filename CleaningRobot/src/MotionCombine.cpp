@@ -175,10 +175,15 @@ namespace hsc3
 				groupdata.tBaseMoveData[0].sEndPos.hs_coordinate.iCoordinate = hsc3::algo::BASE_COORD_SYSTEM;
 				groupdata.tBaseMoveData[0].dVel = 500.0;
 				groupdata.tBaseMoveData[0].sEndPos.dPos[0] = endpos[0]; groupdata.tBaseMoveData[0].sEndPos.dPos[1] = endpos[1]; groupdata.tBaseMoveData[0].sEndPos.dPos[2] = endpos[2];
-				groupdata.tBaseMoveData[0].sEndPos.dPos[3] = 180.0; groupdata.tBaseMoveData[0].sEndPos.dPos[4] = endpos[3]; groupdata.tBaseMoveData[0].sEndPos.dPos[5] = 180.0;
+				groupdata.tBaseMoveData[0].sEndPos.dPos[3] = this->mGroupFeedbackPara.dFbSpace[3]; groupdata.tBaseMoveData[0].sEndPos.dPos[4] = endpos[3]; groupdata.tBaseMoveData[0].sEndPos.dPos[5] = this->mGroupFeedbackPara.dFbSpace[5];
 				groupdata.tBaseMoveData[0].sEndPos.dPos[6] = 0.0; groupdata.tBaseMoveData[0].sEndPos.dPos[7] = 0.0; groupdata.tBaseMoveData[0].sEndPos.dPos[8] = 0.0;
 			}
-
+			printf("MotionCombine-->planMoveTo-->sStartPos %f %f %f %f %f %f \n", groupdata.tBaseMoveData[0].sStartPos.dPos[0],groupdata.tBaseMoveData[0].sStartPos.dPos[1],groupdata.tBaseMoveData[0].sStartPos.dPos[2],
+																				groupdata.tBaseMoveData[0].sStartPos.dPos[3],groupdata.tBaseMoveData[0].sStartPos.dPos[4],groupdata.tBaseMoveData[0].sStartPos.dPos[5]);
+			printf("MotionCombine-->planMoveTo-->sEndPos %f %f %f %f %f %f \n", groupdata.tBaseMoveData[0].sEndPos.dPos[0],groupdata.tBaseMoveData[0].sEndPos.dPos[1],groupdata.tBaseMoveData[0].sEndPos.dPos[2],
+																				groupdata.tBaseMoveData[0].sEndPos.dPos[3],groupdata.tBaseMoveData[0].sEndPos.dPos[4],groupdata.tBaseMoveData[0].sEndPos.dPos[5]);
+			printf("MotionCombine-->planMoveTo-->dFbSpace %f %f %f %f %f %f \n", mGroupFeedbackPara.dFbSpace[0],mGroupFeedbackPara.dFbSpace[1],mGroupFeedbackPara.dFbSpace[2],
+				mGroupFeedbackPara.dFbSpace[3],mGroupFeedbackPara.dFbSpace[4],mGroupFeedbackPara.dFbSpace[5]);
 			iErrorID = this->mAutoMove->execPrehandle(groupdata, this->mGroupTrajout, mMotionDataNum);
 			if(iErrorID != 0)
 				return iErrorID;
@@ -570,7 +575,8 @@ namespace hsc3
 
 			this->mGroupFeedbackPara.dFbAxisPos[2] = this->mGroupFeedbackPara.dFbAxisPos[2] + this->mAxis2DiffPos;
 
-			this->mCalibrate->calcJPosToCPos(this->mGroupFeedbackPara.dFbAxisPos, -1, -1, fbdata->dFbSpace);				// 更新反馈空间位置
+			this->mCalibrate->calcJPosToCPos(this->mGroupFeedbackPara.dFbAxisPos, -1, -1, fbdata->dFbSpace);			// 更新反馈空间位置
+			memcpy(this->mGroupFeedbackPara.dFbSpace, fbdata->dFbSpace, sizeof(double) * MaxAxisNum);
 
 			switch(this->mGroupConfigPara.ePlanMode)
 			{
